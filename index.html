@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.S Logger System</title>
+    <style>
+        :root {
+            /* لوحة ألوان المحيط العميق والنيون */
+            --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(0, 242, 254, 0.1);
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            
+            /* ألوان الإضاءة النيون المستقبلية */
+            --color-add: #00f2fe;     /* السيان المضيء */
+            --color-show: #9b51e0;    /* البنفسجي الفوسفوري */
+            --color-fresh: #ff007f;   /* الوردي النيون */
+            --color-get: #00ff87;     /* الأخضر الرقمي */
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            background: var(--bg-gradient); 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* الهيدر العلوي المضيء */
+        .header { 
+            padding: 50px 20px 35px; 
+            text-align: center; 
+            position: relative;
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 2.6em; 
+            font-weight: 900; 
+            letter-spacing: -0.5px;
+            background: linear-gradient(90deg, #fff, var(--color-add));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        }
+        .header p { 
+            margin: 12px 0 0; 
+            color: #94a3b8; 
+            font-size: 1.1em; 
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .container { 
+            max-width: 1400px; 
+            margin: 10px auto 40px; 
+            padding: 0 25px; 
+            flex: 1;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* شريط المؤشرات الرقمية */
+        .summary-bar { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 20px; 
+            margin-bottom: 45px; 
+        }
+        .summary-card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            padding: 22px 25px; 
+            border-radius: 16px; 
+            border: 1px solid var(--card-border);
+            display: flex; 
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.3s ease;
+        }
+        .summary-card:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
+        }
+        .summary-details {
+            display: flex;
+            flex-direction: column;
+        }
+        .summary-card .title { font-size: 0.85em; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .summary-card .value { font-size: 1.35em; color: var(--text-main); font-weight: 700; margin-top: 6px; }
+        .summary-icon { font-size: 1.7em; }
+
+        /* 🛠️ تعديل شبكة التحكم لتصبح العناصر بجانب بعضها أفقيًا */
+        .menu-grid { 
+            display: flex;
+            flex-direction: row;
+            gap: 25px; 
+            overflow-x: auto; /* يسمح بالتمرير الأفقي على الشاشات الصغيرة دون تدمير التصميم */
+            padding-bottom: 15px;
+        }
+        
+        /* تحسين مظهر شريط التمرير الأفقي ليتناسب مع النيون */
+        .menu-grid::-webkit-scrollbar {
+            height: 6px;
+        }
+        .menu-grid::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 10px;
+        }
+        .menu-grid::-webkit-scrollbar-thumb {
+            background: rgba(0, 242, 254, 0.2);
+            border-radius: 10px;
+        }
+
+        /* كروت الواجهة بتصميم النيون والـ Glassmorphism */
+        .menu-card { 
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px; 
+            overflow: hidden; 
+            text-decoration: none; 
+            color: inherit; 
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s, border-color 0.4s; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: flex-start; 
+            padding: 45px 30px; 
+            border: 1px solid var(--card-border);
+            flex: 1; /* يوزع الكروت بالتساوي بجانب بعضها */
+            min-width: 250px; /* يحمي الكروت من الانضغاط الشديد */
+        }
+        
+        .menu-card:hover { 
+            transform: translateY(-10px); 
+        }
+        
+        /* علبة الأيقونة المضيئة */
+        .icon-box { 
+            width: 55px; 
+            height: 55px; 
+            border-radius: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1.8em; 
+            margin-bottom: 25px; 
+            transition: all 0.3s ease; 
+        }
+        .menu-card:hover .icon-box {
+            transform: scale(1.15) rotate(-5deg);
+        }
+        
+        /* توزيع الألوان والتأثيرات النيون لكل قسم */
+        .card-add:hover { border-color: var(--color-add); box-shadow: 0 0 25px rgba(0, 242, 254, 0.2); }
+        .card-add .icon-box { background: rgba(0, 242, 254, 0.1); color: var(--color-add); box-shadow: inset 0 0 10px rgba(0, 242, 254, 0.2); }
+        
+        .card-show:hover { border-color: var(--color-show); box-shadow: 0 0 25px rgba(155, 81, 224, 0.2); }
+        .card-show .icon-box { background: rgba(155, 81, 224, 0.1); color: var(--color-show); box-shadow: inset 0 0 10px rgba(155, 81, 224, 0.2); }
+        
+        .card-fresh:hover { border-color: var(--color-fresh); box-shadow: 0 0 25px rgba(255, 0, 127, 0.2); }
+        .card-fresh .icon-box { background: rgba(255, 0, 127, 0.1); color: var(--color-fresh); box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.2); }
+        
+        .card-get:hover { border-color: var(--color-get); box-shadow: 0 0 25px rgba(0, 255, 135, 0.2); }
+        .card-get .icon-box { background: rgba(0, 255, 135, 0.1); color: var(--color-get); box-shadow: inset 0 0 10px rgba(0, 255, 135, 0.2); }
+
+        .menu-card h3 { margin: 0 0 12px; color: var(--text-main); font-size: 1.45em; font-weight: 700; transition: color 0.3s; }
+        .card-add:hover h3 { color: var(--color-add); }
+        .card-show:hover h3 { color: var(--color-show); }
+        .card-fresh:hover h3 { color: var(--color-fresh); }
+        .card-get:hover h3 { color: var(--color-get); }
+
+        .menu-card p { margin: 0; color: #94a3b8; font-size: 0.95em; line-height: 1.6; text-align: right; }
+
+        /* تذييل الصفحة */
+        .footer { 
+            text-align: center; 
+            margin-top: auto; 
+            color: #475569; 
+            font-size: 0.85em; 
+            padding: 30px 20px; 
+            border-top: 1px solid rgba(255, 255, 255, 0.03); 
+            background: #090d16;
+            letter-spacing: 0.5px;
+        }
+
+        @media (max-width: 900px) {
+            .menu-grid {
+                flex-wrap: nowrap; /* يمنع النزول لسطر جديد ويحافظ على التصفح الأفقي على الشاشات الصغيرة */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>المنظومة الإدارية والمالية الرقمية</h1>
+        <p>شركة الرحمن • مركز الإدارة السحابية والتحكم الشامل بالفروع</p>
+    </div>
+
+    <div class="container">
+        
+        <div class="summary-bar">
+            <div class="summary-card" style="border-right: 3px solid var(--color-add);">
+                <div class="summary-details">
+                    <span class="title">اتصال الخادم</span>
+                    <span class="value" style="color: var(--color-add);">آمن ومشفر (SSL)</span>
+                </div>
+                <div class="summary-icon">💎</div>
+            </div>
+            <div class="summary-card" style="border-right: 3px solid var(--color-fresh);">
+                <div class="summary-details">
+                    <span class="title">تاريخ اليوم المالي</span>
+                    <span class="value" id="current-date">-- / -- / ----</span>
+                </div>
+                <div class="summary-icon">⚡</div>
+            </div>
+            <div class="summary-card" style="border-right: 3px solid var(--color-get);">
+                <div class="summary-details">
+                    <span class="title">النظام الأساسي</span>
+                    <span class="value">Cloud Sheets V2</span>
+                </div>
+                <div class="summary-icon">🧬</div>
+            </div>
+        </div>
+
+        <div class="menu-grid">
+            
+            <a href="ADD_Workers.html" class="menu-card card-add">
+                <div class="icon-box">➕</div>
+                <h3> إضافة الموظفين</h3>
+                <p>تسجيل الموظفين الجدد في النظام سحابياً، وتحديد نوع الوظيفة مع تعيين سعر الساعة الأساسي بدقة.</p>
+            </a>
+
+            <a href="DATA_Show.html" class="menu-card card-show">
+                <div class="icon-box">👁️</div>
+                <h3> عرض قاعدةالبيانات </h3>
+                <p>عرض سجلات جوجل شيت المتراكمة والمجمعة بدون تكرار، والبحث اللحظي وطباعة تقارير PDF وإكسيل.</p>
+            </a>
+
+            <a href="Fresh_DATA.html" class="menu-card card-fresh">
+                <div class="icon-box">🔥</div>
+                <h3>  رفع البيانات </h3>
+                <p>رفع ملف الـ CSV، تجميع فترات العمل الفعلية فقط بدقة الورديات، وترحيل الحسابات فوراً للسيرفر.</p>
+            </a>
+
+            <a href="Get_DATA.html" class="menu-card card-get">
+                <div class="icon-box">🔌</div>
+                <h3>سحب البصمات </h3>
+                <p>الاتصال المباشر بجهاز البصمة (Hardware Sync) واستيراد حركات الحضور والانصراف اللحظية إلى المنظومة.</p>
+            </a>
+
+        </div>
+    </div>
+
+    <div class="footer">
+        Copyright © 2026 Techno Science. All rights reserved.
+    </div>
+
+    <script>
+        // كود عرض تاريخ اليوم
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        const mm = String(today.getMonth() + 1).padStart(2, '0');
+        const dd = String(today.getDate()).padStart(2, '0');
+        document.getElementById('current-date').innerText = `${yyyy}-${mm}-${dd}`;
+    </script>
+</body>
+</html>
