@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.S Logger - نظام حساب مستحقات الموظفين</title>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<style>
+    :root {
+        /* لوحة ألوان المحيط العميق والنيون */
+        --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+        --card-bg: rgba(15, 23, 42, 0.85);
+        --card-border: rgba(168, 85, 247, 0.2);
+        --text-main: #f1f5f9;
+        --text-muted: #94a3b8;
+        
+        /* ألوان المكونات */
+        --color-primary: #00f2fe;    /* السيان المضيء للساعات */
+        --color-success: #00ff87;    /* الأخضر النيون للأموال والإكسيل */
+        --color-danger: #ff007f;     /* الوردي/الأحمر للطباعة */
+        --color-warning: #e67e22;    /* البرتقالي للورديات */
+        --color-purple: #a855f7;     /* الأرجواني للمستحقات */
+    }
+
+    /* 🚨 1. منع التمرير الأفقي وضبط أبعاد الصفحة 🚨 */
+    html, body {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+        box-sizing: border-box;
+    }
+
+    body { 
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        padding: 15px 10px;
+        background: var(--bg-gradient); 
+        color: var(--text-main); 
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container { 
+        max-width: 1400px; 
+        width: 100%;
+        margin: 0 auto; 
+        background: var(--card-bg); 
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px 15px; 
+        border-radius: 20px; 
+        border: 1px solid var(--card-border);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4); 
+    }
+
+    h2 { 
+        margin-top: 0;
+        font-size: 1.5em;
+        font-weight: 900;
+        background: linear-gradient(90deg, #fff, var(--color-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(168, 85, 247, 0.3);
+        border-bottom: 1px solid var(--card-border); 
+        padding-bottom: 15px; 
+        margin-bottom: 20px; 
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        text-align: center;
+    }
+
+    /* 🚨 2. جعل أشرطة التحكم متناسقة على الموبايل 🚨 */
+    .action-bar, .global-date-bar { 
+        background: rgba(30, 41, 59, 0.5); 
+        padding: 15px; 
+        border-radius: 16px; 
+        margin-bottom: 15px; 
+        display: flex; 
+        flex-direction: column;
+        gap: 12px; 
+        border: 1px solid rgba(255, 255, 255, 0.05); 
+        width: 100%;
+    }
+
+    .global-date-bar {
+        background: rgba(168, 85, 247, 0.08);
+        border: 1px solid rgba(168, 85, 247, 0.2);
+    }
+
+    .global-date-bar label {
+        font-weight: 700;
+        color: #d8b4fe;
+        font-size: 0.9em;
+    }
+
+    .global-date-bar input[type="date"] {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--color-purple);
+        color: #fff;
+        padding: 8px 12px;
+        border-radius: 8px;
+        outline: none;
+        width: 100%;
+    }
+
+    /* الأزرار */
+    .btn { 
+        padding: 12px 15px; 
+        border: none; 
+        border-radius: 8px; 
+        font-weight: 700; 
+        cursor: pointer; 
+        font-size: 0.9em; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 8px; 
+        color: #070b12; 
+        width: 100%;
+        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s; 
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        color: #fff;
+    }
+
+    .btn-calc { background-color: var(--color-purple); color: #fff; }
+    .btn-calc:hover { background-color: #8b5cf6; box-shadow: 0 0 15px rgba(168, 85, 247, 0.4); }
+
+    .btn-excel { background-color: var(--color-success); }
+    .btn-excel:hover { background-color: #219653; box-shadow: 0 0 15px rgba(0, 255, 135, 0.4); }
+
+    .btn-pdf { background-color: var(--color-danger); color: #fff; }
+    .btn-pdf:hover { background-color: #c0392b; box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); }
+
+    .btn-refresh { background-color: var(--color-primary); }
+    .btn-refresh:hover { background-color: #1f618d; box-shadow: 0 0 15px rgba(0, 242, 254, 0.4); }
+
+    .status-indicator { 
+        font-weight: 700; 
+        color: var(--color-warning); 
+        text-shadow: 0 0 10px rgba(230, 126, 34, 0.2);
+        text-align: center;
+        font-size: 0.9em;
+    }
+
+    /* 🚨 3. حاوية الجدول والتجاوب الذكي مع الموبايل 🚨 */
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+        border-radius: 14px;
+    }
+
+    /* 📱 العرض على الشاشات الصغيرة (الموبايل) - يتحول الجدول لبطاقات */
+    @media (max-width: 767px) {
+        table, thead, tbody, th, td, tr { 
+            display: block; 
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        
+        tr { 
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid var(--card-border) !important;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+        }
+        
+        td { 
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            position: relative;
+            padding: 8px 0 !important;
+            padding-right: 45% !important; /* مساحة لعنوان العمود */
+            text-align: left !important;
+            font-size: 0.88em;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-word;
+            white-space: normal !important;
+        }
+
+        td:last-child {
+            border-bottom: none !important;
+        }
+        
+        td::before { 
+            content: attr(data-label);
+            position: absolute;
+            right: 0;
+            width: 42%; 
+            font-weight: 700;
+            color: #94a3b8;
+            text-align: right;
+            font-size: 0.85em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .date-input-custom {
+            width: 100% !important;
+            max-width: 160px;
+        }
+    }
+
+    /* 🖥️ العرض على اللابتوب والشاشات الكبيرة */
+    @media (min-width: 768px) {
+        body { padding: 30px 20px; }
+        .container { padding: 30px; }
+        h2 { font-size: 2em; justify-content: flex-start; text-align: right; }
+        
+        .action-bar, .global-date-bar { 
+            flex-direction: row; 
+            align-items: center; 
+            justify-content: flex-start; 
+            padding: 15px 20px;
+        }
+
+        .global-date-bar input[type="date"] {
+            width: auto;
+        }
+
+        .btn { width: auto; }
+        .status-indicator { margin-right: auto; text-align: right; }
+
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 10px; 
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            overflow: hidden;
+            display: table;
+        }
+
+        thead { display: table-header-group; }
+        tbody { display: table-row-group; }
+        tr { display: table-row; background-color: rgba(15, 23, 42, 0.4) !important; border: none !important; margin: 0; padding: 0; }
+        tr:nth-child(even) { background-color: rgba(30, 41, 59, 0.2) !important; }
+        
+        th, td { 
+            display: table-cell;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04); 
+            border-left: 1px solid rgba(255, 255, 255, 0.04); 
+            padding: 14px 12px !important; 
+            text-align: center !important; 
+            font-size: 0.9em; 
+            white-space: nowrap !important;
+        }
+
+        td::before { display: none; }
+        th:last-child, td:last-child { border-left: none; }
+        th { background-color: rgba(30, 41, 59, 0.85); color: #cbd5e1; font-weight: 700; }
+    }
+
+    /* عناصر المؤشرات والإدخال داخل الجدول */
+    .date-input-custom {
+        background: rgba(30, 41, 59, 0.9) !important;
+        border: 1px solid var(--color-purple) !important;
+        color: #fff !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
+        font-size: 0.85em !important;
+        outline: none;
+    }
+
+    .date-input-custom:focus {
+        box-shadow: 0 0 8px rgba(168, 85, 247, 0.4);
+    }
+
+    .badge-shifts { 
+        background-color: rgba(230, 126, 34, 0.15); 
+        color: var(--color-warning); 
+        padding: 4px 10px; 
+        border-radius: 12px; 
+        font-size: 0.85em; 
+        font-weight: 700; 
+        border: 1px solid rgba(230, 126, 34, 0.2);
+    }
+
+    .badge-role { 
+        background-color: rgba(155, 89, 182, 0.15); 
+        color: #c39bd3; 
+        padding: 4px 8px; 
+        border-radius: 6px; 
+        font-size: 0.85em; 
+        font-weight: 600;
+        border: 1px solid rgba(155, 89, 182, 0.2);
+    }
+
+    .money { 
+        font-weight: 800; 
+        color: var(--color-success); 
+        text-shadow: 0 0 10px rgba(0, 255, 135, 0.15);
+        font-size: 1.1em;
+    }
+
+    .hours { 
+        font-weight: 700; 
+        color: var(--color-primary); 
+        text-shadow: 0 0 10px rgba(0, 242, 254, 0.15);
+    }
+
+    .empty-msg { 
+        text-align: center; 
+        color: var(--text-muted); 
+        padding: 40px; 
+        font-size: 1.1em; 
+        font-weight: 500;
+    }
+
+    @media print {
+        body { margin: 10px; background: #fff !important; color: #000 !important; }
+        .action-bar, .global-date-bar, .no-print { display: none !important; }
+        .container { box-shadow: none; padding: 0; background: transparent; }
+        th { background-color: #111 !important; color: #fff !important; -webkit-print-color-adjust: exact; }
+        tr { background: transparent !important; color: #000 !important; display: table-row !important; }
+        td, th { border: 1px solid #ccc !important; display: table-cell !important; padding: 8px !important; }
+        td::before { display: none !important; }
+        .badge-shifts, .badge-role { background: transparent !important; color: #000 !important; border: none !important; padding: 0; }
+        .money, .hours { text-shadow: none !important; color: #000 !important; }
+        .date-input-custom { border: none !important; background: transparent !important; color: #000 !important; }
+    }
+
+    .footer { 
+        text-align: center; 
+        margin-top: 40px; 
+        color: #475569; 
+        font-size: 0.85em; 
+        padding-top: 20px; 
+        border-top: 1px solid rgba(255, 255, 255, 0.03); 
+    }
+</style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>💎 نظام حساب المستحقات المخصصة للموظفين</h2>
+        
+        <div class="action-bar">
+            <button class="btn btn-refresh" onclick="loadAndProcessLogs()">🔄 تحديث البيانات</button>
+            <button class="btn btn-calc" onclick="calculateAllCustomPayouts()">🧮 إعادة احتساب جميع الموظفين</button>
+            <button class="btn btn-excel" onclick="exportCustomPayoutsToExcel()">📥 تصدير كشف الحساب (Excel)</button>
+            <button class="btn btn-pdf" onclick="window.print()">🖨️ طباعة / حفظ كـ PDF</button>
+            <span id="status-text" class="status-indicator">⏳ جاري الاتصال بشيت السجلات...</span>
+        </div>
+
+        <!-- شريط تطبيق فترة زمنية جماعية لجميع الموظفين بنقرة واحدة -->
+        <div class="global-date-bar no-print">
+            <label>⚡ تعيين فترة موحدة لجميع الموظفين دفعة واحدة:</label>
+            <label for="global-start">من:</label>
+            <input type="date" id="global-start">
+            <label for="global-end">إلى:</label>
+            <input type="date" id="global-end">
+            <button class="btn btn-calc" style="padding: 6px 14px; font-size: 0.85em;" onclick="applyGlobalDates()">تطبيق على الجميع</button>
+        </div>
+
+        <table id="payouts-table">
+            <thead>
+                <tr>
+                    <th>رقم الموظف (ID)</th>
+                    <th>اسم الموظف</th>
+                    <th>الوظيفة</th>
+                    <th>بداية الفترة (من)</th>
+                    <th>نهاية الفترة (إلى)</th>
+                    <th>عدد الأيام والورديات</th>
+                    <th>إجمالي الساعات للفترة</th>
+                    <th>سعر الساعة</th>
+                    <th>إجمالي المستحق للفترة المحددة</th>
+                    <th class="no-print">إجراء</th>
+                </tr>
+            </thead>
+            <tbody id="custom-payouts-tbody">
+                <tr>
+                    <td colspan="10" class="empty-msg">جاري تحميل وتطبيق بيانات المستحقات...</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="footer">
+            Copyright © 2026 Techno Science. All rights reserved.
+        </div>
+    </div>
+
+    <script>
+        const FINANCIAL_LOG_URL = "https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json";
+
+        let globalProcessedLogs = [];
+        let uniqueEmployees = {};
+
+        window.onload = function() {
+            // ضبط تاريخ البداية الموحد ليوم 1 في الشهر الحالي والنهاية لليوم الحالي
+            const now = new Date();
+            const defaultStartDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+            const defaultEndDate = formatDateString(now);
+
+            document.getElementById("global-start").value = defaultStartDate;
+            document.getElementById("global-end").value = defaultEndDate;
+
+            loadAndProcessLogs();
+        };
+
+        function textDurationToSeconds(durationStr) {
+            if (!durationStr) return 0;
+            let seconds = 0;
+            const matches = durationStr.match(/\d+/g);
+            if (matches) {
+                if (matches.length >= 3) {
+                    seconds += parseInt(matches[0]) * 3600;
+                    seconds += parseInt(matches[1]) * 60;
+                    seconds += parseInt(matches[2]);
+                } else if (matches.length === 2) {
+                    seconds += parseInt(matches[0]) * 3600;
+                    seconds += parseInt(matches[1]) * 60;
+                }
+            }
+            return seconds;
+        }
+
+        function secondsToTextDuration(totalSeconds) {
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${hours} س و ${minutes} د و ${seconds} ث`;
+        }
+
+        function formatDateString(dateObj) {
+            let d = new Date(dateObj);
+            if (isNaN(d.getTime())) return "";
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        async function loadAndProcessLogs() {
+            const statusLabel = document.getElementById("status-text");
+            const customTbody = document.getElementById("custom-payouts-tbody");
+            statusLabel.innerText = "⏳ جاري قراءة وتجميع سجلات Google Sheets...";
+
+            try {
+                const response = await fetch(FINANCIAL_LOG_URL);
+                const text = await response.text();
+                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+                const json = JSON.parse(jsonString);
+                const rows = json.table.rows;
+
+                if (!rows || rows.length === 0) {
+                    customTbody.innerHTML = `<tr><td colspan="10" class="empty-msg">⚠️ لا توجد أي بيانات مسجلة في شيت السجلات حالياً.</td></tr>`;
+                    statusLabel.innerText = "❌ الشيت فارغ";
+                    return;
+                }
+
+                let uniqueDailyLogs = {};
+                uniqueEmployees = {};
+
+                rows.forEach(row => {
+                    if (row.c && row.c[1] && row.c[0]) {
+                        let rawTimestamp = row.c[0].f ? row.c[0].f : String(row.c[0].v);
+                        let workDate = rawTimestamp.split(' ')[0].trim(); 
+                        
+                        let empId = String(row.c[1].v).trim();
+                        let empName = row.c[2] ? String(row.c[2].v).trim() : "غير معروف";
+                        let empRole = row.c[3] ? String(row.c[3].v).trim() : "عامل";
+                        
+                        let exactHoursText = row.c[7] ? String(row.c[7].v).trim() : "0 ساعة";
+                        let hourlyRate = row.c[8] ? parseFloat(String(row.c[8].v).replace(/[^\d.]/g, '')) || 0 : 0;
+                        let todayEarnings = row.c[9] ? parseFloat(String(row.c[9].v).replace(/[^\d.]/g, '')) || 0 : 0;
+
+                        let logKey = `${workDate}_${empId}`;
+
+                        if (!uniqueEmployees[empId]) {
+                            uniqueEmployees[empId] = {
+                                id: empId,
+                                name: empName,
+                                role: empRole,
+                                hourlyRate: hourlyRate
+                            };
+                        }
+
+                        if (!uniqueDailyLogs[logKey]) {
+                            uniqueDailyLogs[logKey] = {
+                                date: workDate,
+                                id: empId,
+                                totalSeconds: textDurationToSeconds(exactHoursText),
+                                totalEarnings: todayEarnings,
+                                shiftsCount: 1
+                            };
+                        } else {
+                            uniqueDailyLogs[logKey].shiftsCount += 1;
+                            uniqueDailyLogs[logKey].totalSeconds += textDurationToSeconds(exactHoursText);
+                            uniqueDailyLogs[logKey].totalEarnings += todayEarnings;
+                        }
+                    }
+                });
+
+                globalProcessedLogs = Object.keys(uniqueDailyLogs).map(key => uniqueDailyLogs[key]);
+                
+                renderCustomPayoutsTable();
+                statusLabel.innerText = `🟢 تم التحديث بنجاح (عدد الموظفين: ${Object.keys(uniqueEmployees).length})`;
+
+            } catch (error) {
+                console.error("حدث خطأ أثناء تحميل السجلات:", error);
+                customTbody.innerHTML = `<tr><td colspan="10" class="empty-msg" style="color:var(--color-danger);">❌ فشل جلب البيانات من شيت Google Sheets.</td></tr>`;
+                statusLabel.innerText = "❌ فشل التحديث";
+            }
+        }
+
+        function renderCustomPayoutsTable() {
+            const customTbody = document.getElementById("custom-payouts-tbody");
+            customTbody.innerHTML = "";
+
+            const empList = Object.values(uniqueEmployees);
+            if (empList.length === 0) {
+                customTbody.innerHTML = `<tr><td colspan="10" class="empty-msg">لا يوجد موظفين مسجلين.</td></tr>`;
+                return;
+            }
+
+            const defaultStartDate = document.getElementById("global-start").value;
+            const defaultEndDate = document.getElementById("global-end").value;
+
+            empList.forEach(emp => {
+                let rowHTML = `
+                    <tr id="emp-row-${emp.id}">
+                        <td><strong>${emp.id}</strong></td>
+                        <td><strong>${emp.name}</strong></td>
+                        <td><span class="badge-role">${emp.role}</span></td>
+                        <td><input type="date" class="date-input-custom" id="start-date-${emp.id}" value="${defaultStartDate}" onchange="calculateSingleCustomPayout('${emp.id}')"></td>
+                        <td><input type="date" class="date-input-custom" id="end-date-${emp.id}" value="${defaultEndDate}" onchange="calculateSingleCustomPayout('${emp.id}')"></td>
+                        <td><span class="badge-shifts" id="shifts-${emp.id}">-- وردية</span></td>
+                        <td><span class="hours" id="hours-${emp.id}">--</span></td>
+                        <td>${emp.hourlyRate} ج.م</td>
+                        <td><span class="money" id="payout-${emp.id}">-- ج.م</span></td>
+                        <td class="no-print">
+                            <button class="btn btn-calc" style="padding: 5px 12px; font-size:0.8em;" onclick="calculateSingleCustomPayout('${emp.id}')">🧮 احسب</button>
+                        </td>
+                    </tr>
+                `;
+                customTbody.insertAdjacentHTML('beforeend', rowHTML);
+            });
+
+            calculateAllCustomPayouts();
+        }
+
+        function calculateSingleCustomPayout(empId) {
+            const startDateVal = document.getElementById(`start-date-${empId}`).value;
+            const endDateVal = document.getElementById(`end-date-${empId}`).value;
+
+            if (!startDateVal || !endDateVal) {
+                return;
+            }
+
+            const startDate = new Date(startDateVal);
+            startDate.setHours(0, 0, 0, 0);
+
+            const endDate = new Date(endDateVal);
+            endDate.setHours(23, 59, 59, 999);
+
+            let totalShifts = 0;
+            let totalSeconds = 0;
+            let totalEarnings = 0;
+
+            globalProcessedLogs.forEach(log => {
+                if (log.id === empId) {
+                    let logDate = new Date(log.date);
+                    if (logDate >= startDate && logDate <= endDate) {
+                        totalShifts += log.shiftsCount;
+                        totalSeconds += log.totalSeconds;
+                        totalEarnings += log.totalEarnings;
+                    }
+                }
+            });
+
+            document.getElementById(`shifts-${empId}`).innerText = `${totalShifts} وردية`;
+            document.getElementById(`hours-${empId}`).innerText = secondsToTextDuration(totalSeconds);
+            document.getElementById(`payout-${empId}`).innerText = `${totalEarnings.toFixed(2)} ج.م`;
+        }
+
+        function calculateAllCustomPayouts() {
+            Object.keys(uniqueEmployees).forEach(empId => {
+                calculateSingleCustomPayout(empId);
+            });
+        }
+
+        function applyGlobalDates() {
+            const gStart = document.getElementById("global-start").value;
+            const gEnd = document.getElementById("global-end").value;
+
+            if (!gStart || !gEnd) {
+                alert("يرجى تحديد تاريخ بداية ونهاية صحيحين في الشريط الأعلى!");
+                return;
+            }
+
+            Object.keys(uniqueEmployees).forEach(empId => {
+                document.getElementById(`start-date-${empId}`).value = gStart;
+                document.getElementById(`end-date-${empId}`).value = gEnd;
+                calculateSingleCustomPayout(empId);
+            });
+        }
+
+        function exportCustomPayoutsToExcel() {
+            let exportData = [];
+            Object.values(uniqueEmployees).forEach(emp => {
+                let startDate = document.getElementById(`start-date-${emp.id}`).value;
+                let endDate = document.getElementById(`end-date-${emp.id}`).value;
+                let shifts = document.getElementById(`shifts-${emp.id}`).innerText;
+                let hours = document.getElementById(`hours-${emp.id}`).innerText;
+                let payout = document.getElementById(`payout-${emp.id}`).innerText;
+
+                exportData.push({
+                    "كود الموظف (ID)": emp.id,
+                    "اسم الموظف": emp.name,
+                    "الوظيفة": emp.role,
+                    "تاريخ بداية الفترة": startDate,
+                    "تاريخ نهاية الفترة": endDate,
+                    "عدد الورديات": shifts,
+                    "إجمالي الساعات للفترة": hours,
+                    "سعر الساعة": `${emp.hourlyRate} ج.م`,
+                    "إجمالي المستحق": payout
+                });
+            });
+
+            const worksheet = XLSX.utils.json_to_sheet(exportData);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "تقرير المستحقات");
+            
+            const today = new Date();
+            const dateFileName = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
+            XLSX.writeFile(workbook, `كشف_مستحقات_الموظفين_${dateFileName}.xlsx`);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.S Logger System</title>
+<style>
+    :root {
+        /* لوحة ألوان المحيط العميق والنيون */
+        --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+        --card-bg: rgba(15, 23, 42, 0.75);
+        --card-border: rgba(0, 242, 254, 0.1);
+        --text-main: #f1f5f9;
+        --text-muted: #64748b;
+        
+        /* ألوان النيون المضيئة */
+        --color-primary: #00f2fe;    /* السيان المضيء لربط الجهاز */
+        --color-success: #00ff87;    /* الأخضر الرقمي للحضور والتقارير */
+        --color-danger: #ff007f;     /* الوردي النيون للتصفير والانصراف */
+        --color-accent: #9b51e0;     /* البنفسجي الفوسفوري */
+    }
+
+    /* 🚨 1. منع السكرول الأفقي والالتزام بعرض الشاشة 🚨 */
+    html, body {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 15px 10px;
+        background: var(--bg-gradient);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container {
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px 15px;
+        border-radius: 20px;
+        border: 1px solid var(--card-border);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+        margin-top: 0;
+        font-size: 1.5em;
+        font-weight: 900;
+        background: linear-gradient(90deg, #fff, var(--color-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    /* 🚨 2. ضبط لوحات التحكم وشريط الإعدادات للموبايل 🚨 */
+    .control-panels {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .config-bar {
+        background: rgba(30, 41, 59, 0.4);
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    
+    .config-bar:hover {
+        border-color: rgba(0, 242, 254, 0.2);
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
+    }
+
+    .config-bar label { 
+        font-weight: 600; 
+        font-size: 0.9em;
+        color: #94a3b8;
+    }
+
+    .config-bar input {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        text-align: center;
+        outline: none;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+
+    .config-bar input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+    }
+
+    /* الأزرار */
+    .btn {
+        color: #070b12;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.9em;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-connect { 
+        background-color: var(--color-primary); 
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+    .btn-connect:hover { 
+        background-color: #fff; 
+        box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-download { 
+        background-color: var(--color-success); 
+        box-shadow: 0 0 15px rgba(0, 255, 135, 0.2);
+    }
+    .btn-download:hover { 
+        background-color: #fff; 
+        box-shadow: 0 0 20px rgba(0, 255, 135, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .btn-danger { 
+        background-color: var(--color-danger); 
+        color: #fff;
+        box-shadow: 0 0 15px rgba(255, 0, 127, 0.2);
+    }
+    .btn-danger:hover { 
+        background-color: #fff; 
+        color: var(--color-danger);
+        box-shadow: 0 0 20px rgba(255, 0, 127, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    /* كارد الحالة اللامع */
+    .status-card {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        width: 100%;
+        transition: all 0.3s ease;
+    }
+    .connected { 
+        background: rgba(0, 255, 135, 0.1); 
+        color: var(--color-success); 
+        border: 1px solid rgba(0, 255, 135, 0.2); 
+        box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);
+    }
+    .disconnected { 
+        background: rgba(255, 0, 127, 0.1); 
+        color: var(--color-danger); 
+        border: 1px solid rgba(255, 0, 127, 0.2); 
+        box-shadow: 0 0 15px rgba(255, 0, 127, 0.1);
+    }
+    
+    /* 🚨 3. حاوية الجدول وتحويل السجلات لبطاقات على الموبايل 🚨 */
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+        border-radius: 14px;
+    }
+
+    /* 📱 العرض على الموبايل (أقل من 768px) */
+    @media (max-width: 767px) {
+        table, thead, tbody, th, td, tr { 
+            display: block; 
+            width: 100% !important;
+            box-sizing: border-box;
+        }
+        
+        thead tr { 
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+        
+        tr { 
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid var(--card-border) !important;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+        }
+        
+        td { 
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            position: relative;
+            padding: 8px 0 !important;
+            padding-right: 40% !important;
+            text-align: left !important;
+            font-size: 0.88em;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-word;
+        }
+
+        td:last-child {
+            border-bottom: none !important;
+        }
+        
+        td::before { 
+            content: attr(data-label);
+            position: absolute;
+            right: 0;
+            width: 38%; 
+            font-weight: 700;
+            color: #94a3b8;
+            text-align: right;
+            font-size: 0.85em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    /* 🖥️ العرض على اللابتوب للشاشات من 768px وأكبر */
+    @media (min-width: 768px) {
+        body { padding: 30px 20px; }
+        .container { padding: 30px; }
+        h2 { font-size: 2em; text-align: right; }
+
+        .control-panels {
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .config-bar {
+            flex-direction: row;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .config-bar input {
+            width: auto;
+        }
+
+        .btn {
+            width: auto;
+        }
+
+        .status-card {
+            display: inline-block;
+            width: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 15px;
+            border-radius: 14px;
+            overflow: hidden;
+            border: 1px solid var(--card-border);
+            display: table;
+        }
+
+        thead { display: table-header-group; }
+        tbody { display: table-row-group; }
+        tr { display: table-row; background-color: rgba(15, 23, 42, 0.4) !important; border: none !important; margin: 0; padding: 0; }
+        tr:nth-child(even) { background-color: rgba(30, 41, 59, 0.2) !important; }
+        
+        th, td {
+            display: table-cell;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            border-left: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 15px !important;
+            text-align: center !important;
+        }
+
+        td::before { display: none; }
+        th:last-child, td:last-child { border-left: none; }
+        
+        th { 
+            background-color: rgba(30, 41, 59, 0.8); 
+            color: #94a3b8; 
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.95em;
+            letter-spacing: 0.5px;
+        }
+    }
+
+    /* البادجات والعناصر داخل الجدول */
+    .badge {
+        color: #070b12;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: 700;
+        display: inline-block;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .check-in { 
+        background-color: var(--color-success); 
+        box-shadow: 0 0 10px rgba(0, 255, 135, 0.2);
+    }
+
+    .check-out { 
+        background-color: var(--color-danger); 
+        color: #fff;
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+    }
+
+    .count-badge {
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8em;
+        margin-right: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        font-weight: 600;
+    }
+
+    .empty-msg { 
+        text-align: center; 
+        color: var(--text-muted); 
+        padding: 30px; 
+        font-weight: 500;
+    }
+
+    .time-24 { 
+        font-weight: 700; 
+        color: var(--color-primary);
+        background: rgba(0, 242, 254, 0.08);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.95em;
+        border: 1px solid rgba(0, 242, 254, 0.1);
+    }
+
+    .footer { 
+        text-align: center; 
+        margin-top: auto; 
+        color: #475569; 
+        font-size: 0.85em; 
+        padding: 30px 20px; 
+        border-top: 1px solid rgba(255, 255, 255, 0.03); 
+        letter-spacing: 0.5px;
+    }
+</style>
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📡 قسم سحب البيانات من جهاز البصمة</h2>
+        
+        <div class="control-panels">
+            <div class="config-bar">
+                <label>جهاز البصمة:</label>
+                <input type="text" id="device-ip" value="192.168.1.201" style="width: 120px;">
+                <input type="number" id="device-port" value="4370" style="width: 60px;">
+                <button class="btn btn-connect" onclick="connectDevice()">ربط الجهاز</button>
+            </div>
+
+            <div class="config-bar">
+                <label>الأرشيف:</label>
+                <input type="date" id="search-date">
+                <button class="btn btn-download" onclick="downloadBackupByDate()"> تحميل بصمات اليوم  </button>
+                <button class="btn btn-danger" onclick="clearSandboxData()">🗑️  مسح بصمات اليوم </button>
+            </div>
+        </div>
+        
+        <div id="status-bar" class="status-card disconnected">
+            في انتظار تحديد بيانات الجهاز والضغط على ربط...
+        </div>
+
+        <h3 style="color: var(--text-main); margin-bottom: 12px; font-weight: 700;">📋 بصمات اليوم الحالي فقط (<span id="today-date-label"></span>)</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>رقم الموظف (ID)</th>
+                    <th>اسم الموظف</th>
+                    <th>توقيت البصمة (24 ساعة)</th>
+                    <th>نوع البصمة</th>
+                    <th>IP الجهاز</th>
+                </tr>
+            </thead>
+            <tbody id="attendance-rows">
+                <tr id="no-data">
+                    <td colspan="5" class="empty-msg">لا توجد بصمات مسجلة لليوم الحالي حتى الآن...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        function getTodayString() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+
+        // دالة تحويل الوقت الاحترافية (تدعم الأرقام الهندية/العربية والترميزات المختلفة)
+        function convertTo24Hour(timeStr) {
+            if (!timeStr) return "00:00:00";
+            
+            // 1. تحويل الأرقام الشرقية (١٢٣) إلى أرقام غربية (123) لضمان المعالجة الحسابية
+            let cleanTime = timeStr.trim()
+                .replace(/[٠]/g, '0')
+                .replace(/[١]/g, '1')
+                .replace(/[٢]/g, '2')
+                .replace(/[٣]/g, '3')
+                .replace(/[٤]/g, '4')
+                .replace(/[٥]/g, '5')
+                .replace(/[٦]/g, '6')
+                .replace(/[٧]/g, '7')
+                .replace(/[٨]/g, '8')
+                .replace(/[٩]/g, '9');
+
+            // 2. فحص شامل لمؤشرات المساء والصباح
+            const isPM = cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.includes('مساء');
+            const isAM = cleanTime.includes('ص') || cleanTime.toLowerCase().includes('am') || cleanTime.includes('صباح');
+            
+            // 3. استخراج الأرقام من النص بعد التنظيف
+            const matches = cleanTime.match(/\d+/g);
+            if (!matches || matches.length < 2) return timeStr; 
+            
+            let hours = parseInt(matches[0]);
+            const minutes = parseInt(matches[1]);
+            const seconds = matches[2] ? parseInt(matches[2]) : 0;
+            
+            // 4. تطبيق منطق الـ 24 ساعة
+            if (isPM && hours !== 12) {
+                hours += 12;
+            } else if (isAM && hours === 12) {
+                hours = 0;
+            }
+            
+            // 5. صياغة الوقت بشكل قياسي خانتين لكل مقطع وبدون لاحقة (م/ص)
+            const hoursStr = String(hours).padStart(2, '0');
+            const minutesStr = String(minutes).padStart(2, '0');
+            const secondsStr = String(seconds).padStart(2, '0');
+            
+            return `${hoursStr}:${minutesStr}:${secondsStr}`;
+        }
+
+        document.getElementById('today-date-label').innerText = new Date().toLocaleDateString('ar-EG');
+        document.getElementById('search-date').value = getTodayString();
+
+        const socket = io("http://localhost:3000", { transports: ['websocket', 'polling'] });
+
+        socket.on('connect', () => { console.log("🟢 متصل بسيرفر Node.js"); });
+
+        function connectDevice() {
+            const ip = document.getElementById('device-ip').value.trim();
+            const port = parseInt(document.getElementById('device-port').value.trim());
+            if(!ip || !port) { alert("برجاء إدخال البيانات!"); return; }
+            document.getElementById('status-bar').className = 'status-card disconnected';
+            document.getElementById('status-bar').innerText = `⏳ جاري الاتصال بـ (${ip})...`;
+            socket.emit('setup-device', { ip: ip, port: port });
+        }
+
+        socket.on('device-status', (data) => {
+            const statusBar = document.getElementById('status-bar');
+            if (data.status === 'connected') {
+                statusBar.className = 'status-card connected';
+                statusBar.innerText = `🟢 متصل بجهاز البصمة بنجاح (${data.ip}:${data.port})`;
+            } else if (data.status === 'connecting') {
+                statusBar.className = 'status-card disconnected';
+                statusBar.innerText = `⏳ جاري محاولة الاتصال بـ (${data.ip}:${data.port})...`;
+            } else if (data.status === 'disconnected' && data.ip) {
+                statusBar.className = 'status-card disconnected';
+                statusBar.innerText = `🔴 غير متصل بجهاز البصمة (${data.ip}:${data.port}) - جاري إعادة المحاولة...`;
+            }
+        });
+
+        socket.on('new-attendance', (data) => {
+            const todayKey = getTodayString();
+            
+            // تحويل الوقت مباشرة قبل التخزين والتحميل لضمان توحيد الصيغة
+            const time24 = convertTo24Hour(data.time);
+            
+            const newRecord = {
+                date: todayKey,
+                userId: data.userId,
+                userName: data.userName,
+                time: time24, 
+                timeOriginal: data.time, 
+                status: data.status,
+                deviceIp: data.deviceIp
+            };
+
+            let archive = JSON.parse(localStorage.getItem('zk_attendance_sandbox')) || [];
+            archive.push(newRecord);
+            localStorage.setItem('zk_attendance_sandbox', JSON.stringify(archive));
+            renderTodayLogs();
+        });
+
+        function renderTodayLogs() {
+            const tbody = document.getElementById('attendance-rows');
+            tbody.innerHTML = '';
+
+            const todayKey = getTodayString();
+            const archive = JSON.parse(localStorage.getItem('zk_attendance_sandbox')) || [];
+            const todayLogs = archive.filter(log => log.date === todayKey);
+
+            if (todayLogs.length === 0) {
+                tbody.innerHTML = `<tr id="no-data"><td colspan="5" class="empty-msg">لا توجد بصمات مسجلة لليوم الحالي حتى الآن...</td></tr>`;
+                return;
+            }
+
+            let employeeCounters = {}; 
+
+            todayLogs.forEach(log => {
+                const uId = log.userId;
+                
+                if (!employeeCounters[uId]) {
+                    employeeCounters[uId] = { checkInCount: 0, checkOutCount: 0 };
+                }
+
+                let currentCountNum = 0;
+                if (log.status === "حضور") {
+                    employeeCounters[uId].checkInCount += 1;
+                    currentCountNum = employeeCounters[uId].checkInCount;
+                } else {
+                    employeeCounters[uId].checkOutCount += 1;
+                    currentCountNum = employeeCounters[uId].checkOutCount;
+                }
+
+                const badgeClass = log.status === "حضور" ? "badge check-in" : "badge check-out";
+
+                const row = `
+                    <tr>
+                        <td><strong>${log.userId}</strong></td>
+                        <td>${log.userName}</td>
+                        <td><span class="time-24">${log.time}</span></td>
+                        <td>
+                            <span class="${badgeClass}">${log.status}</span>
+                            <span class="count-badge">رقم ${currentCountNum}</span>
+                        </td>
+                        <td>${log.deviceIp}</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('afterbegin', row);
+            });
+        }
+
+        function downloadBackupByDate() {
+            const selectedDate = document.getElementById('search-date').value;
+            if(!selectedDate) { alert("برجاء اختيار التاريخ المراد تحميله!"); return; }
+
+            const archive = JSON.parse(localStorage.getItem('zk_attendance_sandbox')) || [];
+            const filteredLogs = archive.filter(log => log.date === selectedDate);
+
+            if(filteredLogs.length === 0) {
+                alert(`عفواً، لا توجد أي بصمات محفوظة في الأرشيف المحلي لهذا التاريخ: ${selectedDate}`);
+                return;
+            }
+
+            let csvContent = "\uFEFF"; 
+            csvContent += "رقم الموظف,اسم الموظف,توقيت البصمة (24 ساعة),نوع الحركة,IP الجهاز\n";
+
+            let empCounts = {};
+            filteredLogs.forEach(log => {
+                const uId = log.userId;
+                if (!empCounts[uId]) empCounts[uId] = { in: 0, out: 0 };
+                
+                let countStr = "";
+                if (log.status === "حضور") {
+                    empCounts[uId].in += 1;
+                    countStr = `حضور رقم ${empCounts[uId].in}`;
+                } else {
+                    empCounts[uId].out += 1;
+                    countStr = `انصراف رقم ${empCounts[uId].out}`;
+                }
+
+                csvContent += `${log.userId},${log.userName},${log.time},${countStr},${log.deviceIp}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `تقرير_بصمات_${selectedDate}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function clearSandboxData() {
+            const confirmClear = confirm("⚠️ تنبيه هام: هل أنت متأكد من رغبتك في مسح وتصفير جميع بيانات البصمات المحفوظة بالساند بوكس نهائياً؟ (لا يمكن التراجع عن هذه الخطوة)");
+            if (confirmClear) {
+                localStorage.removeItem('zk_attendance_sandbox'); 
+                renderTodayLogs(); 
+                alert("🗑️ تم تصفير بيانات الساند بوكس بنجاح يا هندسة.");
+            }
+        }
+
+        window.onload = function() {
+            renderTodayLogs();
+        };
+    </script> 
+    <div class="footer">
+        Copyright © 2026 Techno Science. All rights reserved.
+    </div>
+</body>
+</html>
