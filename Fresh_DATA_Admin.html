@@ -349,343 +349,378 @@
         </div>
     </div>
 
-<script>
-    const SCRIPT_POST_URL = "https://script.google.com/macros/s/AKfycbxNjAozRgVX_Wi5YuLjmKIYWqHE5wrx_B-_n6H6CBW9fvTdgpJopJyy74y8hFqFj23r/exec";
+    <script>
+        // ⚠️ استبدل هذا الرابط برابط الـ Web App الجديد من Google Apps Script (بعد عمل Deploy)
+    const SCRIPT_POST_URL = "https://script.google.com/macros/s/AKfycby0j4Xv-NJZwZLJVW8Vnt-YQHbsw6cgnBYEI1IK_gMKytndTm-j0hH1GzD-4nNQ9DSW/exec";
     const SHEET_JSON_URL  = "https://docs.google.com/spreadsheets/d/1nmkhpVg_264wwYlWYwKu8FlxeedZL6bHmvO9vHiR0os/gviz/tq?tqx=out:json";
 
-    let globalEmployeesDatabase = {}; 
-    let aggregatedReportData = []; 
+        let globalEmployeesDatabase = {}; 
+        let aggregatedReportData = []; 
 
-    window.onload = async function() {
-        await fetchEmployeesDatabase();
-    };
+        window.onload = async function() {
+            await fetchEmployeesDatabase();
+        };
 
-    async function fetchEmployeesDatabase() {
-        try {
-            const response = await fetch(SHEET_JSON_URL);
-            const text = await response.text();
-            const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-            const json = JSON.parse(jsonString);
-            const rows = json.table.rows;
+        async function fetchEmployeesDatabase() {
+            try {
+                const response = await fetch(SHEET_JSON_URL);
+                const text = await response.text();
+                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+                const json = JSON.parse(jsonString);
+                const rows = json.table.rows;
 
-            if (rows) {
-                rows.forEach(row => {
-                    if (row.c && row.c[1]) {
-                        const empId = String(row.c[1].v).trim();
-                        globalEmployeesDatabase[empId] = {
-                            name: row.c[2] ? row.c[2].v : 'غير معروف',
-                            hourlyRate: row.c[6] ? parseFloat(row.c[6].v) : 40
-                        };
-                    }
+                if (rows) {
+                    rows.forEach(row => {
+                        if (row.c && row.c[1]) {
+                            const empId = String(row.c[1].v).trim();
+                            globalEmployeesDatabase[empId] = {
+                                name: row.c[2] ? row.c[2].v : 'غير معروف',
+                                hourlyRate: row.c[6] ? parseFloat(row.c[6].v) : 40
+                            };
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("خطأ في جلب قاعدة البيانات الأساسية:", err);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { processCSVData(e.target.result); };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseTimeToDate(timeStr) {
+            const now = new Date();
+            let cleanTime = timeStr.trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
+            
+            let isPM = false;
+            if (cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.toLowerCase().includes('مساء')) {
+                isPM = true;
+            }
+            
+            const matches = cleanTime.match(/\d+/g);
+            if (!matches || matches.length < 2) return now;
+            
+            let hours = parseInt(matches[0], 10);
+            const minutes = parseInt(matches[1], 10);
+            const seconds = matches[2] ? parseInt(matches[2], 10) : 0;
+            
+            if (isPM && hours < 12) hours += 12;
+            if (!isPM && hours === 12) hours = 0;
+            if (hours > 23) hours = 0;
+            
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds);
+        }
+
+        function processCSVData(csvText) {
+            const lines = csvText.split('\n');
+            let rawLogs = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const columns = line.split(',');
+                if (columns.length < 3) continue;
+                
+                rawLogs.push({
+                    userId: columns[0].trim(),
+                    userName: columns[1].trim(),
+                    timeStr: columns[2].trim()
                 });
             }
-        } catch (err) {
-            console.error("خطأ في جلب قاعدة البيانات الأساسية:", err);
-        }
-    }
 
-    function handleFileSelect(event) {
-        const file = event.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) { processCSVData(e.target.result); };
-        reader.readAsText(file, 'UTF-8');
-    }
-
-    function parseTimeToDate(timeStr) {
-        const now = new Date();
-        let cleanTime = timeStr.trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
-        
-        let isPM = false;
-        if (cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.toLowerCase().includes('مساء')) {
-            isPM = true;
-        }
-        
-        const matches = cleanTime.match(/\d+/g);
-        if (!matches || matches.length < 2) return now;
-        
-        let hours = parseInt(matches[0], 10);
-        const minutes = parseInt(matches[1], 10);
-        const seconds = matches[2] ? parseInt(matches[2], 10) : 0;
-        
-        if (isPM && hours < 12) hours += 12;
-        if (!isPM && hours === 12) hours = 0;
-        if (hours > 23) hours = 0;
-        
-        return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds);
-    }
-
-    function processCSVData(csvText) {
-        const lines = csvText.split('\n');
-        let rawLogs = [];
-
-        for (let i = 1; i < lines.length; i++) {
-            const line = lines[i].trim();
-            if (!line) continue;
-            const columns = line.split(',');
-            if (columns.length < 3) continue;
-            
-            rawLogs.push({
-                userId: columns[0].trim(),
-                userName: columns[1].trim(),
-                timeStr: columns[2].trim()
+            let userTimestamps = {};
+            rawLogs.forEach(log => {
+                const id = log.userId;
+                if (!userTimestamps[id]) {
+                    userTimestamps[id] = { userName: log.userName, times: [], rawTimes: [] };
+                }
+                userTimestamps[id].times.push(parseTimeToDate(log.timeStr));
+                userTimestamps[id].rawTimes.push(log.timeStr);
             });
-        }
 
-        let userTimestamps = {};
-        rawLogs.forEach(log => {
-            const id = log.userId;
-            if (!userTimestamps[id]) {
-                userTimestamps[id] = { userName: log.userName, times: [], rawTimes: [] };
+            const tbody = document.getElementById('report-rows');
+            tbody.innerHTML = '';
+            aggregatedReportData = [];
+
+            const empIds = Object.keys(userTimestamps);
+            if (empIds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="14" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
+                document.getElementById('cloud-sync-btn').style.display = 'none';
+                return;
             }
-            userTimestamps[id].times.push(parseTimeToDate(log.timeStr));
-            userTimestamps[id].rawTimes.push(log.timeStr);
-        });
 
-        const tbody = document.getElementById('report-rows');
-        tbody.innerHTML = '';
-        aggregatedReportData = [];
+            empIds.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
 
-        const empIds = Object.keys(userTimestamps);
-        if (empIds.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="14" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
-            document.getElementById('cloud-sync-btn').style.display = 'none';
-            return;
+            empIds.forEach(id => {
+                const userData = userTimestamps[id];
+                const dateObjects = userData.times;
+                const rawTimes = userData.rawTimes;
+                
+                const sortedIndices = dateObjects.map((_, i) => i).sort((i, j) => dateObjects[i] - dateObjects[j]);
+                const sortedDates = sortedIndices.map(i => dateObjects[i]);
+                const sortedRaw = sortedIndices.map(i => rawTimes[i]);
+
+                let totalSecondsAll = 0;
+                for (let k = 0; k < sortedDates.length; k += 2) {
+                    if (sortedDates[k + 1]) {
+                        let diffMs = sortedDates[k + 1].getTime() - sortedDates[k].getTime();
+                        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+                        totalSecondsAll += Math.floor(diffMs / 1000);
+                    }
+                }
+
+                const firstCheckInDate = sortedDates[0];
+                const lastCheckOutDate = sortedDates[sortedDates.length - 1];
+                const checkInText = sortedRaw[0];
+                const checkOutText = sortedRaw[sortedRaw.length - 1];
+
+                const hoursPart = Math.floor(totalSecondsAll / 3600);
+                const minutesPart = Math.floor((totalSecondsAll % 3600) / 60);
+                const secondsPart = totalSecondsAll % 60;
+                const exactHours = totalSecondsAll / 3600;
+
+                const empConfig = globalEmployeesDatabase[id];
+                let empName = userData.userName;
+                let hourlyRate = 40;
+
+                if (empConfig) {
+                    empName = empConfig.name;
+                    hourlyRate = empConfig.hourlyRate;
+                }
+
+                const rowHTML = `
+                    <tr id="row-${id}">
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'empId', this.innerText)"><strong>${id}</strong></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'empName', this.innerText)">${empName}</td>
+                        <td><input type="time" class="time-input" id="plan-in-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td><input type="time" class="time-input" id="plan-out-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'checkIn', this.innerText)"><span style="color: var(--color-success);">⬇️ ${checkInText}</span></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'checkOut', this.innerText)"><span style="color: var(--color-danger);">⬆️ ${checkOutText}</span></td>
+                        <td contenteditable="true" id="in-status-${id}">-</td>
+                        <td contenteditable="true" id="out-status-${id}">-</td>
+                        <td contenteditable="true" class="hours" id="hours-display-${id}">${hoursPart} س و ${minutesPart} د</td>
+                        <td contenteditable="true" id="hourly-rate-${id}" onblur="onHourlyRateEdit('${id}', this)">${hourlyRate} ج.م</td>
+                        <td><input type="checkbox" class="checkbox-custom" id="apply-deduct-${id}" checked onchange="calculateRowFinancials('${id}')"></td>
+                        <td contenteditable="true" class="deduction" id="deduction-val-${id}" onblur="onDeductionEdit('${id}', this)">0 ج.م</td>
+                        <td contenteditable="true" class="adjustment" id="manual-adj-${id}" onblur="onManualAdjustmentEdit('${id}', this)">0 ج.م</td>
+                        <td contenteditable="true" class="money" id="today-earnings-${id}" onblur="updateManualData('${id}', 'todayEarnings', parseFloat(this.innerText) || 0)">0 ج.م</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHTML);
+
+                aggregatedReportData.push({
+                    empId: id,
+                    empName: empName,
+                    firstCheckInDate: firstCheckInDate,
+                    lastCheckOutDate: lastCheckOutDate,
+                    exactHours: exactHours,
+                    hoursDisplay: `${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
+                    hourlyRate: hourlyRate,
+                    checkIn: checkInText,
+                    checkOut: checkOutText,
+                    plannedIn: '',
+                    plannedOut: '',
+                    applyDeduction: true,
+                    deductionAmount: 0,
+                    manualAdjustment: 0,
+                    todayEarnings: 0
+                });
+
+                calculateRowFinancials(id);
+            });
+
+            document.getElementById('cloud-sync-btn').style.display = 'block';
         }
 
-        empIds.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
+        function calculateRowFinancials(empId) {
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex === -1) return;
 
-        empIds.forEach(id => {
-            const userData = userTimestamps[id];
-            const dateObjects = userData.times;
-            const rawTimes = userData.rawTimes;
-            
-            const sortedIndices = dateObjects.map((_, i) => i).sort((i, j) => dateObjects[i] - dateObjects[j]);
-            const sortedDates = sortedIndices.map(i => dateObjects[i]);
-            const sortedRaw = sortedIndices.map(i => rawTimes[i]);
+            const item = aggregatedReportData[itemIndex];
 
-            let totalSecondsAll = 0;
-            for (let k = 0; k < sortedDates.length; k += 2) {
-                if (sortedDates[k + 1]) {
-                    let diffMs = sortedDates[k + 1].getTime() - sortedDates[k].getTime();
-                    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
-                    totalSecondsAll += Math.floor(diffMs / 1000);
+            const planInVal = document.getElementById(`plan-in-${empId}`).value;
+            const planOutVal = document.getElementById(`plan-out-${empId}`).value;
+            const isDeductChecked = document.getElementById(`apply-deduct-${empId}`).checked;
+
+            let deduction = 0;
+            let inStatusHtml = '<span style="color: var(--text-muted);">-</span>';
+            let outStatusHtml = '<span style="color: var(--text-muted);">-</span>';
+
+            if (planInVal && item.firstCheckInDate) {
+                const [pHours, pMinutes] = planInVal.split(':').map(Number);
+                const plannedInDate = new Date(item.firstCheckInDate);
+                plannedInDate.setHours(pHours, pMinutes, 0, 0);
+
+                const diffInMinutes = Math.round((item.firstCheckInDate - plannedInDate) / (1000 * 60));
+
+                if (diffInMinutes > 0) {
+                    inStatusHtml = `<span style="color: var(--color-warning); font-weight: bold;">⚠️ تأخير ${diffInMinutes} دقيقة</span>`;
+                    const minuteRate = item.hourlyRate / 60;
+                    deduction = (diffInMinutes * minuteRate) * 2;
+                } else if (diffInMinutes < 0) {
+                    inStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⚡ مبكر ${Math.abs(diffInMinutes)} دقيقة</span>`;
+                } else {
+                    inStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
                 }
             }
 
-            const firstCheckInDate = sortedDates[0];
-            const lastCheckOutDate = sortedDates[sortedDates.length - 1];
-            const checkInText = sortedRaw[0];
-            const checkOutText = sortedRaw[sortedRaw.length - 1];
+            if (planOutVal && item.lastCheckOutDate) {
+                const [pOutHours, pOutMinutes] = planOutVal.split(':').map(Number);
+                const plannedOutDate = new Date(item.lastCheckOutDate);
+                plannedOutDate.setHours(pOutHours, pOutMinutes, 0, 0);
 
-            const hoursPart = Math.floor(totalSecondsAll / 3600);
-            const minutesPart = Math.floor((totalSecondsAll % 3600) / 60);
-            const secondsPart = totalSecondsAll % 60;
-            const exactHours = totalSecondsAll / 3600;
+                const diffOutMinutes = Math.round((item.lastCheckOutDate - plannedOutDate) / (1000 * 60));
 
-            const empConfig = globalEmployeesDatabase[id];
-            let empName = userData.userName;
-            let hourlyRate = 40;
-
-            if (empConfig) {
-                empName = empConfig.name;
-                hourlyRate = empConfig.hourlyRate;
+                if (diffOutMinutes < 0) {
+                    outStatusHtml = `<span style="color: var(--color-danger); font-weight: bold;">🔻 مبكر ${Math.abs(diffOutMinutes)} دقيقة</span>`;
+                } else if (diffOutMinutes > 0) {
+                    outStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⏳ تأخير ${diffOutMinutes} دقيقة</span>`;
+                } else {
+                    outStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
+                }
             }
 
-            const rowHTML = `
-                <tr id="row-${id}">
-                    <td contenteditable="true" onblur="updateManualData('${id}', 'empId', this.innerText)"><strong>${id}</strong></td>
-                    <td contenteditable="true" onblur="updateManualData('${id}', 'empName', this.innerText)">${empName}</td>
-                    <td><input type="time" class="time-input" id="plan-in-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
-                    <td><input type="time" class="time-input" id="plan-out-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
-                    <td contenteditable="true" onblur="updateManualData('${id}', 'checkIn', this.innerText)"><span style="color: var(--color-success);">⬇️ ${checkInText}</span></td>
-                    <td contenteditable="true" onblur="updateManualData('${id}', 'checkOut', this.innerText)"><span style="color: var(--color-danger);">⬆️ ${checkOutText}</span></td>
-                    <td contenteditable="true" id="in-status-${id}">-</td>
-                    <td contenteditable="true" id="out-status-${id}">-</td>
-                    <td contenteditable="true" class="hours" id="hours-display-${id}">${hoursPart} س و ${minutesPart} د</td>
-                    <td contenteditable="true" id="hourly-rate-${id}" onblur="onHourlyRateEdit('${id}', this)">${hourlyRate} ج.م</td>
-                    <td><input type="checkbox" class="checkbox-custom" id="apply-deduct-${id}" checked onchange="calculateRowFinancials('${id}')"></td>
-                    <td contenteditable="true" class="deduction" id="deduction-val-${id}" onblur="onDeductionEdit('${id}', this)">0 ج.م</td>
-                    <td contenteditable="true" class="adjustment" id="manual-adj-${id}" onblur="onManualAdjustmentEdit('${id}', this)">0 ج.م</td>
-                    <td contenteditable="true" class="money" id="today-earnings-${id}" onblur="updateManualData('${id}', 'todayEarnings', parseFloat(this.innerText) || 0)">0 ج.م</td>
-                </tr>
-            `;
-            tbody.insertAdjacentHTML('beforeend', rowHTML);
-
-            aggregatedReportData.push({
-                empId: id,
-                empName: empName,
-                firstCheckInDate: firstCheckInDate,
-                lastCheckOutDate: lastCheckOutDate,
-                exactHours: exactHours,
-                hoursDisplay: `${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
-                hourlyRate: hourlyRate,
-                checkIn: checkInText,
-                checkOut: checkOutText,
-                plannedIn: '',
-                plannedOut: '',
-                applyDeduction: true,
-                deductionAmount: 0,
-                manualAdjustment: 0,
-                todayEarnings: 0
-            });
-
-            calculateRowFinancials(id);
-        });
-
-        document.getElementById('cloud-sync-btn').style.display = 'block';
-    }
-
-    function calculateRowFinancials(empId) {
-        const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
-        if (itemIndex === -1) return;
-
-        const item = aggregatedReportData[itemIndex];
-
-        const planInVal = document.getElementById(`plan-in-${empId}`).value;
-        const planOutVal = document.getElementById(`plan-out-${empId}`).value;
-        const isDeductChecked = document.getElementById(`apply-deduct-${empId}`).checked;
-
-        let deduction = 0;
-        let inStatusHtml = '<span style="color: var(--text-muted);">-</span>';
-        let outStatusHtml = '<span style="color: var(--text-muted);">-</span>';
-
-        if (planInVal && item.firstCheckInDate) {
-            const [pHours, pMinutes] = planInVal.split(':').map(Number);
-            const plannedInDate = new Date(item.firstCheckInDate);
-            plannedInDate.setHours(pHours, pMinutes, 0, 0);
-
-            const diffInMinutes = Math.round((item.firstCheckInDate - plannedInDate) / (1000 * 60));
-
-            if (diffInMinutes > 0) {
-                inStatusHtml = `<span style="color: var(--color-warning); font-weight: bold;">⚠️ تأخير ${diffInMinutes} دقيقة</span>`;
-                const minuteRate = item.hourlyRate / 60;
-                deduction = (diffInMinutes * minuteRate) * 2; // مضاعفة الخصم
-            } else if (diffInMinutes < 0) {
-                inStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⚡ مبكر ${Math.abs(diffInMinutes)} دقيقة</span>`;
-            } else {
-                inStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
-            }
-        }
-
-        if (planOutVal && item.lastCheckOutDate) {
-            const [pOutHours, pOutMinutes] = planOutVal.split(':').map(Number);
-            const plannedOutDate = new Date(item.lastCheckOutDate);
-            plannedOutDate.setHours(pOutHours, pOutMinutes, 0, 0);
-
-            const diffOutMinutes = Math.round((item.lastCheckOutDate - plannedOutDate) / (1000 * 60));
-
-            if (diffOutMinutes < 0) {
-                outStatusHtml = `<span style="color: var(--color-danger); font-weight: bold;">🔻 مبكر ${Math.abs(diffOutMinutes)} دقيقة</span>`;
-            } else if (diffOutMinutes > 0) {
-                outStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⏳ تأخير ${diffOutMinutes} دقيقة</span>`;
-            } else {
-                outStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
-            }
-        }
-
-        const baseEarnings = item.exactHours * item.hourlyRate;
-        const finalAutoDeduction = isDeductChecked ? parseFloat(deduction.toFixed(2)) : 0;
-        const manualAdj = item.manualAdjustment || 0;
-        
-        const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalAutoDeduction + manualAdj).toFixed(2)));
-
-        document.getElementById(`in-status-${empId}`).innerHTML = inStatusHtml;
-        document.getElementById(`out-status-${empId}`).innerHTML = outStatusHtml;
-        document.getElementById(`deduction-val-${empId}`).innerText = `${finalAutoDeduction} ج.م`;
-        document.getElementById(`today-earnings-${empId}`).innerText = `${finalEarnings} ج.م`;
-
-        item.plannedIn = planInVal;
-        item.plannedOut = planOutVal;
-        item.applyDeduction = isDeductChecked;
-        item.deductionAmount = finalAutoDeduction;
-        item.todayEarnings = finalEarnings;
-    }
-
-    function onHourlyRateEdit(empId, el) {
-        const parsedRate = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
-        el.innerText = `${parsedRate} ج.م`;
-        const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
-        if (itemIndex !== -1) {
-            aggregatedReportData[itemIndex].hourlyRate = parsedRate;
-            calculateRowFinancials(empId);
-        }
-    }
-
-    function onDeductionEdit(empId, el) {
-        const parsedDeduct = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
-        el.innerText = `${parsedDeduct} ج.م`;
-        const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
-        if (itemIndex !== -1) {
-            const item = aggregatedReportData[itemIndex];
-            item.deductionAmount = parsedDeduct;
             const baseEarnings = item.exactHours * item.hourlyRate;
+            const finalAutoDeduction = isDeductChecked ? parseFloat(deduction.toFixed(2)) : 0;
             const manualAdj = item.manualAdjustment || 0;
-            item.todayEarnings = Math.max(0, parseFloat((baseEarnings - parsedDeduct + manualAdj).toFixed(2)));
-            document.getElementById(`today-earnings-${empId}`).innerText = `${item.todayEarnings} ج.م`;
+            
+            const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalAutoDeduction + manualAdj).toFixed(2)));
+
+            document.getElementById(`in-status-${empId}`).innerHTML = inStatusHtml;
+            document.getElementById(`out-status-${empId}`).innerHTML = outStatusHtml;
+            document.getElementById(`deduction-val-${empId}`).innerText = `${finalAutoDeduction} ج.م`;
+            document.getElementById(`today-earnings-${empId}`).innerText = `${finalEarnings} ج.م`;
+
+            item.plannedIn = planInVal;
+            item.plannedOut = planOutVal;
+            item.applyDeduction = isDeductChecked;
+            item.deductionAmount = finalAutoDeduction;
+            item.todayEarnings = finalEarnings;
         }
-    }
 
-    function onManualAdjustmentEdit(empId, el) {
-        const parsedAdj = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
-        el.innerText = `${parsedAdj} ج.م`;
-        const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
-        if (itemIndex !== -1) {
-            aggregatedReportData[itemIndex].manualAdjustment = parsedAdj;
-            calculateRowFinancials(empId);
+        function onHourlyRateEdit(empId, el) {
+            const parsedRate = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
+            el.innerText = `${parsedRate} ج.م`;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex].hourlyRate = parsedRate;
+                calculateRowFinancials(empId);
+            }
         }
-    }
 
-    function updateManualData(empId, key, value) {
-        const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
-        if (itemIndex !== -1) {
-            aggregatedReportData[itemIndex][key] = value;
+        function onDeductionEdit(empId, el) {
+            const parsedDeduct = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
+            el.innerText = `${parsedDeduct} ج.م`;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                const item = aggregatedReportData[itemIndex];
+                item.deductionAmount = parsedDeduct;
+                const baseEarnings = item.exactHours * item.hourlyRate;
+                const manualAdj = item.manualAdjustment || 0;
+                item.todayEarnings = Math.max(0, parseFloat((baseEarnings - parsedDeduct + manualAdj).toFixed(2)));
+                document.getElementById(`today-earnings-${empId}`).innerText = `${item.todayEarnings} ج.م`;
+            }
         }
-    }
 
-    // رفع البيانات بالتوازي بدلاً من التسلسل المبطئ (Parallel Cloud Sync)
-    async function uploadFinancialsToGoogle() {
-        if (aggregatedReportData.length === 0) return;
+        function onManualAdjustmentEdit(empId, el) {
+            const parsedAdj = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
+            el.innerText = `${parsedAdj} ج.م`;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex].manualAdjustment = parsedAdj;
+                calculateRowFinancials(empId);
+            }
+        }
 
-        const syncBtn = document.getElementById('cloud-sync-btn');
-        const statusMsg = document.getElementById('process-status');
-        syncBtn.disabled = true;
-        statusMsg.style.display = 'inline-block';
+        function updateManualData(empId, key, value) {
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex === -1) return;
 
-        const requests = aggregatedReportData.map(data => {
-            const params = new URLSearchParams();
-            params.append('reportType', 'FINANCIAL_LOG');
-            params.append('empId', data.empId);
-            params.append('empName', data.empName);
-            params.append('checkIn', data.checkIn);
-            params.append('checkOut', data.checkOut);
-            params.append('plannedIn', data.plannedIn || '-');
-            params.append('plannedOut', data.plannedOut || '-');
-            params.append('exactHours', data.hoursDisplay);
-            params.append('hourlyRate', data.hourlyRate);
-            params.append('deductionAmount', data.deductionAmount || 0);
-            params.append('manualAdjustment', data.manualAdjustment || 0);
-            params.append('todayEarnings', data.todayEarnings);
+            const item = aggregatedReportData[itemIndex];
+            const cleanValue = String(value).replace(/[⬇️⬆️]/g, '').trim();
+            item[key] = cleanValue;
 
-            const finalUrlWithParams = SCRIPT_POST_URL + "?" + params.toString();
+            if (key === 'checkIn') {
+                item.firstCheckInDate = parseTimeToDate(cleanValue);
+            } else if (key === 'checkOut') {
+                item.lastCheckOutDate = parseTimeToDate(cleanValue);
+            }
 
-            return fetch(finalUrlWithParams, {
-                method: 'POST',
-                mode: 'no-cors'
-            }).then(() => true).catch(e => {
-                console.error("خطأ شبكة:", e);
-                return false;
+            if (key === 'checkIn' || key === 'checkOut') {
+                if (item.firstCheckInDate && item.lastCheckOutDate) {
+                    let diffMs = item.lastCheckOutDate.getTime() - item.firstCheckInDate.getTime();
+                    if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+
+                    const totalSeconds = Math.floor(diffMs / 1000);
+                    const hoursPart = Math.floor(totalSeconds / 3600);
+                    const minutesPart = Math.floor((totalSeconds % 3600) / 60);
+
+                    item.exactHours = totalSeconds / 3600;
+                    item.hoursDisplay = `${hoursPart} س و ${minutesPart} د`;
+
+                    const hoursCell = document.getElementById(`hours-display-${empId}`);
+                    if (hoursCell) {
+                        hoursCell.innerText = `${hoursPart} س و ${minutesPart} د`;
+                    }
+                }
+                calculateRowFinancials(empId);
+            } 
+            else if (key === 'todayEarnings') {
+                item.todayEarnings = parseFloat(cleanValue) || 0;
+            }
+        }
+
+        // 🚀 رفع البيانات لجوجل شيت مع ضمان التوافق عبر URLSearchParams
+        async function uploadFinancialsToGoogle() {
+            if (aggregatedReportData.length === 0) return;
+
+            const syncBtn = document.getElementById('cloud-sync-btn');
+            const statusMsg = document.getElementById('process-status');
+            syncBtn.disabled = true;
+            if (statusMsg) statusMsg.style.display = 'inline-block';
+
+            const requests = aggregatedReportData.map(data => {
+                const formData = new URLSearchParams();
+                formData.append('reportType', 'FINANCIAL_LOG');
+                formData.append('empId', data.empId || '');
+                formData.append('empName', data.empName || '');
+                formData.append('checkIn', data.checkIn || '');
+                formData.append('checkOut', data.checkOut || '');
+                formData.append('plannedIn', data.plannedIn || '-');
+                formData.append('plannedOut', data.plannedOut || '-');
+                formData.append('exactHours', data.hoursDisplay || '0');
+                formData.append('hourlyRate', data.hourlyRate || 0);
+                formData.append('deductionAmount', data.deductionAmount || 0);
+                formData.append('manualAdjustment', data.manualAdjustment || 0);
+                formData.append('todayEarnings', data.todayEarnings || 0);
+
+                return fetch(SCRIPT_POST_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                    },
+                    body: formData.toString()
+                }).then(() => true).catch(e => {
+                    console.error("خطأ شبكة:", e);
+                    return false;
+                });
             });
-        });
 
-        const results = await Promise.all(requests);
-        const successCount = results.filter(res => res === true).length;
+            const results = await Promise.all(requests);
+            const successCount = results.filter(res => res === true).length;
 
-        alert(`🟢 تم حفظ البيانات بنجاح لـ (${successCount}) موظف في Google Sheets!`);
-        syncBtn.disabled = false;
-        statusMsg.style.display = 'none';
-    }
-</script>
+            alert(`🟢 تم حفظ البيانات بنجاح لـ (${successCount}) موظف في Google Sheets!`);
+            syncBtn.disabled = false;
+            if (statusMsg) statusMsg.style.display = 'none';
+        }
+    </script>
+
     <div class="footer">
         Copyright © 2026 Techno Science. All rights reserved.
     </div>

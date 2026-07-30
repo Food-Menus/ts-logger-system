@@ -3,592 +3,500 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T.S Logger System</title>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<style>
-    :root {
-        /* لوحة ألوان المحيط العميق والنيون الفوسفوري */
-        --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
-        --card-bg: rgba(15, 23, 42, 0.75);
-        --card-border: rgba(0, 242, 254, 0.1);
-        --text-main: #f1f5f9;
-        --text-muted: #64748b;
-        
-        /* ألوان النيون المضيئة للمؤشرات والوظائف */
-        --color-primary: #00f2fe;    
-        --color-success: #00ff87;    
-        --color-danger: #ff007f;     
-        --color-accent: #2980b9;     
-        --color-warning: #e67e22;    
-    }
-
-    /* 🚨 1. ضبط أساسي يُجبر كل العناصر على احترام عرض الشاشة 🚨 */
-    html, body {
-        max-width: 100% !important;
-        overflow-x: hidden !important; /* يمنع السكرول الأفقي للصفحة بالكامل */
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    *, *:before, *:after {
-        box-sizing: border-box; /* يمنع البادينج والبوردر من تكبير عرض العناصر */
-    }
-
-    body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        background: var(--bg-gradient); 
-        color: var(--text-main); 
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        padding: 15px 10px;
-    }
-
-    .container { 
-        max-width: 1400px; 
-        width: 100%;
-        margin: 0 auto; 
-        background: var(--card-bg); 
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        padding: 20px 15px; 
-        border-radius: 20px; 
-        border: 1px solid var(--card-border);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
-    }
-
-    h2 { 
-        margin-top: 0;
-        font-size: 1.5em;
-        font-weight: 900;
-        background: linear-gradient(90deg, #fff, var(--color-primary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
-        border-bottom: 1px solid var(--card-border); 
-        padding-bottom: 12px; 
-        margin-bottom: 20px; 
-        text-align: center;
-    }
-    
-    /* شريط الأدوات وشريط البحث */
-    .action-bar, .search-bar { 
-        background: rgba(30, 41, 59, 0.4); 
-        padding: 12px; 
-        border-radius: 14px; 
-        margin-bottom: 15px; 
-        display: flex; 
-        flex-direction: column;
-        gap: 10px; 
-        border: 1px solid var(--card-border); 
-        width: 100%;
-    }
-
-    .search-group { 
-        display: flex; 
-        flex-direction: column;
-        gap: 8px; 
-        width: 100%;
-    }
-
-    .search-group label { 
-        font-weight: 600; 
-        color: #94a3b8; 
-        font-size: 0.9em; 
-    }
-
-    .search-group input { 
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid var(--card-border);
-        color: var(--text-main);
-        padding: 10px 12px; 
-        border-radius: 8px; 
-        font-size: 0.9em; 
-        outline: none; 
-        width: 100%;
-    }
-
-    .search-group input:focus { 
-        border-color: var(--color-primary); 
-        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
-    }
-
-    /* أزرار النظام */
-    .btn { 
-        padding: 12px; 
-        border: none; 
-        border-radius: 8px; 
-        font-weight: 700; 
-        cursor: pointer; 
-        font-size: 0.9em; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center;
-        gap: 8px; 
-        color: #070b12; 
-        width: 100%;
-        transition: transform 0.2s, background-color 0.2s; 
-    }
-
-    .btn-pdf { background-color: var(--color-danger); color: #fff; }
-    .btn-excel { background-color: var(--color-success); }
-    .btn-refresh { background-color: var(--color-primary); }
-    .btn-clear { background-color: #475569; color: #fff; }
-    
-    .status-indicator { 
-        font-weight: 700; 
-        color: var(--color-warning); 
-        text-align: center;
-        font-size: 0.9em;
-    }
-
-    /* ======================================================== */
-    /* 🚨 2. إصلاح حاوية الجدول لتمنع الاتساع الزائد تماماً 🚨 */
-    /* ======================================================== */
-
-    .table-responsive {
-        width: 100%;
-        max-width: 100%;
-        overflow-x: auto; /* التمرير للجدول فقط لو احتاج الأمر */
-        -webkit-overflow-scrolling: touch;
-        margin-top: 15px;
-        border-radius: 12px;
-    }
-
-    /* 📱 العرض على الموبايل: بطاقات أنيقة لا تخرج عن الشاشة */
-    @media (max-width: 767px) {
-        table, thead, tbody, th, td, tr { 
-            display: block; 
-            width: 100% !important;
-            box-sizing: border-box;
+    <title>قاعدة البيانات الكاملة - سجلات الحضور 🗄️</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+            --card-bg: rgba(15, 23, 42, 0.85);
+            --card-border: rgba(0, 242, 254, 0.15);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+            --color-add: #00f2fe;
+            --color-accent: #3b82f6;
+            --color-payouts: #00ff87;
+            --color-danger: #ff4757;
+            --color-warning: #ffa502;
         }
-        
-        thead tr { 
-            position: absolute;
-            top: -9999px;
-            left: -9999px;
+
+        * { box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px 10px;
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        
-        tr { 
-            background: rgba(15, 23, 42, 0.6) !important;
-            border: 1px solid var(--card-border) !important;
-            border-radius: 12px;
-            margin-bottom: 12px;
-            padding: 10px 12px;
-        }
-        
-        td { 
-            border: none !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-            position: relative;
-            padding: 8px 0 !important;
-            padding-right: 40% !important; /* المساحة المحجوزة للاسم على اليمين */
-            text-align: left !important;
-            font-size: 0.88em;
+
+        .header-wrapper {
+            max-width: 1600px;
+            margin: 0 auto 20px auto;
+            width: 100%;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            word-break: break-word; /* قطع الكلمات الطويلة حتى لا تدفع الصفحة للأمام */
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        td:last-child {
-            border-bottom: none !important;
+        .header h1 {
+            font-size: 1.8em;
+            margin: 0 0 5px 0;
+            background: linear-gradient(90deg, #fff, var(--color-add));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        
-        td::before { 
-            content: attr(data-label);
-            position: absolute;
-            right: 0;
-            width: 38%; 
-            font-weight: 700;
-            color: #94a3b8;
-            text-align: right;
-            font-size: 0.85em;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-    }
+        .header p { color: var(--text-muted); margin: 0; font-size: 0.9em; }
 
-    /* 🖥️ العرض على اللابتوب والشاشات الكبيرة */
-    @media (min-width: 768px) {
-        body { padding: 25px 20px; }
-        .container { padding: 30px; }
-        h2 { font-size: 2em; text-align: right; }
-        
-        .action-bar, .search-bar { 
-            flex-direction: row; 
-            align-items: center; 
-            justify-content: flex-start;
-            padding: 15px 20px;
+        .stats-summary {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .search-group { flex-direction: row; width: auto; align-items: center; }
-        .search-group input { width: auto; }
-        .btn { width: auto; }
-        .status-indicator { margin-right: auto; text-align: right; }
-
-        .table-responsive {
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
             border: 1px solid var(--card-border);
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        table { 
-            width: 100%; 
-            border-collapse: separate; 
+        .stat-card i { font-size: 1.2rem; color: var(--color-add); }
+        .stat-card strong { color: #fff; font-size: 1rem; }
+
+        .container { 
+            width: 100%;
+            max-width: 1600px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px);
+            padding: 20px; 
+            border-radius: 20px; 
+            border: 1px solid var(--card-border);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
+        }
+
+        .filter-panel {
+            background: rgba(30, 41, 59, 0.4);
+            padding: 20px;
+            border-radius: 16px;
+            border: 1px solid var(--card-border);
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: flex-end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .filter-group label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-group input {
+            background: rgba(0,0,0,0.4);
+            border: 1px solid #2d3b52;
+            border-radius: 10px;
+            padding: 10px 14px;
+            color: #fff;
+            font-size: 0.9rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .filter-group input:focus {
+            border-color: var(--color-add);
+            box-shadow: 0 0 0 2px rgba(0, 242, 254, 0.15);
+        }
+
+        .btn-reset {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid #334155;
+            color: #cbd5e1;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 41px;
+        }
+
+        .btn-reset:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+            max-height: 70vh;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(0,0,0,0.25);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
             border-spacing: 0;
-            display: table;
+            font-size: 0.85rem;
+            min-width: 1300px;
         }
 
-        thead { display: table-header-group; }
-        tbody { display: table-row-group; }
-        tr { display: table-row; background-color: rgba(15, 23, 42, 0.4) !important; border: none !important; margin: 0; padding: 0; }
-        tr:nth-child(even) { background-color: rgba(30, 41, 59, 0.2) !important; }
-        th, td { display: table-cell; padding: 14px 12px !important; text-align: center !important; }
-        td::before { display: none; }
-        
-        th { 
-            background-color: rgba(30, 41, 59, 0.9); 
-            color: #94a3b8; 
-            font-weight: 700;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
-            border-left: 1px solid rgba(255, 255, 255, 0.03); 
+        th {
+            position: sticky;
+            top: 0;
+            background: #0f172a;
+            color: var(--color-add);
+            font-weight: 600;
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 2px solid #2d3b52;
+            white-space: nowrap;
+            z-index: 10;
         }
 
         td {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
-            border-left: 1px solid rgba(255, 255, 255, 0.03); 
+            padding: 12px 10px;
+            text-align: center;
+            border-bottom: 1px solid rgba(45, 59, 82, 0.3);
+            color: #e8edf5;
+            white-space: nowrap;
         }
-    }
 
-    /* العناصر المضيئة */
-    .badge-shifts { 
-        background-color: rgba(230, 126, 34, 0.15); 
-        color: var(--color-warning); 
-        padding: 4px 10px; 
-        border-radius: 12px; 
-        font-size: 0.85em; 
-        font-weight: 700; 
-        border: 1px solid rgba(230, 126, 34, 0.2);
-    }
+        tr:hover td { background: rgba(0, 242, 254, 0.04); }
 
-    .badge-role { 
-        background-color: rgba(155, 89, 182, 0.15); 
-        color: #c39bd3; 
-        padding: 4px 8px; 
-        border-radius: 6px; 
-        font-size: 0.85em; 
-        font-weight: 600;
-        border: 1px solid rgba(155, 89, 182, 0.2);
-    }
+        .badge-id {
+            background: rgba(0, 242, 254, 0.1);
+            color: var(--color-add);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.8rem;
+        }
 
-    .money { font-weight: 700; color: var(--color-success); }
-    .hours { font-weight: 700; color: var(--color-primary); }
+        .time-box {
+            font-family: monospace;
+            color: #94a3b8;
+        }
 
-    .footer { 
-        text-align: center; 
-        margin-top: auto; 
-        color: #475569; 
-        font-size: 0.85em; 
-        padding: 20px 10px 10px; 
-    }
-</style>
+        .time-actual {
+            color: var(--color-payouts);
+            font-weight: 600;
+        }
+
+        .empty-state {
+            padding: 50px 20px;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: auto;
+            color: #475569;
+            font-size: 0.85em;
+            padding: 20px;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container">
-        <h2>📋 قسم عرض قاعدة البيانات</h2>
-        
-        <div class="action-bar">
-            <button class="btn btn-refresh" onclick="loadAndProcessLogs()">🔄 تحديث البيانات حالياً</button>
-            <button class="btn btn-pdf" onclick="window.print()">🖨️ طباعة وحفظ البيانات بصيغة PDF</button>
-            <button class="btn btn-excel" onclick="exportTableToExcel()">📥 تحميل الجدول كملف Excel (إكسيل مجمع)</button>
-            <span id="status-text" class="status-indicator">⏳ جاري عرض البيانات من Google Sheets ...</span>
+    <div class="header-wrapper">
+        <div class="header">
+            <h1><i class="fas fa-database" style="color: var(--color-add); margin-left: 8px;"></i> قاعدة البيانات السحابية الشاملة</h1>
+            <p>تصفح وفلترة جميع سجلات الحضور والبصمات المسجلة</p>
         </div>
 
-        <div class="search-bar">
-            <div class="search-group">
-                <label for="search-input">🔍 بحث باسم الموظف أو رقم الـ ID:</label>
-                <input type="text" id="search-input" placeholder="اكتب الاسم أو الرقم هنا..." oninput="filterTableData()" style="width: 250px;">
+        <div class="stats-summary">
+            <div class="stat-card">
+                <i class="fas fa-list-ol"></i>
+                <div>السجلات المعروضة: <strong id="statCount">0</strong></div>
             </div>
-            <div class="search-group">
-                <label for="search-date">📅 بحث بالتاريخ (يوم العمل):</label>
-                <input type="date" id="search-date" onchange="filterTableData()">
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <div>إجمالي الساعات: <strong id="statHours">0</strong></div>
             </div>
-            <button class="btn btn-clear" onclick="clearSearchFilters()">❌ تفريغ البحث</button>
         </div>
-
-        <table id="historical-table">
-            <thead>
-                <tr>
-                    <th>التاريخ (يوم العمل)</th>
-                    <th>رقم الموظف (ID)</th>
-                    <th>اسم الموظف</th>
-                    <th>نوع الوظيفة</th>
-                    <th>عدد ورديات اليوم</th>
-                    <th>توقيت أول حضور</th>
-                    <th>توقيت آخر انصراف</th>
-                    <th>صافي فترات العمل الفعلي</th>
-                    <th>سعر الساعة</th>
-                    <th>إجمالي مستحق اليوم الحالي</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                <tr>
-                    <td colspan="10" class="empty-msg">جاري تحميل وعقد المقارنات بين السجلات المتكررة...</td>
-                </tr>
-            </tbody>
-        </table>
     </div>
 
+    <div class="container">
+        <!-- شريط الفلاتر المتقدم للبحث -->
+        <div class="filter-panel">
+            <div class="filter-group">
+                <label><i class="far fa-calendar-alt"></i> تصفية بيوم محدد</label>
+                <input type="date" id="filterSpecificDate">
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fas fa-user"></i> اسم الموظف</label>
+                <input type="text" id="filterEmpName" placeholder="اكتب اسم الموظف...">
+            </div>
+
+            <div class="filter-group">
+                <label><i class="fas fa-id-badge"></i> رقم/كود الموظف (ID)</label>
+                <input type="text" id="filterEmpId" placeholder="ابحث برقم الكود...">
+            </div>
+
+            <button class="btn-reset" id="btnResetFilters">
+                <i class="fas fa-undo"></i> إعادة ضبط الفلاتر
+            </button>
+        </div>
+
+        <!-- جدول لعرض كل بيانات الشيت -->
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>التاريخ</th>
+                        <th>كود الموظف</th>
+                        <th>اسم الموظف</th>
+                        <th>الوظيفة</th>
+                        <th>الحضور المخطط</th>
+                        <th>الانصراف المخطط</th>
+                        <th>الحضور الفعلي</th>
+                        <th>الانصراف الفعلي</th>
+                        <th>مدة العمل</th>
+                        <th>سعر الساعة</th>
+                        <th>خصم التأخير</th>
+                        <th>التسوية اليدوية</th>
+                        <th>صافي اليوم</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <tr><td colspan="14" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري استدعاء كافة البيانات من الشيت...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="footer">         Copyright © 2026 Techno Science. All rights reserved.  </div>
+        <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
+    </script>
     <script>
-        const FINANCIAL_LOG_URL = "https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json";
+        (function() {
+            "use strict";
 
-        let globalProcessedLogs = []; // مصفوفة لتخزين البيانات المجمعة لتسهيل الفلترة السريعة
+            const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json';
 
-        window.onload = function() {
-            loadAndProcessLogs();
-        };
+            const filterSpecificDate = document.getElementById('filterSpecificDate');
+            const filterEmpName = document.getElementById('filterEmpName');
+            const filterEmpId = document.getElementById('filterEmpId');
+            const btnResetFilters = document.getElementById('btnResetFilters');
 
-        // دالة تحويل وتحسين صيغة الوقت (تتعامل مع Date(1899,11,30,17,50,22) والأنواع المختلفة)
-        function formatTimeTo12Hour(rawTimeStr) {
-            if (!rawTimeStr || rawTimeStr === "--:--" || rawTimeStr === "غير مسجل") return "--:--";
+            const tableBody = document.getElementById('tableBody');
+            const statCount = document.getElementById('statCount');
+            const statHours = document.getElementById('statHours');
 
-            let hours = 0;
-            let minutes = 0;
+            let rawDatabase = [];
 
-            // 1. التعامل مع صيغة جوجل شيت القادمة كـ Date(1899,11,30,17,50,22)
-            if (rawTimeStr.includes("Date(")) {
-                let matches = rawTimeStr.match(/Date\(\d+,\d+,\d+,(\d+),(\d+)/);
-                if (matches && matches.length >= 3) {
-                    hours = parseInt(matches[1], 10);
-                    minutes = parseInt(matches[2], 10);
-                } else {
-                    return "--:--";
-                }
-            } 
-            // 2. التعامل مع الصيغ النصية العادية مثل "17:50:22" أو "17:50"
-            else if (rawTimeStr.includes(":")) {
-                let parts = rawTimeStr.trim().split(':');
-                hours = parseInt(parts[0], 10);
-                minutes = parseInt(parts[1], 10);
-            } 
-            else {
-                return rawTimeStr; // إذا كانت صيغة غير معروفة يُرجعها كما هي
+            const COL_MAP = {
+                datetime: 0,
+                empId: 1,
+                empName: 2,
+                job: 3,
+                planIn: 4,
+                planOut: 5,
+                actualIn: 6,
+                actualOut: 7,
+                workHours: 8,
+                hourRate: 9,
+                lateDed: 10,
+                manualAdj: 11,
+                totalShift: 12
+            };
+
+            // تحويل الساعات لنسبة ساعات ودقائق
+            function formatDecimalToHM(decimal) {
+                if (!decimal || isNaN(decimal) || decimal <= 0) return "0 س";
+                const hrs = Math.floor(decimal);
+                const mins = Math.round((decimal - hrs) * 60);
+                if (mins === 60) return `${hrs + 1} س`;
+                if (hrs === 0) return `${mins} د`;
+                return mins > 0 ? `${hrs} س ${mins} د` : `${hrs} س`;
             }
 
-            if (isNaN(hours) || isNaN(minutes)) return "--:--";
+            // تحويل التاريخ لنص YYYY-MM-DD
+            function formatDateToYYYYMMDD(d) {
+                if (!d || isNaN(d.getTime())) return '';
+                const yyyy = d.getFullYear();
+                const mm = String(d.getMonth() + 1).padStart(2, '0');
+                const dd = String(d.getDate()).padStart(2, '0');
+                return `${yyyy}-${mm}-${dd}`;
+            }
 
-            // تحويل الساعات لنظام 12 ساعة مع تحديد ص / م
-            let period = hours >= 12 ? 'م' : 'ص';
-            hours = hours % 12;
-            hours = hours ? hours : 12; // الساعة 0 تحول إلى 12
+            // استخراج التواريخ المرجعة من Google Viz
+            function parseDateFromJson(dateStr) {
+                if (!dateStr) return null;
+                if (typeof dateStr === 'string' && dateStr.includes('Date(')) {
+                    const matches = dateStr.match(/\d+/g);
+                    if (matches) {
+                        const [year, month, day, hour, minute, second] = matches.map(Number);
+                        return new Date(year, month, day, hour || 0, minute || 0, second || 0);
+                    }
+                }
+                const d = new Date(dateStr);
+                return isNaN(d.getTime()) ? null : d;
+            }
 
-            let formattedHours = String(hours).padStart(2, '0');
-            let formattedMinutes = String(minutes).padStart(2, '0');
+            async function fetchDatabase() {
+                try {
+                    const resp = await fetch(SHEET_URL);
+                    if (!resp.ok) throw new Error('فشل جلب قاعدة البيانات');
+                    const text = await resp.text();
 
-            return `${formattedHours}:${formattedMinutes} ${period}`;
-        }
+                    const jsonStart = text.indexOf('{');
+                    const jsonEnd = text.lastIndexOf('}');
+                    if (jsonStart === -1 || jsonEnd === -1) throw new Error('بنية JSON غير متوافقة');
 
-        function textDurationToSeconds(durationStr) {
-            if (!durationStr) return 0;
-            let seconds = 0;
-            const matches = durationStr.match(/\d+/g);
-            if (matches) {
-                if (matches.length >= 3) {
-                    seconds += parseInt(matches[0]) * 3600;
-                    seconds += parseInt(matches[1]) * 60;
-                    seconds += parseInt(matches[2]);
-                } else if (matches.length === 2) {
-                    seconds += parseInt(matches[0]) * 3600;
-                    seconds += parseInt(matches[1]) * 60;
+                    const json = JSON.parse(text.substring(jsonStart, jsonEnd + 1));
+                    const rows = json.table ? json.table.rows : [];
+                    const parsedData = [];
+
+                    for (let i = 0; i < rows.length; i++) {
+                        const row = rows[i].c || [];
+                        const getVal = (idx) => (row[idx] && row[idx].v !== undefined && row[idx].v !== null) ? row[idx].v : '';
+                        const getFormatted = (idx) => (row[idx] && row[idx].f) ? row[idx].f : getVal(idx);
+
+                        const empNameVal = getVal(COL_MAP.empName);
+                        if (!empNameVal) continue; // تخطي الصفوف الفارغة
+
+                        const dateObj = parseDateFromJson(getVal(COL_MAP.datetime));
+
+                        parsedData.push({
+                            id: i + 1,
+                            datetimeRaw: getVal(COL_MAP.datetime),
+                            dateObj: dateObj,
+                            dateFormatted: dateObj ? formatDateToYYYYMMDD(dateObj) : 'غير محدد',
+                            empId: String(getVal(COL_MAP.empId) || '-'),
+                            empName: String(empNameVal).trim(),
+                            job: String(getVal(COL_MAP.job) || '-'),
+                            planIn: String(getFormatted(COL_MAP.planIn) || '-'),
+                            planOut: String(getFormatted(COL_MAP.planOut) || '-'),
+                            actualIn: String(getFormatted(COL_MAP.actualIn) || '-'),
+                            actualOut: String(getFormatted(COL_MAP.actualOut) || '-'),
+                            workHours: parseFloat(getVal(COL_MAP.workHours)) || 0,
+                            hourRate: parseFloat(getVal(COL_MAP.hourRate)) || 0,
+                            lateDed: parseFloat(getVal(COL_MAP.lateDed)) || 0,
+                            manualAdj: parseFloat(getVal(COL_MAP.manualAdj)) || 0,
+                            totalShift: parseFloat(getVal(COL_MAP.totalShift)) || 0
+                        });
+                    }
+
+                    return parsedData;
+                } catch (e) {
+                    console.error('خطأ أثناء تحميل البيانات:', e);
+                    return [];
                 }
             }
-            return seconds;
-        }
 
-        function secondsToTextDuration(totalSeconds) {
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            return `${hours} س و ${minutes} د و ${seconds} ث`;
-        }
-
-        // دالة لجلب النص المنسق من خلايا الشيت مباشرة إن وجد
-        function getCellFormattedValue(cell) {
-            if (!cell) return "--:--";
-            if (cell.f) return String(cell.f).trim(); // النص المنسق الجاهز في شيت جوجل
-            if (cell.v) return String(cell.v).trim();
-            return "--:--";
-        }
-
-        async function loadAndProcessLogs() {
-            const statusLabel = document.getElementById("status-text");
-            const tbody = document.getElementById("table-body");
-            statusLabel.innerText = "⏳ جاري الفحص ومطابقة التكرار اليومي...";
-
-            try {
-                const response = await fetch(FINANCIAL_LOG_URL);
-                const text = await response.text();
-                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-                const json = JSON.parse(jsonString);
-                const rows = json.table.rows;
-
-                if (!rows || rows.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">⚠️ لا توجد أي بيانات مسجلة في شيت السجلات حالياً.</td></tr>`;
-                    statusLabel.innerText = "❌ الشيت فارغ";
+            function renderTable(data) {
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = `<tr><td colspan="14" class="empty-state"><i class="fas fa-search-minus"></i> لم يتم العثور على أي نتائج تطابق البحث</td></tr>`;
+                    statCount.textContent = '0';
+                    statHours.textContent = '0 س';
                     return;
                 }
 
-                let uniqueDailyLogs = {};
+                let html = '';
+                let totalDecimalHours = 0;
 
-                rows.forEach(row => {
-                    if (row.c && row.c[1] && row.c[0]) {
-                        let rawTimestamp = row.c[0].f ? row.c[0].f : String(row.c[0].v);
-                        let workDate = rawTimestamp.split(' ')[0].trim(); 
-                        
-                        let empId = String(row.c[1].v).trim();
-                        let empName = row.c[2] ? String(row.c[2].v).trim() : "غير معروف";
-                        let empRole = row.c[3] ? String(row.c[3].v).trim() : "عامل";
-                        
-                        // استخدام القيمة المنسقة الجاهزة أو القيمة الخام
-                        let checkIn = getCellFormattedValue(row.c[5]);
-                        let checkOut = getCellFormattedValue(row.c[6]);
-                        
-                        let exactHoursText = row.c[7] ? String(row.c[7].v).trim() : "0 ساعة";
-                        let hourlyRate = row.c[8] ? parseFloat(String(row.c[8].v).replace(/[^\d.]/g, '')) || 0 : 0;
-                        let todayEarnings = row.c[9] ? parseFloat(String(row.c[9].v).replace(/[^\d.]/g, '')) || 0 : 0;
+                data.forEach((row, index) => {
+                    totalDecimalHours += row.workHours;
 
-                        let logKey = `${workDate}_${empId}`;
+                    html += `<tr>
+                        <td>${index + 1}</td>
+                        <td style="color: #cbd5e1;">${row.dateFormatted}</td>
+                        <td><span class="badge-id">${row.empId}</span></td>
+                        <td><strong>${row.empName}</strong></td>
+                        <td>${row.job}</td>
+                        <td class="time-box">${row.planIn}</td>
+                        <td class="time-box">${row.planOut}</td>
+                        <td class="time-actual">${row.actualIn}</td>
+                        <td class="time-actual">${row.actualOut}</td>
+                        <td style="color: var(--color-add); font-weight:600;">${formatDecimalToHM(row.workHours)}</td>
+                        <td>${row.hourRate.toFixed(2)} ج.م</td>
+                        <td style="color: var(--color-danger);">${row.lateDed > 0 ? '-' + row.lateDed.toFixed(2) : '0.00'}</td>
+                        <td style="color: var(--color-warning);">${row.manualAdj.toFixed(2)}</td>
+                        <td style="color: var(--color-payouts); font-weight: 700;">${row.totalShift.toFixed(2)} ج.م</td>
+                    </tr>`;
+                });
 
-                        if (!uniqueDailyLogs[logKey]) {
-                            uniqueDailyLogs[logKey] = {
-                                date: workDate,
-                                id: empId,
-                                name: empName,
-                                role: empRole,
-                                shiftsCount: 1,
-                                firstCheckIn: checkIn,
-                                lastCheckOut: checkOut,
-                                totalSeconds: textDurationToSeconds(exactHoursText),
-                                hourlyRate: hourlyRate,
-                                totalEarnings: todayEarnings
-                            };
-                        } else {
-                            uniqueDailyLogs[logKey].shiftsCount += 1;
-                            uniqueDailyLogs[logKey].lastCheckOut = checkOut;
-                            uniqueDailyLogs[logKey].totalSeconds += textDurationToSeconds(exactHoursText);
-                            uniqueDailyLogs[logKey].totalEarnings += todayEarnings;
-                        }
+                tableBody.innerHTML = html;
+                statCount.textContent = data.length;
+                statHours.textContent = formatDecimalToHM(totalDecimalHours);
+            }
+
+            function applyFilters() {
+                const selectedDate = filterSpecificDate.value;
+                const searchName = filterEmpName.value.trim().toLowerCase();
+                const searchId = filterEmpId.value.trim().toLowerCase();
+
+                const filtered = rawDatabase.filter(row => {
+                    // فلترة بليوم المحدد
+                    if (selectedDate && row.dateFormatted !== selectedDate) {
+                        return false;
                     }
+
+                    // فلترة بالاسم
+                    if (searchName && !row.empName.toLowerCase().includes(searchName)) {
+                        return false;
+                    }
+
+                    // فلترة برقم الموظف
+                    if (searchId && !row.empId.toLowerCase().includes(searchId)) {
+                        return false;
+                    }
+
+                    return true;
                 });
 
-                // تحويل الكائن الوسيط لمصفوفة عادية مرتبة لسهولة التعامل مع الفلاتر والبحث
-                globalProcessedLogs = Object.keys(uniqueDailyLogs).map(key => uniqueDailyLogs[key]);
-                globalProcessedLogs.sort((a, b) => new Date(b.date) - new Date(a.date)); // ترتيب تنازلي حسب التاريخ الأحدث
-
-                // عرض البيانات لأول مرة بالجدول
-                renderTable(globalProcessedLogs);
-                statusLabel.innerText = `🟢 تم تحديث وفلترة وتجميع الحسابات بنجاح.`;
-
-            } catch (error) {
-                console.error("حدث خطأ أثناء تجميع وقراءة السجلات:", error);
-                tbody.innerHTML = `<tr><td colspan="10" class="empty-msg" style="color:var(--color-danger);">❌ فشل جلب الحسابات المحدثة من الشيت المالي.</td></tr>`;
-                statusLabel.innerText = "❌ فشل المزامنة حياً";
-            }
-        }
-
-        // دالة مخصصة لطباعة وعرض النتيجة بداخل الجدول
-        function renderTable(dataList) {
-            const tbody = document.getElementById("table-body");
-            tbody.innerHTML = "";
-
-            if (dataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="10" class="empty-msg">⚠️ لم يتم العثور على أي سجلات تطابق خيارات البحث الحالية!</td></tr>`;
-                return;
+                renderTable(filtered);
             }
 
-            dataList.forEach(log => {
-                let finalDurationText = secondsToTextDuration(log.totalSeconds);
-                
-                // تحويل وتجميع صيغ الوقت الغريبة مثل Date(...) إلى وقت 12 ساعة ممتاز
-                let formattedCheckIn = formatTimeTo12Hour(log.firstCheckIn);
-                let formattedCheckOut = formatTimeTo12Hour(log.lastCheckOut);
-
-                let rowHTML = `
-                    <tr>
-                        <td><strong>📅 ${log.date}</strong></td>
-                        <td><strong>${log.id}</strong></td>
-                        <td>${log.name}</td>
-                        <td><span class="badge-role">${log.role}</span></td>
-                        <td><span class="badge-shifts">${log.shiftsCount} وردية</span></td>
-                        <td><span style="color: var(--color-success); font-weight: bold;">⬇️ ${formattedCheckIn}</span></td>
-                        <td><span style="color: var(--color-danger); font-weight: bold;">⬆️ ${formattedCheckOut}</span></td>
-                        <td class="hours">${finalDurationText}</td>
-                        <td>${log.hourlyRate} ج.م</td>
-                        <td class="money">${log.totalEarnings.toFixed(2)} ج.م</td>
-                    </tr>
-                `;
-                tbody.insertAdjacentHTML('beforeend', rowHTML);
-            });
-        }
-
-        // دالة الفلترة والبحث الذكية الفورية (تدمج البحث بالـ ID والاسم في حقل واحد)
-        function filterTableData() {
-            const searchQuery = document.getElementById("search-input").value.trim().toLowerCase();
-            const dateQuery = document.getElementById("search-date").value; // تأتي بتنسيق YYYY-MM-DD
-
-            let filteredList = globalProcessedLogs;
-
-            // 1. تصفية بناءً على نص البحث (يبحث في رقم الموظف أو الاسم في نفس الوقت)
-            if (searchQuery !== "") {
-                filteredList = filteredList.filter(log => {
-                    const empIdMatches = log.id.toLowerCase().includes(searchQuery);
-                    const empNameMatches = log.name.toLowerCase().includes(searchQuery);
-                    return empIdMatches || empNameMatches;
-                });
+            function resetFilters() {
+                filterSpecificDate.value = '';
+                filterEmpName.value = '';
+                filterEmpId.value = '';
+                renderTable(rawDatabase);
             }
 
-            // 2. تصفية بناءً على تاريخ يوم العمل (إذا تم اختياره)
-            if (dateQuery !== "") {
-                let formattedSearchDate = formatDateString(dateQuery);
-                filteredList = filteredList.filter(log => {
-                    let formattedLogDate = formatDateString(log.date);
-                    return formattedLogDate === formattedSearchDate;
-                });
-            }
+            // Listeners للفلترة الفورية
+            filterSpecificDate.addEventListener('change', applyFilters);
+            filterEmpName.addEventListener('input', applyFilters);
+            filterEmpId.addEventListener('input', applyFilters);
+            btnResetFilters.addEventListener('click', resetFilters);
 
-            // إعادة عرض الجدول بالبيانات المفلترة فقط
-            renderTable(filteredList);
-        }
+            // التشغيل المبدئي
+            (async function init() {
+                rawDatabase = await fetchDatabase();
+                renderTable(rawDatabase);
+            })();
 
-        // دالة لتنسيق النصوص التاريخية لتفادي مشكلات الفوارق في شكل الكتابة
-        function formatDateString(dateStr) {
-            let d = new Date(dateStr);
-            if (isNaN(d.getTime())) return dateStr;
-            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        }
-
-        // دالة لتفريغ خانات البحث وإعادة إظهار كل البيانات كاملة
-        function clearSearchFilters() {
-            document.getElementById("search-input").value = "";
-            document.getElementById("search-date").value = "";
-            renderTable(globalProcessedLogs);
-        }
-
-        function exportTableToExcel() {
-            const tableElement = document.getElementById("historical-table");
-            const workbook = XLSX.utils.table_to_book(tableElement, { sheet: "تقرير السجلات المجمعة" });
-            
-            const today = new Date();
-            const dateFileName = `${today.getFullYear()}-${today.getMonth()+1}-${today.getDate()}`;
-            XLSX.writeFile(workbook, `سجلات_الرحمن_المجمعة_${dateFileName}.xlsx`);
-        }
-    </script>
-    <div class="footer">
-        Copyright © 2026 Techno Science. All rights reserved.
-    </div>
-    <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
+        })();
     </script>
 </body>
 </html>
