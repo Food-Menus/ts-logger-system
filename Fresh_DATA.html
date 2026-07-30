@@ -3,91 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T.S Logger System - مع خصم التأخير المضاعف</title>
+    <title>T.S Logger System</title>
     <style>
         :root {
-            /* لوحة ألوان المحيط العميق والنيون */
             --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
             --card-bg: rgba(15, 23, 42, 0.75);
             --card-border: rgba(0, 242, 254, 0.1);
             --text-main: #f1f5f9;
             --text-muted: #64748b;
             
-            /* ألوان النيون المضيئة للمؤشرات والوظائف */
-            --color-primary: #00f2fe;    /* السيان المضيء للساعات والروابط */
-            --color-success: #00ff87;    /* الأخضر الرقمي للمستحقات والأموال */
-            --color-danger: #ff007f;     /* الوردي النيون للمؤشرات الهامة والانصراف */
-            --color-accent: #9b51e0;     /* البنفسجي الفوسفوري للأدوار والوظائف */
-            --color-warning: #e67e22;    /* البرتقالي للورديات */
+            --color-primary: #00f2fe;    /* السيان المضيء */
+            --color-success: #00ff87;    /* الأخضر للمستحقات والتبكير */
+            --color-danger: #ff007f;     /* الوردي للخصومات والانصراف */
+            --color-warning: #e67e22;    /* البرتقالي للتأخير */
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
-            padding: 30px 20px;
+            padding: 20px 10px;
             background: var(--bg-gradient); 
             color: var(--text-main); 
             min-height: 100vh;
-            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
 
         .container { 
-            max-width: 1750px; 
+            width: 100%;
+            max-width: 1600px; 
             margin: 0 auto; 
             background: var(--card-bg); 
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            padding: 30px; 
+            padding: 25px 20px; 
             border-radius: 24px; 
             border: 1px solid var(--card-border);
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
         }
 
-        .header-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--card-border); 
-            padding-bottom: 15px; 
-            margin-bottom: 25px; 
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
         h2 { 
-            margin: 0;
+            margin-top: 0;
             font-size: 1.8em;
             font-weight: 900;
             background: linear-gradient(90deg, #fff, var(--color-primary));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+            border-bottom: 1px solid var(--card-border); 
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+            text-align: center;
         }
 
-        .auth-status-badge {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(30, 41, 59, 0.6);
-            padding: 8px 16px;
-            border-radius: 12px;
-            border: 1px solid var(--card-border);
-        }
-
-        .auth-btn {
-            background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
-            color: #070b12;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .auth-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+        @media (min-width: 768px) {
+            body { padding: 30px 20px; }
+            .container { padding: 30px; }
+            h2 { font-size: 2em; text-align: right; }
         }
 
         .control-section { 
@@ -98,11 +74,11 @@
             display: flex; 
             align-items: center; 
             justify-content: space-between; 
-            gap: 15px; 
+            gap: 20px; 
             border: 1px solid var(--card-border); 
             flex-wrap: wrap; 
             transition: all 0.3s ease;
-        } 
+        }
         
         .control-section:hover {
             border-color: rgba(0, 242, 254, 0.2);
@@ -112,52 +88,68 @@
         .upload-box { 
             display: flex; 
             align-items: center; 
-            gap: 15px; 
+            gap: 12px; 
             flex-wrap: wrap; 
+            width: 100%;
         }
 
         .upload-box label { 
             font-weight: 600; 
             color: #94a3b8; 
+            width: 100%;
         }
 
         .upload-box input[type="file"] {
             background: rgba(15, 23, 42, 0.8);
             border: 1px solid var(--card-border);
             color: var(--text-main);
-            padding: 8px 12px;
+            padding: 10px 12px;
             border-radius: 8px;
             outline: none;
             cursor: pointer;
+            width: 100%;
+            max-width: 100%;
         }
 
-        .action-buttons {
+        .action-box {
+            width: 100%;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
-            flex-wrap: wrap;
+            align-items: flex-start;
         }
 
-        /* جدول محاسبي معتم واحترافي */
+        @media (min-width: 768px) {
+            .upload-box { width: auto; }
+            .upload-box label { width: auto; }
+            .upload-box input[type="file"] { width: auto; }
+            .action-box { width: auto; align-items: flex-end; }
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            margin-top: 15px;
+        }
+
         table { 
             width: 100%; 
             border-collapse: separate; 
             border-spacing: 0;
-            margin-top: 15px; 
-            overflow-x: auto; 
-            display: block; 
-            border-radius: 14px;
-            border: 1px solid var(--card-border);
+            min-width: 1250px;
         }
 
         th, td { 
             border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
             border-left: 1px solid rgba(255, 255, 255, 0.03); 
-            padding: 10px 8px; 
+            padding: 12px 10px; 
             text-align: center; 
-            font-size: 0.85em; 
+            font-size: 0.88em; 
             white-space: nowrap;
-        } 
+        }
         
         th:last-child, td:last-child {
             border-left: none;
@@ -167,6 +159,8 @@
             background-color: rgba(30, 41, 59, 0.8); 
             color: #94a3b8; 
             font-weight: 700;
+            position: sticky;
+            top: 0;
         }
 
         tr {
@@ -182,80 +176,24 @@
             background-color: rgba(0, 242, 254, 0.03); 
         }
 
-        /* تنسيقات حقول التعديل بالجدول */
-        .editable-cell {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--text-main);
-            padding: 6px 8px;
-            border-radius: 6px;
-            outline: none;
-            font-family: inherit;
-            font-size: 0.9em;
-            text-align: center;
-            width: 90%;
-            box-sizing: border-box;
+        /* تنسيق الخانات القابلة للتعديل فقط */
+        td[contenteditable="true"] {
+            cursor: text;
             transition: all 0.2s ease;
+            outline: none;
+            border-radius: 4px;
         }
 
-        .editable-cell:focus {
-            border-color: var(--color-primary);
-            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        td[contenteditable="true"]:hover {
+            background: rgba(0, 242, 254, 0.08);
+            box-shadow: inset 0 0 5px rgba(0, 242, 254, 0.3);
+        }
+
+        td[contenteditable="true"]:focus {
             background: rgba(15, 23, 42, 0.95);
-        }
-
-        /* تنسيق الأساليب عند القراءة فقط */
-        .editable-cell:read-only, .editable-cell:disabled, input[type="checkbox"]:disabled {
-            background: rgba(15, 23, 42, 0.2);
-            border-color: transparent;
-            color: #94a3b8;
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-
-        .time-input { width: 105px; }
-        .num-input { width: 65px; }
-
-        /* Custom Checkbox */
-        .custom-checkbox {
-            width: 18px;
-            height: 18px;
-            accent-color: var(--color-danger);
-            cursor: pointer;
-            vertical-align: middle;
-        }
-
-        /* بادجات حالة الحضور */
-        .status-late {
-            background: rgba(255, 0, 127, 0.15);
-            color: var(--color-danger);
-            border: 1px solid rgba(255, 0, 127, 0.3);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .status-early {
-            background: rgba(0, 255, 135, 0.15);
-            color: var(--color-success);
-            border: 1px solid rgba(0, 255, 135, 0.3);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .status-ontime {
-            background: rgba(0, 242, 254, 0.15);
-            color: var(--color-primary);
-            border: 1px solid rgba(0, 242, 254, 0.3);
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: bold;
-        }
-
-        .deduction-txt {
-            color: var(--color-danger);
-            font-weight: bold;
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            border: 1px solid var(--color-primary);
+            color: #fff;
         }
 
         .money { 
@@ -264,10 +202,47 @@
             text-shadow: 0 0 10px rgba(0, 255, 135, 0.1);
         }
 
+        .deduction {
+            font-weight: 700;
+            color: var(--color-danger);
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.1);
+        }
+
+        .adjustment {
+            font-weight: 700;
+            color: var(--color-warning);
+            text-shadow: 0 0 10px rgba(230, 126, 34, 0.1);
+        }
+
         .hours { 
             font-weight: 700; 
             color: var(--color-primary); 
             text-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+        }
+
+        .time-input {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--card-border);
+            color: var(--color-primary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            outline: none;
+            font-family: inherit;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .time-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+            vertical-align: middle;
         }
 
         .empty-msg { 
@@ -278,21 +253,23 @@
             font-weight: 500;
         }
 
-        .btn-action { 
-            border: none; 
-            padding: 10px 18px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: 700; 
-            font-size: 0.9em; 
-            display: none; 
-            transition: all 0.3s ease;
-        }
-
         .btn-upload-cloud { 
             background-color: var(--color-success); 
             color: #070b12; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 0.95em; 
+            display: none; 
+            width: 100%;
+            transition: all 0.3s ease;
             box-shadow: 0 0 15px rgba(0, 255, 135, 0.2);
+        }
+
+        @media (min-width: 768px) {
+            .btn-upload-cloud { width: auto; padding: 12px 25px; font-size: 1em; }
         }
 
         .btn-upload-cloud:hover:not(:disabled) { 
@@ -301,19 +278,7 @@
             transform: translateY(-2px);
         }
 
-        .btn-download-csv {
-            background-color: var(--color-primary);
-            color: #070b12;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
-        }
-
-        .btn-download-csv:hover {
-            background-color: #fff;
-            box-shadow: 0 0 20px rgba(0, 242, 254, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .btn-action:disabled { 
+        .btn-upload-cloud:disabled { 
             background-color: rgba(30, 41, 59, 0.8); 
             color: var(--text-muted);
             border: 1px solid var(--card-border);
@@ -325,116 +290,17 @@
         .status-msg { 
             color: var(--color-warning); 
             font-weight: 700; 
-            margin-right: 15px; 
             display: none; 
+            font-size: 0.9em;
             text-shadow: 0 0 10px rgba(230, 126, 34, 0.2);
         }
 
-        /* نافذة تسجيل الدخول Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(7, 11, 18, 0.85);
-            backdrop-filter: blur(10px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-        .modal-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 30px;
-            border-radius: 20px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            text-align: center;
-        }
-
-        .modal-card h3 {
-            margin-top: 0;
-            color: var(--color-primary);
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-            text-align: right;
-        }
-
-        .form-group label {
-            display: block;
-            font-size: 0.85em;
-            color: #94a3b8;
-            margin-bottom: 5px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            background: rgba(15, 23, 42, 0.8);
-            border: 1px solid var(--card-border);
-            border-radius: 8px;
-            color: var(--text-main);
-            outline: none;
-            box-sizing: border-box;
-        }
-
-        .form-group input:focus {
-            border-color: var(--color-primary);
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
-
-        .btn-login-submit {
-            flex: 1;
-            background: var(--color-primary);
-            color: #070b12;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .btn-cancel {
-            background: transparent;
-            color: var(--text-muted);
-            border: 1px solid var(--card-border);
-            padding: 10px 15px;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-
-        .error-txt {
-            color: var(--color-danger);
-            font-size: 0.85em;
-            margin-top: 10px;
-            display: none;
-        }
-
-        @media (max-width: 768px) {
-            .control-section { flex-direction: column; align-items: stretch; }
-            th, td { font-size: 0.75em; padding: 10px 6px; }
-            .header-top { flex-direction: column; text-align: center; }
-        }
-        
         .footer { 
             text-align: center; 
             margin-top: auto; 
             color: #475569; 
             font-size: 0.85em; 
-            padding: 30px 20px; 
-            border-top: 1px solid rgba(255, 255, 255, 0.03); 
+            padding: 25px 10px 10px; 
             letter-spacing: 0.5px;
         }
     </style>
@@ -442,165 +308,59 @@
 <body>
 
     <div class="container">
-        <div class="header-top">
-            <h2>📊 قسم الأعمال اليومية - إدارة وحساب خصم التأخير المضاعف</h2>
-            <div class="auth-status-badge">
-                <span id="auth-status-label">🔒 الوضع: قراءة فقط</span>
-                <button id="auth-toggle-btn" class="auth-btn" onclick="openLoginModal()">تسجيل الدخول للتعديل</button>
-            </div>
-        </div>
+        <h2>📊 قسم الأعمال اليومية والحسابات</h2>
         
         <div class="control-section">
             <div class="upload-box">
-                <label for="csv-file">📂 رفع ملف البصمات (CSV):</label>
+                <label for="csv-file">📂 أرفع هنا ملف بصمات اليوم (CSV):</label>
                 <input type="file" id="csv-file" accept=".csv" onchange="handleFileSelect(event)">
             </div>
-            <div class="action-buttons">
-                <span id="process-status" class="status-msg">⏳ جاري الإرسال...</span>
-                <button id="download-csv-btn" class="btn-action btn-download-csv" onclick="downloadModifiedCSV()">📥 تحميل ملف بصمات جديد (CSV)</button>
-                <button id="cloud-sync-btn" class="btn-action btn-upload-cloud" onclick="uploadFinancialsToGoogle()">☁️ حفظ بـ Google Sheets</button>
+            <div class="action-box">
+                <span id="process-status" class="status-msg">⏳ جاري إرسال البيانات لجوجل شيت...</span>
+                <button id="cloud-sync-btn" class="btn-upload-cloud" onclick="uploadFinancialsToGoogle()">☁️ حفظ البيانات الحالية علي Google Sheets</button>
             </div>
         </div>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>رقم الموظف</th>
-                    <th>اسم الموظف</th>
-                    <th>نوع الوظيفة</th>
-                    <th>تاريخ التعيين</th>
-                    <th>عدد الورديات</th>
-                    <th>الحضور المخطط</th>
-                    <th>الانصراف المخطط</th>
-                    <th>أول حضور (فعلي)</th>
-                    <th>آخر انصراف (فعلي)</th>
-                    <th>حالة الحضور (الفارق)</th>
-                    <th>خصم التأخير؟</th>
-                    <th>قيمة الخصم (مضاعف)</th>
-                    <th>صافي ساعات العمل</th>
-                    <th>سعر الساعة</th>
-                    <th>حساب وردية اليوم</th>
-                    <th>أيام العمل</th>
-                    <th>إجمالي مستحقات الشهر</th>
-                </tr>
-            </thead>
-            <tbody id="report-rows">
-                <tr>
-                    <td colspan="17" class="empty-msg">برجاء رفع ملف الـ CSV لبدء المعالجة والتعديل...</td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Modal تسجيل الدخول -->
-    <div id="login-modal" class="modal-overlay">
-        <div class="modal-card">
-            <h3>🔐 تسجيل الدخول للتعديل</h3>
-            <div class="form-group">
-                <label>اسم المستخدم</label>
-                <input type="text" id="login-user" placeholder="ادخل اسم المستخدم">
-            </div>
-            <div class="form-group">
-                <label>كلمة المرور</label>
-                <input type="password" id="login-pass" placeholder="ادخل كلمة المرور">
-            </div>
-            <div id="login-error" class="error-txt">اسم المستخدم أو كلمة المرور غير صحيحة!</div>
-            <div class="modal-actions">
-                <button class="btn-login-submit" onclick="submitLogin()">دخول</button>
-                <button class="btn-cancel" onclick="closeLoginModal()">إلغاء</button>
-            </div>
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الموظف</th>
+                        <th>اسم الموظف</th>
+                        <th>الوظيفة</th>
+                        <th>حضور مخطط</th>
+                        <th>انصراف مخطط</th>
+                        <th>حضور (فعلي)</th>
+                        <th>انصراف (فعلي)</th>
+                        <th>حالة الحضور</th>
+                        <th>حالة الانصراف</th>
+                        <th>صافي ساعات العمل</th>
+                        <th>سعر الساعة</th>
+                        <th>تطبيق الخصم؟</th>
+                        <th>خصم تأخير تلقائي</th>
+                        <th>خصم / إضافة يدوية</th>
+                        <th>حساب الوردية</th>
+                    </tr>
+                </thead>
+                <tbody id="report-rows">
+                    <tr>
+                        <td colspan="15" class="empty-msg">برجاء رفع ملف الـ CSV...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        const SCRIPT_POST_URL = "https://script.google.com/macros/s/AKfycbzWyolQ9dLS4kuLCmaQzMglESB0dFzv0gxLSmLKQqpoYPKNxq79KddTPXDeIItZ0y5T/exec";
+        const SCRIPT_POST_URL = "https://script.google.com/macros/s/AKfycbzjwbSIc3l_ObCPyHZizSSc3dH0nqBqthJPlYpmMCgZ1hNoC5h-kOASNAm6SWFaf7E/exec";
         const SHEET_JSON_URL  = "https://docs.google.com/spreadsheets/d/1nmkhpVg_264wwYlWYwKu8FlxeedZL6bHmvO9vHiR0os/gviz/tq?tqx=out:json";
-        const FINANCIAL_LOG_URL = "https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json";
-
-        // بيانات الاعتماد للتسجيل
-        const ADMIN_USER = "admin";
-        const ADMIN_PASS = "123456";
-        let isLoggedIn = false;
 
         let globalEmployeesDatabase = {}; 
-        let globalHistoricalEarnings = {}; 
-        let aggregatedReportData = [];    
+        let aggregatedReportData = []; 
 
         window.onload = async function() {
             await fetchEmployeesDatabase();
-            await fetchHistoricalEarnings(); 
         };
-
-        function openLoginModal() {
-            if (isLoggedIn) {
-                isLoggedIn = false;
-                updateAuthUI();
-                applyReadOnlyState();
-            } else {
-                document.getElementById('login-modal').style.display = 'flex';
-                document.getElementById('login-user').value = '';
-                document.getElementById('login-pass').value = '';
-                document.getElementById('login-error').style.display = 'none';
-            }
-        }
-
-        function closeLoginModal() {
-            document.getElementById('login-modal').style.display = 'none';
-        }
-
-        function submitLogin() {
-            const user = document.getElementById('login-user').value.trim();
-            const pass = document.getElementById('login-pass').value.trim();
-
-            if (user === ADMIN_USER && pass === ADMIN_PASS) {
-                isLoggedIn = true;
-                closeLoginModal();
-                updateAuthUI();
-                applyReadOnlyState();
-            } else {
-                document.getElementById('login-error').style.display = 'block';
-            }
-        }
-
-        function updateAuthUI() {
-            const label = document.getElementById('auth-status-label');
-            const btn = document.getElementById('auth-toggle-btn');
-            if (isLoggedIn) {
-                label.innerText = "🔓 الوضع: قيد التعديل (مسجل)";
-                label.style.color = "var(--color-success)";
-                btn.innerText = "تسجيل الخروج";
-            } else {
-                label.innerText = "🔒 الوضع: قراءة فقط";
-                label.style.color = "var(--text-muted)";
-                btn.innerText = "تسجيل الدخول للتعديل";
-            }
-        }
-
-function applyReadOnlyState() {
-    const inputs = document.querySelectorAll('.editable-cell');
-    inputs.forEach(input => {
-        // فحص إذا كان العنصر هو وقت المخطط (حضور أو انصراف)
-        const isPlannedInput = input.id && (input.id.startsWith('plan-in-') || input.id.startsWith('plan-out-'));
-
-        if (isLoggedIn || isPlannedInput) {
-            // تفعيل التعديل في حالة تسجيل الدخول أو إذا كان الحقل مخطط
-            input.removeAttribute('readonly');
-            input.removeAttribute('disabled');
-        } else {
-            // قفل باقي الحقول (رقم الموظف، الاسم، الوظيفة، الحضور الفعلي، الانصراف الفعلي، إلخ)
-            input.setAttribute('readonly', 'readonly');
-            if (input.type === 'time') {
-                input.setAttribute('disabled', 'disabled');
-            }
-        }
-    });
-
-    // إبقاء الـ Checkbox الخاص بخصم التأخير متاحاً دائماً للجميع (سواء مسجل دخول أم لا)
-    const checkboxes = document.querySelectorAll('.custom-checkbox');
-    checkboxes.forEach(chk => {
-        chk.removeAttribute('disabled'); // متاح دائماً للتعديل
-    });
-}
 
         async function fetchEmployeesDatabase() {
             try {
@@ -614,64 +374,16 @@ function applyReadOnlyState() {
                     rows.forEach(row => {
                         if (row.c && row.c[1]) {
                             const empId = String(row.c[1].v).trim();
-                            let hireDateStr = "غير محدد";
-                            if (row.c[7]) {
-                                if (String(row.c[7].v).includes("Date")) {
-                                    const matches = row.c[7].v.match(/\d+/g);
-                                    if (matches && matches.length >= 3) {
-                                        hireDateStr = `${matches[0]}-${String(parseInt(matches[1]) + 1).padStart(2, '0')}-${String(matches[2]).padStart(2, '0')}`;
-                                    }
-                                } else {
-                                    hireDateStr = String(row.c[7].v).trim();
-                                }
-                            }
-
                             globalEmployeesDatabase[empId] = {
                                 name: row.c[2] ? row.c[2].v : 'غير معروف',
-                                role: row.c[3] ? row.c[3].v : 'عامل',
-                                hourlyRate: row.c[6] ? parseFloat(row.c[6].v) : 40,
-                                hireDate: hireDateStr
+                                role: row.c[3] ? row.c[3].v : 'غير محدد',
+                                hourlyRate: row.c[6] ? parseFloat(row.c[6].v) : 40
                             };
                         }
                     });
                 }
             } catch (err) {
-                console.error("خطأ في جلب قاعدة البيانات:", err);
-            }
-        }
-
-        async function fetchHistoricalEarnings() {
-            try {
-                const response = await fetch(FINANCIAL_LOG_URL);
-                const text = await response.text();
-                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-                const json = JSON.parse(jsonString);
-                const rows = json.table.rows;
-
-                globalHistoricalEarnings = {}; 
-
-                if (rows) {
-                    rows.forEach(row => {
-                        if (row.c && row.c[1] && row.c[1].v !== null) {
-                            const empId = String(row.c[1].v).trim();
-                            let dailyWage = 0;
-                            let wageColumn = row.c[9] ? row.c[9] : (row.c[8] ? row.c[8] : null);
-                            
-                            if (wageColumn && wageColumn.v !== null) {
-                                let cleanWage = String(wageColumn.v).replace(/[^\d.]/g, '');
-                                dailyWage = parseFloat(cleanWage) || 0;
-                            }
-
-                            if (!globalHistoricalEarnings[empId]) {
-                                globalHistoricalEarnings[empId] = { totalPaid: 0, daysCount: 0 };
-                            }
-                            globalHistoricalEarnings[empId].totalPaid += dailyWage;
-                            globalHistoricalEarnings[empId].daysCount += 1;
-                        }
-                    });
-                }
-            } catch (err) {
-                console.error("خطأ في جلب السجلات المالية:", err);
+                console.error("خطأ في جلب قاعدة البيانات الأساسية:", err);
             }
         }
 
@@ -685,7 +397,7 @@ function applyReadOnlyState() {
 
         function parseTimeToDate(timeStr) {
             const now = new Date();
-            let cleanTime = (timeStr || "").trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
+            let cleanTime = timeStr.trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
             
             let isPM = false;
             if (cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.toLowerCase().includes('مساء')) {
@@ -739,9 +451,8 @@ function applyReadOnlyState() {
 
             const empIds = Object.keys(userTimestamps);
             if (empIds.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="17" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="15" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
                 document.getElementById('cloud-sync-btn').style.display = 'none';
-                document.getElementById('download-csv-btn').style.display = 'none';
                 return;
             }
 
@@ -756,242 +467,169 @@ function applyReadOnlyState() {
                 const sortedDates = sortedIndices.map(i => dateObjects[i]);
                 const sortedRaw = sortedIndices.map(i => rawTimes[i]);
 
-                const checkInText = sortedRaw[0]; 
-                const checkOutText = sortedRaw[sortedRaw.length - 1]; 
-                
-                let numShifts = Math.max(1, Math.floor(sortedDates.length / 2));
-                let shiftDisplayString = `${numShifts} وردية`;
+                let totalSecondsAll = 0;
+                for (let k = 0; k < sortedDates.length; k += 2) {
+                    if (sortedDates[k + 1]) {
+                        let diffMs = sortedDates[k + 1].getTime() - sortedDates[k].getTime();
+                        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+                        totalSecondsAll += Math.floor(diffMs / 1000);
+                    }
+                }
+
+                const firstCheckInDate = sortedDates[0];
+                const lastCheckOutDate = sortedDates[sortedDates.length - 1];
+                const checkInText = sortedRaw[0];
+                const checkOutText = sortedRaw[sortedRaw.length - 1];
+
+                const hoursPart = Math.floor(totalSecondsAll / 3600);
+                const minutesPart = Math.floor((totalSecondsAll % 3600) / 60);
+                const secondsPart = totalSecondsAll % 60;
+                const exactHours = totalSecondsAll / 3600;
 
                 const empConfig = globalEmployeesDatabase[id];
                 let empName = userData.userName;
-                let empRole = "غير مسجل";
+                let empRole = 'غير محدد';
                 let hourlyRate = 40;
-                let hireDate = "غير مسجل";
-                
-                let historicalSum = 0;
-                let daysWorkedInSheet = 0;
-
-                if (globalHistoricalEarnings[id]) {
-                    historicalSum = globalHistoricalEarnings[id].totalPaid;
-                    daysWorkedInSheet = globalHistoricalEarnings[id].daysCount;
-                }
 
                 if (empConfig) {
                     empName = empConfig.name;
                     empRole = empConfig.role;
                     hourlyRate = empConfig.hourlyRate;
-                    hireDate = empConfig.hireDate;
                 }
 
-                const itemData = {
-                    empId: id,
-                    empName: empName,
-                    empRole: empRole,
-                    hireDate: hireDate,
-                    shiftNum: shiftDisplayString,
-                    plannedIn: "",
-                    plannedOut: "",
-                    checkIn: checkInText,
-                    checkOut: checkOutText,
-                    hourlyRate: hourlyRate,
-                    historicalSum: historicalSum,
-                    daysWorkedInSheet: daysWorkedInSheet,
-                    exactHoursText: "",
-                    todayEarnings: 0,
-                    totalMonthEarnings: 0,
-                    diffStatus: "في انتظار وقت الحضور المخطط",
-                    applyDeduction: true, // افتراضي محدد صح
-                    deductionMinutes: 0,
-                    deductionMoney: 0
-                };
-
-                aggregatedReportData.push(itemData);
-
+                /* 
+                   تمت إزالة contenteditable من الخانات المحددة 
+                   والإبقاء عليه فقط في "خصم / إضافة يدوية"
+                */
                 const rowHTML = `
                     <tr id="row-${id}">
-                        <td><input type="text" class="editable-cell num-input" value="${id}" onchange="updateRowCalculations('${id}', 'empId', this.value)"></td>
-                        <td><input type="text" class="editable-cell" value="${empName}" onchange="updateRowCalculations('${id}', 'empName', this.value)"></td>
-                        <td><input type="text" class="editable-cell" value="${empRole}" onchange="updateRowCalculations('${id}', 'empRole', this.value)"></td>
-                        <td><input type="text" class="editable-cell" value="${hireDate}" onchange="updateRowCalculations('${id}', 'hireDate', this.value)"></td>
-                        <td><input type="text" class="editable-cell num-input" value="${shiftDisplayString}" onchange="updateRowCalculations('${id}', 'shiftNum', this.value)"></td>
-                        
-                        <!-- المخطط -->
-                        <td><input type="time" class="editable-cell time-input" id="plan-in-${id}" onchange="updateRowCalculations('${id}', 'plannedIn', this.value)"></td>
-                        <td><input type="time" class="editable-cell time-input" id="plan-out-${id}" onchange="updateRowCalculations('${id}', 'plannedOut', this.value)"></td>
-                        
-                        <!-- الفعلي القابل للتعديل -->
-                        <td><input type="text" class="editable-cell time-input" id="check-in-${id}" value="${checkInText}" onchange="updateRowCalculations('${id}', 'checkIn', this.value)"></td>
-                        <td><input type="text" class="editable-cell time-input" id="check-out-${id}" value="${checkOutText}" onchange="updateRowCalculations('${id}', 'checkOut', this.value)"></td>
-                        
-                        <!-- حالة الفارق -->
-                        <td id="diff-cell-${id}"><span style="color: var(--text-muted);">-</span></td>
-                        
-                        <!-- تشيك بوكس تطبيق الخصم (افتراضي Checked) -->
-                        <td>
-                            <input type="checkbox" class="custom-checkbox" id="chk-deduct-${id}" checked onchange="updateRowCalculations('${id}', 'applyDeduction', this.checked)">
-                        </td>
-
-                        <!-- قيمة الخصم المضاعف -->
-                        <td id="deduct-cell-${id}" class="deduction-txt">0 ج.م</td>
-
-                        <td class="hours" id="hours-cell-${id}">0 س و 0 د</td>
-                        <td><input type="number" class="editable-cell num-input" value="${hourlyRate}" id="rate-${id}" onchange="updateRowCalculations('${id}', 'hourlyRate', this.value)"></td>
-                        <td class="money" id="today-cell-${id}">0 ج.م</td>
-                        <td><input type="number" class="editable-cell num-input" value="${daysWorkedInSheet + 1}" onchange="updateRowCalculations('${id}', 'daysWorked', this.value)" id="days-${id}"></td>
-                        <td class="money" id="month-cell-${id}">0 ج.م</td>
+                        <td><strong>${id}</strong></td>
+                        <td>${empName}</td>
+                        <td>${empRole}</td>
+                        <td><input type="time" class="time-input" id="plan-in-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td><input type="time" class="time-input" id="plan-out-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td><span style="color: var(--color-success);">⬇️ ${checkInText}</span></td>
+                        <td><span style="color: var(--color-danger);">⬆️ ${checkOutText}</span></td>
+                        <td id="in-status-${id}">-</td>
+                        <td id="out-status-${id}">-</td>
+                        <td class="hours" id="hours-display-${id}">${hoursPart} س و ${minutesPart} د</td>
+                        <td id="hourly-rate-${id}">${hourlyRate} ج.م</td>
+                        <td><input type="checkbox" class="checkbox-custom" id="apply-deduct-${id}" checked onchange="calculateRowFinancials('${id}')"></td>
+                        <td class="deduction" id="deduction-val-${id}">0 ج.م</td>
+                        <td contenteditable="true" class="adjustment" id="manual-adj-${id}" onblur="onManualAdjustmentEdit('${id}', this.innerText)">0 ج.م</td>
+                        <td class="money" id="today-earnings-${id}">0 ج.م</td>
                     </tr>
                 `;
                 tbody.insertAdjacentHTML('beforeend', rowHTML);
 
-                // حساب الصف لأول مرة
-                recalculateEmpRow(id);
+                aggregatedReportData.push({
+                    empId: id,
+                    empName: empName,
+                    empRole: empRole,
+                    firstCheckInDate: firstCheckInDate,
+                    lastCheckOutDate: lastCheckOutDate,
+                    exactHours: exactHours,
+                    hoursDisplay: `${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
+                    hourlyRate: hourlyRate,
+                    checkIn: checkInText,
+                    checkOut: checkOutText,
+                    plannedIn: '',
+                    plannedOut: '',
+                    applyDeduction: true,
+                    deductionAmount: 0,
+                    manualAdjustment: 0,
+                    todayEarnings: 0
+                });
+
+                calculateRowFinancials(id);
             });
 
-            applyReadOnlyState();
-
-            document.getElementById('cloud-sync-btn').style.display = 'inline-block';
-            document.getElementById('download-csv-btn').style.display = 'inline-block';
+            document.getElementById('cloud-sync-btn').style.display = 'block';
         }
 
-        // تحديث الحسابات والدقائق
-        function updateRowCalculations(empId, field, value) {
-            if (!isLoggedIn) return;
+        function calculateRowFinancials(empId) {
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex === -1) return;
 
-            const item = aggregatedReportData.find(x => x.empId === empId);
-            if (!item) return;
+            const item = aggregatedReportData[itemIndex];
 
-            if (field === 'hourlyRate') item.hourlyRate = parseFloat(value) || 0;
-            else if (field === 'daysWorked') item.daysWorkedInSheet = (parseInt(value) || 1) - 1;
-            else if (field === 'applyDeduction') item.applyDeduction = value;
-            else item[field] = value;
+            const planInVal = document.getElementById(`plan-in-${empId}`).value;
+            const planOutVal = document.getElementById(`plan-out-${empId}`).value;
+            const isDeductChecked = document.getElementById(`apply-deduct-${empId}`).checked;
 
-            recalculateEmpRow(empId);
-        }
+            let deduction = 0;
+            let inStatusHtml = '<span style="color: var(--text-muted);">-</span>';
+            let outStatusHtml = '<span style="color: var(--text-muted);">-</span>';
 
-        function recalculateEmpRow(empId) {
-            const item = aggregatedReportData.find(x => x.empId === empId);
-            if (!item) return;
+            if (planInVal && item.firstCheckInDate) {
+                const [pHours, pMinutes] = planInVal.split(':').map(Number);
+                const plannedInDate = new Date(item.firstCheckInDate);
+                plannedInDate.setHours(pHours, pMinutes, 0, 0);
 
-            // 1. حساب الوقت الفعلي
-            const checkInDate = parseTimeToDate(item.checkIn);
-            const checkOutDate = parseTimeToDate(item.checkOut);
+                const diffInMinutes = Math.round((item.firstCheckInDate - plannedInDate) / (1000 * 60));
 
-            let diffMs = checkOutDate.getTime() - checkInDate.getTime();
-            if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
-
-            const totalSeconds = Math.floor(diffMs / 1000);
-            const hoursPart = Math.floor(totalSeconds / 3600);
-            const minutesPart = Math.floor((totalSeconds % 3600) / 60);
-            const secondsPart = totalSeconds % 60;
-            const exactHours = totalSeconds / 3600;
-
-            let baseTodayEarnings = exactHours * item.hourlyRate;
-
-            // 2. حساب الفارق والمضاعفة
-            const diffCell = document.getElementById(`diff-cell-${empId}`);
-            const deductCell = document.getElementById(`deduct-cell-${empId}`);
-
-            let lateMinutes = 0;
-
-            if (item.plannedIn && item.plannedIn.includes(':')) {
-                const [pHours, pMinutes] = item.plannedIn.split(':').map(Number);
-                const plannedMinutes = pHours * 60 + pMinutes;
-                const actualInMinutes = checkInDate.getHours() * 60 + checkInDate.getMinutes();
-
-                const diff = actualInMinutes - plannedMinutes;
-
-                if (diff > 0) {
-                    lateMinutes = diff; // دقائق التأخير الفعلية
-                    const h = Math.floor(diff / 60);
-                    const m = diff % 60;
-                    let text = h > 0 ? `تأخير ${h}س و ${m}د` : `تأخير ${m} دقيقة`;
-                    diffCell.innerHTML = `<span class="status-late">🚨 ${text}</span>`;
-                    item.diffStatus = text;
-                } else if (diff < 0) {
-                    const absDiff = Math.abs(diff);
-                    const h = Math.floor(absDiff / 60);
-                    const m = absDiff % 60;
-                    let text = h > 0 ? `تبكير ${h}س و ${m}د` : `تبكير ${m} دقيقة`;
-                    diffCell.innerHTML = `<span class="status-early">⚡ ${text}</span>`;
-                    item.diffStatus = text;
+                if (diffInMinutes > 0) {
+                    inStatusHtml = `<span style="color: var(--color-warning); font-weight: bold;">⚠️ تأخير ${diffInMinutes} دقيقة</span>`;
+                    const minuteRate = item.hourlyRate / 60;
+                    deduction = (diffInMinutes * minuteRate) * 2;
+                } else if (diffInMinutes < 0) {
+                    inStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⚡ مبكر ${Math.abs(diffInMinutes)} دقيقة</span>`;
                 } else {
-                    diffCell.innerHTML = `<span class="status-ontime">🎯 في الموعد</span>`;
-                    item.diffStatus = "في الموعد";
+                    inStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
                 }
-            } else {
-                diffCell.innerHTML = `<span style="color: var(--text-muted);">-</span>`;
-                item.diffStatus = "غير محدد";
             }
 
-            // 3. تطبيق معادلة دقيقة التأخير = دقيقتين خصم
-            let doubleDeductionMinutes = 0;
-            let deductionMoney = 0;
+            if (planOutVal && item.lastCheckOutDate) {
+                const [pOutHours, pOutMinutes] = planOutVal.split(':').map(Number);
+                const plannedOutDate = new Date(item.lastCheckOutDate);
+                plannedOutDate.setHours(pOutHours, pOutMinutes, 0, 0);
 
-            if (lateMinutes > 0 && item.applyDeduction) {
-                doubleDeductionMinutes = lateMinutes * 2; // مضاعفة التأخير
-                const minuteRate = item.hourlyRate / 60;
-                deductionMoney = doubleDeductionMinutes * minuteRate;
-                
-                deductCell.innerHTML = `<span class="deduction-txt">-${deductionMoney.toFixed(2)} ج.م<br><small>(${doubleDeductionMinutes} د خصم)</small></span>`;
-            } else if (lateMinutes > 0 && !item.applyDeduction) {
-                deductCell.innerHTML = `<span style="color: var(--text-muted); text-decoration: line-through;">تم إلغاء الخصم</span>`;
-            } else {
-                deductCell.innerHTML = `<span style="color: var(--text-muted);">0 ج.م</span>`;
+                const diffOutMinutes = Math.round((item.lastCheckOutDate - plannedOutDate) / (1000 * 60));
+
+                if (diffOutMinutes < 0) {
+                    outStatusHtml = `<span style="color: var(--color-danger); font-weight: bold;">🔻 مبكر ${Math.abs(diffOutMinutes)} دقيقة</span>`;
+                } else if (diffOutMinutes > 0) {
+                    outStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⏳ تأخير ${diffOutMinutes} دقيقة</span>`;
+                } else {
+                    outStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
+                }
             }
 
-            item.deductionMinutes = doubleDeductionMinutes;
-            item.deductionMoney = deductionMoney.toFixed(2);
-
-            // الصافي بعد الخصم
-            let finalTodayEarnings = Math.max(0, baseTodayEarnings - deductionMoney);
-
-            item.exactHoursText = `${hoursPart} ساعة و ${minutesPart} دقيقة و ${secondsPart} ثانية`;
-            item.todayEarnings = parseFloat(finalTodayEarnings.toFixed(2));
+            const baseEarnings = item.exactHours * item.hourlyRate;
+            const finalAutoDeduction = isDeductChecked ? parseFloat(deduction.toFixed(2)) : 0;
+            const manualAdj = item.manualAdjustment || 0;
             
-            const daysWorked = parseInt(document.getElementById(`days-${empId}`)?.value) || (item.daysWorkedInSheet + 1);
-            item.totalMonthEarnings = (item.historicalSum + item.todayEarnings).toFixed(2);
+            // حساب الصافي النهائي = (أجر الساعات - خصم التأخير + الخصم/الإضافة اليدوية)
+            const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalAutoDeduction + manualAdj).toFixed(2)));
 
-            // تحديث العرض بالجدول
-            document.getElementById(`hours-cell-${empId}`).innerText = `${hoursPart} س و ${minutesPart} د`;
-            document.getElementById(`today-cell-${empId}`).innerText = `${item.todayEarnings} ج.م`;
-            document.getElementById(`month-cell-${empId}`).innerText = `${item.totalMonthEarnings} ج.م`;
+            document.getElementById(`in-status-${empId}`).innerHTML = inStatusHtml;
+            document.getElementById(`out-status-${empId}`).innerHTML = outStatusHtml;
+            document.getElementById(`deduction-val-${empId}`).innerText = `${finalAutoDeduction} ج.م`;
+            document.getElementById(`today-earnings-${empId}`).innerText = `${finalEarnings} ج.م`;
+
+            item.plannedIn = planInVal;
+            item.plannedOut = planOutVal;
+            item.applyDeduction = isDeductChecked;
+            item.deductionAmount = finalAutoDeduction;
+            item.todayEarnings = finalEarnings;
         }
 
-        function downloadModifiedCSV() {
-            if (aggregatedReportData.length === 0) return;
-
-            let csvContent = "\uFEFF";
-            csvContent += "رقم الموظف,اسم الموظف,الوقت والتاريخ,الحضور المخطط,الانصراف المخطط,حالة الحضور,تطبيق الخصم,دقائق الخصم المضاعف,قيمة الخصم,ساعات العمل,الأجر اليومي الصافي\n";
-
-            aggregatedReportData.forEach(item => {
-                const deductAppliedText = item.applyDeduction ? "نعم" : "لا";
-                csvContent += `"${item.empId}","${item.empName}","${item.checkIn}","${item.plannedIn}","${item.plannedOut}","${item.diffStatus}","${deductAppliedText}","${item.deductionMinutes}","${item.deductionMoney}","${item.exactHoursText}","${item.todayEarnings}"\n`;
-                csvContent += `"${item.empId}","${item.empName}","${item.checkOut}","${item.plannedIn}","${item.plannedOut}","${item.diffStatus}","${deductAppliedText}","${item.deductionMinutes}","${item.deductionMoney}","${item.exactHoursText}","${item.todayEarnings}"\n`;
-            });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `بصمات_ومستحقات_معدلة_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+        function onManualAdjustmentEdit(empId, textVal) {
+            const parsedAdj = parseFloat(textVal.replace(/[^\d.-]/g, '')) || 0;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex].manualAdjustment = parsedAdj;
+                calculateRowFinancials(empId);
+            }
         }
 
         async function uploadFinancialsToGoogle() {
-            if (!isLoggedIn) {
-                alert("⚠️ يرجى تسجيل الدخول أولاً كمسؤول لتتمكن من رفع وحفظ البيانات!");
-                openLoginModal();
-                return;
-            }
-
             if (aggregatedReportData.length === 0) return;
 
             const syncBtn = document.getElementById('cloud-sync-btn');
             const statusMsg = document.getElementById('process-status');
             syncBtn.disabled = true;
-            statusMsg.style.display = 'inline';
+            statusMsg.style.display = 'inline-block';
 
             let successCount = 0;
 
@@ -1001,20 +639,15 @@ function applyReadOnlyState() {
                 params.append('empId', data.empId);
                 params.append('empName', data.empName);
                 params.append('empRole', data.empRole);
-                params.append('shiftNum', data.shiftNum);
-                params.append('plannedIn', data.plannedIn);
-                params.append('plannedOut', data.plannedOut);
                 params.append('checkIn', data.checkIn);
                 params.append('checkOut', data.checkOut);
-                params.append('diffStatus', data.diffStatus);
-                params.append('deductionApplied', data.applyDeduction ? "نعم" : "لا");
-                params.append('deductionMoney', data.deductionMoney);
-                params.append('exactHours', data.exactHoursText);
+                params.append('plannedIn', data.plannedIn || '-');
+                params.append('plannedOut', data.plannedOut || '-');
+                params.append('exactHours', data.hoursDisplay);
                 params.append('hourlyRate', data.hourlyRate);
-                params.append('todayEarnings', data.todayEarnings);
-                params.append('daysWorked', data.daysWorkedInSheet + 1);
-                params.append('totalMonthEarnings', data.totalMonthEarnings);
-                params.append('hireDate', data.hireDate);
+                params.append('deductionAmount', data.deductionAmount || 0);    // خصم التأخير
+                params.append('manualAdjustment', data.manualAdjustment || 0); // الخصم / الإضافة اليدوية
+                params.append('todayEarnings', data.todayEarnings);             // حساب الوردية
 
                 const finalUrlWithParams = SCRIPT_POST_URL + "?" + params.toString();
 
@@ -1025,13 +658,12 @@ function applyReadOnlyState() {
                     });
                     successCount++;
                 } catch (e) {
-                    console.error("خطأ أثناء الإرسال:", e);
+                    console.error("خطأ شبكة:", e);
                 }
             }
 
-            setTimeout(async () => {
-                alert(`🟢 تم حفظ البيانات والدقائق المخصومة المباشرة لـ (${successCount}) موظف بنجاح!`);
-                await fetchHistoricalEarnings();
+            setTimeout(() => {
+                alert(`🟢 تم حفظ البيانات بنجاح لـ (${successCount}) موظف في Google Sheets!`);
                 syncBtn.disabled = false;
                 statusMsg.style.display = 'none';
             }, 1200);

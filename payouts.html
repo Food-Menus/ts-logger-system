@@ -647,5 +647,8 @@
             XLSX.writeFile(workbook, `كشف_مستحقات_الموظفين_${dateFileName}.xlsx`);
         }
     </script>
+   
+    <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
+    </script>
 </body>
 </html>

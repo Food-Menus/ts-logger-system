@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل الدخول - T.S Logger System</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(0, 242, 254, 0.1);
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --color-neon: #00f2fe;
+            --color-error: #ff007f;
+            --color-success: #00ff87;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            background: var(--bg-gradient); 
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            border: 1px solid var(--card-border);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .login-card:hover {
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.15);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h2 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 900;
+            background: linear-gradient(90deg, #fff, var(--color-neon));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 242, 254, 0.2);
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            font-size: 0.9em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: right;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9em;
+            color: #94a3b8;
+            font-weight: 600;
+        }
+
+        .input-box input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(7, 11, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .input-box input:focus {
+            border-color: var(--color-neon);
+            box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+            background: rgba(7, 11, 18, 0.85);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(90deg, #00f2fe, #4facfe);
+            color: #070b12;
+            font-size: 1.05em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+            margin-top: 10px;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.5);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .message-box {
+            margin-top: 18px;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.9em;
+            text-align: center;
+            display: none;
+        }
+
+        .message-box.error {
+            display: block !important;
+            background: rgba(255, 0, 127, 0.15);
+            border: 1px solid var(--color-error);
+            color: #ff66b2;
+        }
+
+        .message-box.success {
+            display: block !important;
+            background: rgba(0, 255, 135, 0.15);
+            border: 1px solid var(--color-success);
+            color: var(--color-success);
+        }
+
+        .footer-text {
+            margin-top: 25px;
+            text-align: center;
+            color: #475569;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <div class="header">
+            <h2>تسجيل الدخول</h2>
+            <p>نظام T.S Logger الإداري والمالي</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">اسم المستخدم</label>
+                <div class="input-box">
+                    <input type="text" id="username" placeholder="أدخل اسم المستخدم" required autocomplete="off">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">كلمة المرور</label>
+                <div class="input-box">
+                    <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                </div>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">تسجيل الدخول</button>
+            <div id="alertMessage" class="message-box"></div>
+        </form>
+
+        <div class="footer-text">
+            جميع الحقوق محفوظة © 2026 Techno Science
+        </div>
+    </div>
+
+    <script>
+        const SHEET_ID = '1cDpeFgpQG5glYUBM0ShSsBtAWorpE9N3GLi6AYQxuoc';
+        const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+
+        const loginForm = document.getElementById('loginForm');
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const alertMessage = document.getElementById('alertMessage');
+
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const inputUser = usernameInput.value.trim();
+            const inputPass = passwordInput.value.trim();
+
+            if (!inputUser || !inputPass) {
+                showMessage('يرجى ادخال اسم المستخدم وكلمة المرور', 'error');
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'جاري التحقق...';
+            hideMessage();
+
+            try {
+                const response = await fetch(SHEET_CSV_URL);
+                if (!response.ok) throw new Error('تعذر الاتصال بقاعدة البيانات');
+                
+                const csvText = await response.text();
+                const rows = parseCSV(csvText);
+                const dataRows = rows.slice(1);
+
+                // 1️⃣ البحث عن اسم المستخدم (العمود الأول A)
+                const userRow = dataRows.find(row => {
+                    const cellUser = row[0] ? row[0].replace(/^"|"$/g, '').trim() : '';
+                    return cellUser.toLowerCase() === inputUser.toLowerCase();
+                });
+
+                if (!userRow) {
+                    showMessage('❌ اسم المستخدم غير موجود!', 'error');
+                    resetBtn();
+                    return;
+                }
+
+                // 2️⃣ التحقق من كلمة المرور (العمود الثاني B)
+                const correctPassword = userRow[1] ? userRow[1].replace(/^"|"$/g, '').trim() : '';
+
+                if (correctPassword !== inputPass) {
+                    showMessage('❌ كلمة المرور غير صحيحة!', 'error');
+                    resetBtn();
+                    return;
+                }
+
+                // 3️⃣ قراءة نوع الصلاحية من العمود الثالث (C)
+                // إذا كان فارغاً يتم تعيينه كـ user بشكل افتراضي
+                const userRole = userRow[2] ? userRow[2].replace(/^"|"$/g, '').trim().toLowerCase() : 'user';
+
+                showMessage('✅ تم تسجيل الدخول بنجاح، جاري التحويل...', 'success');
+                
+                // حفظ البيانات والصلاحية في جلسة المتصفح
+                sessionStorage.setItem('isLoggedIn', 'true');
+                sessionStorage.setItem('loggedUser', inputUser);
+                sessionStorage.setItem('userRole', userRole);
+
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error(error);
+                showMessage('⚠️ متعذر قراءة الشيت، تأكد من إعدادات المشاركة للملف', 'error');
+                resetBtn();
+            }
+        });
+
+        function parseCSV(text) {
+            const lines = text.split(/\r\n|\n/);
+            return lines.map(line => {
+                return line.split(/,(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)/);
+            }).filter(row => row.length > 0 && row[0] !== "");
+        }
+
+        function showMessage(msg, type) {
+            alertMessage.innerText = msg;
+            alertMessage.className = `message-box ${type}`;
+        }
+
+        function hideMessage() {
+            alertMessage.style.display = 'none';
+            alertMessage.className = 'message-box';
+        }
+
+        function resetBtn() {
+            submitBtn.disabled = false;
+            submitBtn.innerText = 'تسجيل الدخول';
+        }
+    </script>
+</body>
+</html>

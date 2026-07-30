@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.S Logger System</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(0, 242, 254, 0.1);
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            
+            --color-primary: #00f2fe;    /* السيان المضيء */
+            --color-success: #00ff87;    /* الأخضر للمستحقات والتبكير */
+            --color-danger: #ff007f;     /* الوردي للخصومات والانصراف */
+            --color-warning: #e67e22;    /* البرتقالي للتأخير */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px 10px;
+            background: var(--bg-gradient); 
+            color: var(--text-main); 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 1600px; 
+            margin: 0 auto; 
+            background: var(--card-bg); 
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 25px 20px; 
+            border-radius: 24px; 
+            border: 1px solid var(--card-border);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
+        }
+
+        h2 { 
+            margin-top: 0;
+            font-size: 1.8em;
+            font-weight: 900;
+            background: linear-gradient(90deg, #fff, var(--color-primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+            border-bottom: 1px solid var(--card-border); 
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+            text-align: center;
+        }
+
+        @media (min-width: 768px) {
+            body { padding: 30px 20px; }
+            .container { padding: 30px; }
+            h2 { font-size: 2em; text-align: right; }
+        }
+
+        .control-section { 
+            background: rgba(30, 41, 59, 0.4); 
+            padding: 20px; 
+            border-radius: 16px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 20px; 
+            border: 1px solid var(--card-border); 
+            flex-wrap: wrap; 
+            transition: all 0.3s ease;
+        }
+        
+        .control-section:hover {
+            border-color: rgba(0, 242, 254, 0.2);
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.05);
+        }
+
+        .upload-box { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            flex-wrap: wrap; 
+            width: 100%;
+        }
+
+        .upload-box label { 
+            font-weight: 600; 
+            color: #94a3b8; 
+            width: 100%;
+        }
+
+        .upload-box input[type="file"] {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--card-border);
+            color: var(--text-main);
+            padding: 10px 12px;
+            border-radius: 8px;
+            outline: none;
+            cursor: pointer;
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .action-box {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        @media (min-width: 768px) {
+            .upload-box { width: auto; }
+            .upload-box label { width: auto; }
+            .upload-box input[type="file"] { width: auto; }
+            .action-box { width: auto; align-items: flex-end; }
+        }
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 14px;
+            border: 1px solid var(--card-border);
+            margin-top: 15px;
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            min-width: 1250px;
+        }
+
+        th, td { 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
+            border-left: 1px solid rgba(255, 255, 255, 0.03); 
+            padding: 12px 10px; 
+            text-align: center; 
+            font-size: 0.88em; 
+            white-space: nowrap;
+        }
+        
+        th:last-child, td:last-child {
+            border-left: none;
+        }
+
+        th { 
+            background-color: rgba(30, 41, 59, 0.8); 
+            color: #94a3b8; 
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+
+        tr {
+            background-color: rgba(15, 23, 42, 0.4);
+            transition: background 0.3s;
+        }
+
+        tr:nth-child(even) { 
+            background-color: rgba(30, 41, 59, 0.2); 
+        }
+
+        tr:hover { 
+            background-color: rgba(0, 242, 254, 0.03); 
+        }
+
+        td[contenteditable="true"] {
+            cursor: text;
+            transition: all 0.2s ease;
+            outline: none;
+            border-radius: 4px;
+        }
+
+        td[contenteditable="true"]:hover {
+            background: rgba(0, 242, 254, 0.08);
+            box-shadow: inset 0 0 5px rgba(0, 242, 254, 0.3);
+        }
+
+        td[contenteditable="true"]:focus {
+            background: rgba(15, 23, 42, 0.95);
+            box-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            border: 1px solid var(--color-primary);
+            color: #fff;
+        }
+
+        .money { 
+            font-weight: 700; 
+            color: var(--color-success); 
+            text-shadow: 0 0 10px rgba(0, 255, 135, 0.1);
+        }
+
+        .deduction {
+            font-weight: 700;
+            color: var(--color-danger);
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.1);
+        }
+
+        .adjustment {
+            font-weight: 700;
+            color: var(--color-warning);
+            text-shadow: 0 0 10px rgba(230, 126, 34, 0.1);
+        }
+
+        .hours { 
+            font-weight: 700; 
+            color: var(--color-primary); 
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.1);
+        }
+
+        .time-input {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid var(--card-border);
+            color: var(--color-primary);
+            padding: 6px 10px;
+            border-radius: 6px;
+            outline: none;
+            font-family: inherit;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .time-input:focus {
+            border-color: var(--color-primary);
+            box-shadow: 0 0 8px rgba(0, 242, 254, 0.3);
+        }
+
+        .checkbox-custom {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--color-primary);
+            vertical-align: middle;
+        }
+
+        .empty-msg { 
+            text-align: center; 
+            color: var(--text-muted); 
+            padding: 40px; 
+            font-size: 1.1em; 
+            font-weight: 500;
+        }
+
+        .btn-upload-cloud { 
+            background-color: var(--color-success); 
+            color: #070b12; 
+            border: none; 
+            padding: 12px 20px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 0.95em; 
+            display: none; 
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 255, 135, 0.2);
+        }
+
+        @media (min-width: 768px) {
+            .btn-upload-cloud { width: auto; padding: 12px 25px; font-size: 1em; }
+        }
+
+        .btn-upload-cloud:hover:not(:disabled) { 
+            background-color: #fff;
+            box-shadow: 0 0 20px rgba(0, 255, 135, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-upload-cloud:disabled { 
+            background-color: rgba(30, 41, 59, 0.8); 
+            color: var(--text-muted);
+            border: 1px solid var(--card-border);
+            cursor: not-allowed; 
+            box-shadow: none;
+            transform: none;
+        }
+
+        .status-msg { 
+            color: var(--color-warning); 
+            font-weight: 700; 
+            display: none; 
+            font-size: 0.9em;
+            text-shadow: 0 0 10px rgba(230, 126, 34, 0.2);
+        }
+
+        .footer { 
+            text-align: center; 
+            margin-top: auto; 
+            color: #475569; 
+            font-size: 0.85em; 
+            padding: 25px 10px 10px; 
+            letter-spacing: 0.5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>📊 قسم الأعمال اليومية والحسابات</h2>
+        
+        <div class="control-section">
+            <div class="upload-box">
+                <label for="csv-file">📂 أرفع هنا ملف بصمات اليوم (CSV):</label>
+                <input type="file" id="csv-file" accept=".csv" onchange="handleFileSelect(event)">
+            </div>
+            <div class="action-box">
+                <span id="process-status" class="status-msg">⏳ جاري إرسال البيانات لجوجل شيت...</span>
+                <button id="cloud-sync-btn" class="btn-upload-cloud" onclick="uploadFinancialsToGoogle()">☁️ حفظ البيانات الحالية علي Google Sheets</button>
+            </div>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الموظف</th>
+                        <th>اسم الموظف</th>
+                        <th>حضور مخطط</th>
+                        <th>انصراف مخطط</th>
+                        <th>حضور (فعلي)</th>
+                        <th>انصراف (فعلي)</th>
+                        <th>حالة الحضور</th>
+                        <th>حالة الانصراف</th>
+                        <th>صافي ساعات العمل</th>
+                        <th>سعر الساعة</th>
+                        <th>تطبيق الخصم؟</th>
+                        <th>خصم تأخير تلقائي</th>
+                        <th>خصم / إضافة يدوية</th>
+                        <th>حساب الوردية</th>
+                    </tr>
+                </thead>
+                <tbody id="report-rows">
+                    <tr>
+                        <td colspan="14" class="empty-msg">برجاء رفع ملف الـ CSV...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        const SCRIPT_POST_URL = "https://script.google.com/macros/s/AKfycbxNjAozRgVX_Wi5YuLjmKIYWqHE5wrx_B-_n6H6CBW9fvTdgpJopJyy74y8hFqFj23r/exec";
+        const SHEET_JSON_URL  = "https://docs.google.com/spreadsheets/d/1nmkhpVg_264wwYlWYwKu8FlxeedZL6bHmvO9vHiR0os/gviz/tq?tqx=out:json";
+
+        let globalEmployeesDatabase = {}; 
+        let aggregatedReportData = []; 
+
+        window.onload = async function() {
+            await fetchEmployeesDatabase();
+        };
+
+        async function fetchEmployeesDatabase() {
+            try {
+                const response = await fetch(SHEET_JSON_URL);
+                const text = await response.text();
+                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+                const json = JSON.parse(jsonString);
+                const rows = json.table.rows;
+
+                if (rows) {
+                    rows.forEach(row => {
+                        if (row.c && row.c[1]) {
+                            const empId = String(row.c[1].v).trim();
+                            globalEmployeesDatabase[empId] = {
+                                name: row.c[2] ? row.c[2].v : 'غير معروف',
+                                hourlyRate: row.c[6] ? parseFloat(row.c[6].v) : 40
+                            };
+                        }
+                    });
+                }
+            } catch (err) {
+                console.error("خطأ في جلب قاعدة البيانات الأساسية:", err);
+            }
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) { processCSVData(e.target.result); };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseTimeToDate(timeStr) {
+            const now = new Date();
+            let cleanTime = timeStr.trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
+            
+            let isPM = false;
+            if (cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.toLowerCase().includes('مساء')) {
+                isPM = true;
+            }
+            
+            const matches = cleanTime.match(/\d+/g);
+            if (!matches || matches.length < 2) return now;
+            
+            let hours = parseInt(matches[0]);
+            const minutes = parseInt(matches[1]);
+            const seconds = matches[2] ? parseInt(matches[2]) : 0;
+            
+            if (isPM && hours < 12) hours += 12;
+            if (!isPM && hours === 12) hours = 0;
+            if (hours > 23) hours = 0;
+            
+            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds);
+        }
+
+        function processCSVData(csvText) {
+            const lines = csvText.split('\n');
+            let rawLogs = [];
+
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                const columns = line.split(',');
+                if (columns.length < 3) continue;
+                
+                rawLogs.push({
+                    userId: columns[0].trim(),
+                    userName: columns[1].trim(),
+                    timeStr: columns[2].trim()
+                });
+            }
+
+            let userTimestamps = {};
+            rawLogs.forEach(log => {
+                const id = log.userId;
+                if (!userTimestamps[id]) {
+                    userTimestamps[id] = { userName: log.userName, times: [], rawTimes: [] };
+                }
+                userTimestamps[id].times.push(parseTimeToDate(log.timeStr));
+                userTimestamps[id].rawTimes.push(log.timeStr);
+            });
+
+            const tbody = document.getElementById('report-rows');
+            tbody.innerHTML = '';
+            aggregatedReportData = [];
+
+            const empIds = Object.keys(userTimestamps);
+            if (empIds.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="14" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
+                document.getElementById('cloud-sync-btn').style.display = 'none';
+                return;
+            }
+
+            empIds.sort((a, b) => parseInt(a) - parseInt(b));
+
+            empIds.forEach(id => {
+                const userData = userTimestamps[id];
+                const dateObjects = userData.times;
+                const rawTimes = userData.rawTimes;
+                
+                const sortedIndices = dateObjects.map((_, i) => i).sort((i, j) => dateObjects[i] - dateObjects[j]);
+                const sortedDates = sortedIndices.map(i => dateObjects[i]);
+                const sortedRaw = sortedIndices.map(i => rawTimes[i]);
+
+                let totalSecondsAll = 0;
+                for (let k = 0; k < sortedDates.length; k += 2) {
+                    if (sortedDates[k + 1]) {
+                        let diffMs = sortedDates[k + 1].getTime() - sortedDates[k].getTime();
+                        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
+                        totalSecondsAll += Math.floor(diffMs / 1000);
+                    }
+                }
+
+                const firstCheckInDate = sortedDates[0];
+                const lastCheckOutDate = sortedDates[sortedDates.length - 1];
+                const checkInText = sortedRaw[0];
+                const checkOutText = sortedRaw[sortedRaw.length - 1];
+
+                const hoursPart = Math.floor(totalSecondsAll / 3600);
+                const minutesPart = Math.floor((totalSecondsAll % 3600) / 60);
+                const secondsPart = totalSecondsAll % 60;
+                const exactHours = totalSecondsAll / 3600;
+
+                const empConfig = globalEmployeesDatabase[id];
+                let empName = userData.userName;
+                let hourlyRate = 40;
+
+                if (empConfig) {
+                    empName = empConfig.name;
+                    hourlyRate = empConfig.hourlyRate;
+                }
+
+                const rowHTML = `
+                    <tr id="row-${id}">
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'empId', this.innerText)"><strong>${id}</strong></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'empName', this.innerText)">${empName}</td>
+                        <td><input type="time" class="time-input" id="plan-in-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td><input type="time" class="time-input" id="plan-out-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'checkIn', this.innerText)"><span style="color: var(--color-success);">⬇️ ${checkInText}</span></td>
+                        <td contenteditable="true" onblur="updateManualData('${id}', 'checkOut', this.innerText)"><span style="color: var(--color-danger);">⬆️ ${checkOutText}</span></td>
+                        <td contenteditable="true" id="in-status-${id}">-</td>
+                        <td contenteditable="true" id="out-status-${id}">-</td>
+                        <td contenteditable="true" class="hours" id="hours-display-${id}">${hoursPart} س و ${minutesPart} د</td>
+                        <td contenteditable="true" id="hourly-rate-${id}" onblur="onHourlyRateEdit('${id}', this.innerText)">${hourlyRate} ج.م</td>
+                        <td><input type="checkbox" class="checkbox-custom" id="apply-deduct-${id}" checked onchange="calculateRowFinancials('${id}')"></td>
+                        <td contenteditable="true" class="deduction" id="deduction-val-${id}" onblur="onDeductionEdit('${id}', this.innerText)">0 ج.م</td>
+                        <td contenteditable="true" class="adjustment" id="manual-adj-${id}" onblur="onManualAdjustmentEdit('${id}', this.innerText)">0 ج.م</td>
+                        <td contenteditable="true" class="money" id="today-earnings-${id}" onblur="updateManualData('${id}', 'todayEarnings', parseFloat(this.innerText) || 0)">0 ج.م</td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', rowHTML);
+
+                aggregatedReportData.push({
+                    empId: id,
+                    empName: empName,
+                    firstCheckInDate: firstCheckInDate,
+                    lastCheckOutDate: lastCheckOutDate,
+                    exactHours: exactHours,
+                    hoursDisplay: `${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
+                    hourlyRate: hourlyRate,
+                    checkIn: checkInText,
+                    checkOut: checkOutText,
+                    plannedIn: '',
+                    plannedOut: '',
+                    applyDeduction: true,
+                    deductionAmount: 0,
+                    manualAdjustment: 0,
+                    todayEarnings: 0
+                });
+
+                calculateRowFinancials(id);
+            });
+
+            document.getElementById('cloud-sync-btn').style.display = 'block';
+        }
+
+        function calculateRowFinancials(empId) {
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex === -1) return;
+
+            const item = aggregatedReportData[itemIndex];
+
+            const planInVal = document.getElementById(`plan-in-${empId}`).value;
+            const planOutVal = document.getElementById(`plan-out-${empId}`).value;
+            const isDeductChecked = document.getElementById(`apply-deduct-${empId}`).checked;
+
+            let deduction = 0;
+            let inStatusHtml = '<span style="color: var(--text-muted);">-</span>';
+            let outStatusHtml = '<span style="color: var(--text-muted);">-</span>';
+
+            if (planInVal && item.firstCheckInDate) {
+                const [pHours, pMinutes] = planInVal.split(':').map(Number);
+                const plannedInDate = new Date(item.firstCheckInDate);
+                plannedInDate.setHours(pHours, pMinutes, 0, 0);
+
+                const diffInMinutes = Math.round((item.firstCheckInDate - plannedInDate) / (1000 * 60));
+
+                if (diffInMinutes > 0) {
+                    inStatusHtml = `<span style="color: var(--color-warning); font-weight: bold;">⚠️ تأخير ${diffInMinutes} دقيقة</span>`;
+                    const minuteRate = item.hourlyRate / 60;
+                    deduction = (diffInMinutes * minuteRate) * 2;
+                } else if (diffInMinutes < 0) {
+                    inStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⚡ مبكر ${Math.abs(diffInMinutes)} دقيقة</span>`;
+                } else {
+                    inStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
+                }
+            }
+
+            if (planOutVal && item.lastCheckOutDate) {
+                const [pOutHours, pOutMinutes] = planOutVal.split(':').map(Number);
+                const plannedOutDate = new Date(item.lastCheckOutDate);
+                plannedOutDate.setHours(pOutHours, pOutMinutes, 0, 0);
+
+                const diffOutMinutes = Math.round((item.lastCheckOutDate - plannedOutDate) / (1000 * 60));
+
+                if (diffOutMinutes < 0) {
+                    outStatusHtml = `<span style="color: var(--color-danger); font-weight: bold;">🔻 مبكر ${Math.abs(diffOutMinutes)} دقيقة</span>`;
+                } else if (diffOutMinutes > 0) {
+                    outStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⏳ تأخير ${diffOutMinutes} دقيقة</span>`;
+                } else {
+                    outStatusHtml = `<span style="color: var(--color-primary); font-weight: bold;">🎯 في الموعد</span>`;
+                }
+            }
+
+            const baseEarnings = item.exactHours * item.hourlyRate;
+            const finalAutoDeduction = isDeductChecked ? parseFloat(deduction.toFixed(2)) : 0;
+            const manualAdj = item.manualAdjustment || 0;
+            
+            // حساب الصافي النهائي = (أجر الساعات - خصم التأخير + خصم/إضافة يدوية)
+            const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalAutoDeduction + manualAdj).toFixed(2)));
+
+            document.getElementById(`in-status-${empId}`).innerHTML = inStatusHtml;
+            document.getElementById(`out-status-${empId}`).innerHTML = outStatusHtml;
+            document.getElementById(`deduction-val-${empId}`).innerText = `${finalAutoDeduction} ج.م`;
+            document.getElementById(`today-earnings-${empId}`).innerText = `${finalEarnings} ج.م`;
+
+            item.plannedIn = planInVal;
+            item.plannedOut = planOutVal;
+            item.applyDeduction = isDeductChecked;
+            item.deductionAmount = finalAutoDeduction;
+            item.todayEarnings = finalEarnings;
+        }
+
+        function onHourlyRateEdit(empId, textVal) {
+            const parsedRate = parseFloat(textVal.replace(/[^\d.-]/g, '')) || 0;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex].hourlyRate = parsedRate;
+                calculateRowFinancials(empId);
+            }
+        }
+
+        function onDeductionEdit(empId, textVal) {
+            const parsedDeduct = parseFloat(textVal.replace(/[^\d.-]/g, '')) || 0;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                const item = aggregatedReportData[itemIndex];
+                item.deductionAmount = parsedDeduct;
+                const baseEarnings = item.exactHours * item.hourlyRate;
+                const manualAdj = item.manualAdjustment || 0;
+                item.todayEarnings = Math.max(0, parseFloat((baseEarnings - parsedDeduct + manualAdj).toFixed(2)));
+                document.getElementById(`today-earnings-${empId}`).innerText = `${item.todayEarnings} ج.م`;
+            }
+        }
+
+        function onManualAdjustmentEdit(empId, textVal) {
+            const parsedAdj = parseFloat(textVal.replace(/[^\d.-]/g, '')) || 0;
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex].manualAdjustment = parsedAdj;
+                calculateRowFinancials(empId);
+            }
+        }
+
+        function updateManualData(empId, key, value) {
+            const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
+            if (itemIndex !== -1) {
+                aggregatedReportData[itemIndex][key] = value;
+            }
+        }
+
+        async function uploadFinancialsToGoogle() {
+            if (aggregatedReportData.length === 0) return;
+
+            const syncBtn = document.getElementById('cloud-sync-btn');
+            const statusMsg = document.getElementById('process-status');
+            syncBtn.disabled = true;
+            statusMsg.style.display = 'inline-block';
+
+            let successCount = 0;
+
+            for (const data of aggregatedReportData) {
+                const params = new URLSearchParams();
+                params.append('reportType', 'FINANCIAL_LOG');
+                params.append('empId', data.empId);
+                params.append('empName', data.empName);
+                params.append('checkIn', data.checkIn);
+                params.append('checkOut', data.checkOut);
+                params.append('plannedIn', data.plannedIn || '-');
+                params.append('plannedOut', data.plannedOut || '-');
+                params.append('exactHours', data.hoursDisplay);
+                params.append('hourlyRate', data.hourlyRate);
+                params.append('deductionAmount', data.deductionAmount || 0);    // عمود خصم التأخير
+                params.append('manualAdjustment', data.manualAdjustment || 0); // عمود خصم / إضافة يدوية
+                params.append('todayEarnings', data.todayEarnings);             // عمود حساب الوردية
+
+                const finalUrlWithParams = SCRIPT_POST_URL + "?" + params.toString();
+
+                try {
+                    await fetch(finalUrlWithParams, {
+                        method: 'POST',
+                        mode: 'no-cors'
+                    });
+                    successCount++;
+                } catch (e) {
+                    console.error("خطأ شبكة:", e);
+                }
+            }
+
+            setTimeout(() => {
+                alert(`🟢 تم حفظ البيانات بنجاح لـ (${successCount}) موظف في Google Sheets!`);
+                syncBtn.disabled = false;
+                statusMsg.style.display = 'none';
+            }, 1200);
+        }
+    </script>
+    <div class="footer">
+        Copyright © 2026 Techno Science. All rights reserved.
+    </div>
+</body>
+</html>
