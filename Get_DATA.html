@@ -486,7 +486,7 @@
         document.getElementById('today-date-label').innerText = new Date().toLocaleDateString('ar-EG');
         document.getElementById('search-date').value = getTodayString();
 
-        const socket = io("http://localhost:3000", { transports: ['websocket', 'polling'] });
+        const socket = io("http://localhost:5000", { transports: ['websocket', 'polling'] });
 
         socket.on('connect', () => { console.log("🟢 متصل بسيرفر Node.js"); });
 
