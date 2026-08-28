@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة الموظفين - التقرير الرسمي 📊</title>
+    <title>لوحة الموظفين - التقرير التفصيلي 📊</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -53,28 +53,6 @@
             -webkit-text-fill-color: transparent;
         }
         .header p { color: var(--text-muted); margin: 0; font-size: 0.9em; }
-
-        .btn-logout {
-            background: rgba(255, 71, 87, 0.1);
-            border: 1px solid var(--color-danger);
-            color: var(--color-danger);
-            padding: 10px 18px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-        }
-
-        .btn-logout:hover {
-            background: var(--color-danger);
-            color: #fff;
-            box-shadow: 0 0 15px rgba(255, 71, 87, 0.4);
-        }
 
         .container { 
             width: 100%;
@@ -201,12 +179,12 @@
             color: var(--text-muted);
         }
 
-        /* Modal / Formal Card Styles */
+        /* Modal Overlay */
         .modal-overlay {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.85);
             backdrop-filter: blur(10px);
             justify-content: center;
             align-items: center;
@@ -217,160 +195,87 @@
         .modal-overlay.active { display: flex; }
 
         .formal-card {
-            background: #0f172a;
-            max-width: 580px;
+            background: #ffffff;
+            color: #000000;
+            max-width: 1050px;
             width: 100%;
-            border-radius: 16px;
-            border: 1px solid #334155;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px;
+            border: 2px solid #000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
             position: relative;
-            color: #f8fafc;
-            overflow: hidden;
+            font-size: 0.88rem;
         }
 
-        .card-header-stripe {
-            background: linear-gradient(90deg, #1e293b, #0f172a);
-            border-bottom: 2px solid var(--color-add);
-            padding: 20px 25px;
+        .card-inner-container {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .receipt-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .card-title-group h2 {
-            margin: 0;
-            font-size: 1.25rem;
-            letter-spacing: 0.5px;
-            color: #f8fafc;
+        .receipt-header-info {
+            display: flex;
+            gap: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
         }
 
-        .card-title-group span {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-        }
-
-        .company-logo {
+        .receipt-title {
             font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--color-add);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-weight: 900;
         }
 
-        .card-body {
-            padding: 25px;
+        .days-detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
         }
 
-        .employee-profile {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            background: rgba(30, 41, 59, 0.5);
-            padding: 15px 20px;
-            border-radius: 12px;
-            border-right: 4px solid var(--color-add);
-            margin-bottom: 20px;
-        }
-
-        .emp-main-info h3 {
-            margin: 0 0 4px 0;
-            font-size: 1.3rem;
-            color: #fff;
-        }
-
-        .emp-main-info p {
-            margin: 0;
+        .days-detail-table th, 
+        .days-detail-table td {
+            border: 1px solid #000;
+            padding: 6px 8px;
+            text-align: center;
+            color: #000;
             font-size: 0.85rem;
-            color: var(--text-muted);
         }
 
-        .emp-badge-id {
-            background: rgba(0, 242, 254, 0.1);
-            color: var(--color-add);
-            padding: 4px 10px;
-            border-radius: 6px;
-            font-size: 0.75rem;
-            font-family: monospace;
-            border: 1px solid rgba(0, 242, 254, 0.2);
+        .days-detail-table th {
+            background-color: #f1f5f9;
+            font-weight: 800;
         }
 
-        .section-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            color: var(--text-muted);
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .grid-two-col {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .data-box {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid #1e293b;
-            padding: 12px 15px;
-            border-radius: 10px;
-        }
-
-        .data-box .label {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: block;
-            margin-bottom: 4px;
-        }
-
-        .data-box .val {
-            font-size: 1rem;
-            font-weight: 700;
-            color: #f1f5f9;
-        }
-
-        .highlight-box {
-            background: rgba(0, 242, 254, 0.03);
-            border: 1px solid rgba(0, 242, 254, 0.2);
-        }
-
-        .highlight-box .val {
-            color: var(--color-add);
-        }
-
-        .total-box {
-            background: linear-gradient(135deg, rgba(0, 255, 135, 0.1), rgba(0, 242, 254, 0.05));
-            border: 1px solid var(--color-payouts);
-            grid-column: span 2;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-radius: 12px;
-        }
-
-        .total-box .val {
-            font-size: 1.4rem;
-            color: var(--color-payouts);
+        .days-detail-table tfoot td {
+            background-color: #f8fafc;
+            font-weight: bold;
+            border-top: 2px solid #000;
         }
 
         .card-signatures {
             display: flex;
             justify-content: space-between;
-            margin-top: 30px;
-            padding-top: 15px;
-            border-top: 1px dashed #334155;
-            font-size: 0.75rem;
-            color: var(--text-muted);
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px dashed #000;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #000;
         }
 
         .card-actions {
-            background: #1e293b;
-            padding: 15px 25px;
+            background: #0f172a;
+            padding: 12px 25px;
             display: flex;
             justify-content: flex-end;
             gap: 12px;
@@ -404,18 +309,31 @@
         .btn-print:hover { opacity: 0.9; }
 
         @media print {
-            body { background: #fff; color: #000; padding: 0; }
-            .container, .header-wrapper, .modal-overlay { background: none; }
-            .modal-overlay { position: absolute; display: flex !important; background: transparent; backdrop-filter: none; }
-            .formal-card { border: 2px solid #000; box-shadow: none; color: #000; background: #fff; width: 100%; max-width: 100%; }
-            .card-header-stripe { background: #f1f5f9; border-bottom: 2px solid #000; color: #000; }
-            .card-title-group h2, .company-logo, .emp-main-info h3, .data-box .val { color: #000 !important; }
-            .employee-profile { background: #f8fafc; border-right-color: #000; border: 1px solid #ccc; }
-            .data-box { background: #fff; border: 1px solid #ccc; }
-            .total-box { background: #f1f5f9; border: 2px solid #000; }
-            .total-box .val { color: #000 !important; }
-            .card-actions, .btn-logout, .filter-bar { display: none !important; }
-            .emp-badge-id { border: 1px solid #000; color: #000; }
+            @page {
+                size: A4 landscape;
+                margin: 8mm;
+            }
+            body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+            .container, .header-wrapper, .card-actions { display: none !important; }
+            .modal-overlay { 
+                position: static !important; 
+                display: block !important; 
+                background: transparent !important; 
+                backdrop-filter: none !important;
+                padding: 0 !important;
+            }
+            .formal-card { 
+                border: 2px solid #000 !important; 
+                box-shadow: none !important; 
+                color: #000 !important; 
+                background: #fff !important; 
+                width: 100% !important; 
+                max-width: 100% !important;
+                max-height: none !important;
+            }
+            .card-inner-container { overflow: visible !important; }
+            .days-detail-table th { background-color: #eaeaea !important; -webkit-print-color-adjust: exact; }
+            .days-detail-table tfoot td { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
         }
 
         .footer {
@@ -431,8 +349,8 @@
 
     <div class="header-wrapper">
         <div class="header">
-            <h1><i class="fas fa-file-invoice-dollar" style="color: var(--color-add); margin-left: 8px;"></i> كشوفات حساب الموظفين</h1>
-            <p>متابعة ساعات العمل والاستحقاقات المالية بحسب الفترة التاريخية</p>
+            <h1><i class="fas fa-file-invoice-dollar" style="color: var(--color-add); margin-left: 8px;"></i> كشوفات حساب الموظفين التفصيلية</h1>
+            <p>متابعة وتفصيل ساعات العمل والاستحقاقات المالية لكل يوم منفصل</p>
         </div>
     </div>
 
@@ -471,82 +389,71 @@
         </div>
     </div>
 
-    <!-- Modal الكرت الرسمي -->
+    <!-- Modal الكرت التفصيلي للأيام -->
     <div class="modal-overlay" id="employeeModal">
         <div class="formal-card">
-            <div class="card-header-stripe">
-                <div class="card-title-group">
-                    <h2>بطاقة بيان أداء ومستحقات</h2>
-                    <span>Statement of Attendance & Earnings</span>
-                </div>
-                <div class="company-logo">
-                    <i class="fas fa-building"></i> T.S Logger System
-                </div>
-            </div>
-
-            <div class="card-body">
-                <div class="employee-profile">
-                    <div class="emp-main-info">
-                        <h3 id="mEmpName">-</h3>
-                        <p id="mEmpJob">-</p>
+            <div class="card-inner-container">
+                <div class="receipt-header">
+                    <div>
+                        <div class="receipt-title">كشف حضور واستحقاقات تفصيلي</div>
+                        <div style="font-size: 0.8rem; color: #444;">T.S Logger System</div>
                     </div>
-                    <div class="emp-badge-id" id="mEmpId">ID: -</div>
-                </div>
-
-                <div class="section-title"><i class="fas fa-clock"></i> ملخص الحضور وساعات العمل</div>
-                <div class="grid-two-col">
-                    <div class="data-box">
-                        <span class="label">إجمالي عدد الورديات</span>
-                        <span class="val" id="mShifts">-</span>
+                    <div class="receipt-header-info">
+                        <div>الموظف: <span id="mEmpName" style="text-decoration: underline;">-</span></div>
+                        <div>الوظيفة: <span id="mEmpJob">-</span></div>
+                        <div>كود: <span id="mEmpId">-</span></div>
+                        <div>سعر الساعة: <span id="mEmpRate">-</span></div>
                     </div>
-                    <div class="data-box highlight-box">
-                        <span class="label">إجمالي الوقت المُحتسب</span>
-                        <span class="val" id="mTimeFormatted">-</span>
+                    <div style="font-size: 0.85rem; text-align: left;">
+                        <div><strong>من تاريخ:</strong> <span id="mDateFrom">-</span></div>
+                        <div><strong>إلى تاريخ:</strong> <span id="mDateTo">-</span></div>
                     </div>
                 </div>
 
-                <div class="section-title"><i class="fas fa-calculator"></i> التفاصيل والتسويات المالية</div>
-                <div class="grid-two-col">
-                    <div class="data-box">
-                        <span class="label">فئة أجر الساعة</span>
-                        <span class="val" id="mRate">-</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="label">إجمالي الأجر الإجمالي</span>
-                        <span class="val" id="mGrossEarn">-</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="label">خصم التأخيرات</span>
-                        <span class="val" style="color: var(--color-danger);" id="mLateDed">-</span>
-                    </div>
-                    <div class="data-box">
-                        <span class="label">تسويات يدوية (إضافة/خصم)</span>
-                        <span class="val" style="color: var(--color-warning);" id="mManual">-</span>
-                    </div>
-                    
-                    <div class="total-box">
-                        <div>
-                            <span class="label" style="color: #94a3b8; font-size: 0.8rem;">صافي المستحق النهائي</span>
-                            <span style="font-size: 0.75rem; color: #64748b; display:block;" id="mReportPeriod">الفترة: -</span>
-                        </div>
-                        <div class="val" id="mTotalNet">-</div>
-                    </div>
-                </div>
+                <table class="days-detail-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>التاريخ</th>
+                            <th>وقت الحضور</th>
+                            <th>وقت الانصراف</th>
+                            <th>مدة التأخير</th>
+                            <th>ساعات العمل</th>
+                            <th>المستحق اليومي</th>
+                            <th>خصم تأخيرات</th>
+                            <th>تسوية يدوية</th>
+                            <th>إجمالي اليوم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mDaysBody">
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="4" style="text-align: right;"><strong>الإجمالي الكلي (<span id="mTotalDaysCount">0</span> أيام):</strong></td>
+                            <td id="mLateTimeSum" style="color: #c0392b;">-</td>
+                            <td id="mTotalHoursSum" style="color: #000;">-</td>
+                            <td id="mGrossEarnSum">-</td>
+                            <td id="mLateDedSum" style="color: #c0392b;">-</td>
+                            <td id="mManualAdjSum">-</td>
+                            <td id="mTotalNetSum" style="font-size: 1rem; text-decoration: underline;">-</td>
+                        </tr>
+                    </tfoot>
+                </table>
 
                 <div class="card-signatures">
-                    <div>توقيع الموظف: ........................</div>
-                    <div>اعتماد الحسابات: ........................</div>
+                    <div>توقيع الموظف: ...................................</div>
+                    <div>توقيع المشرف / الحسابات: ...................................</div>
                 </div>
             </div>
 
             <div class="card-actions">
                 <button class="btn-close" id="closeModalBtn">إغلاق</button>
-                <button class="btn-print" id="printCardBtn"><i class="fas fa-print"></i> طباعة البيان الرسمى</button>
+                <button class="btn-print" id="printCardBtn"><i class="fas fa-print"></i> طباعة التقرير التفصيلي</button>
             </div>
         </div>
     </div>
 
-    <div class="footer">    Copyright © 2026 Techno Science. All rights reserved.   </div>
+    <div class="footer"> Copyright © 2026 Techno Science. All rights reserved. </div>
 
     <script>
         (function() {
@@ -563,27 +470,34 @@
             const closeModalBtn = document.getElementById('closeModalBtn');
             const printCardBtn = document.getElementById('printCardBtn');
 
-            // عناصر الكرت الرسمي
             const mEmpName = document.getElementById('mEmpName');
             const mEmpJob = document.getElementById('mEmpJob');
             const mEmpId = document.getElementById('mEmpId');
-            const mShifts = document.getElementById('mShifts');
-            const mTimeFormatted = document.getElementById('mTimeFormatted');
-            const mRate = document.getElementById('mRate');
-            const mGrossEarn = document.getElementById('mGrossEarn');
-            const mLateDed = document.getElementById('mLateDed');
-            const mManual = document.getElementById('mManual');
-            const mTotalNet = document.getElementById('mTotalNet');
-            const mReportPeriod = document.getElementById('mReportPeriod');
+            const mEmpRate = document.getElementById('mEmpRate');
+            const mDateFrom = document.getElementById('mDateFrom');
+            const mDateTo = document.getElementById('mDateTo');
+            const mDaysBody = document.getElementById('mDaysBody');
+
+            const mTotalDaysCount = document.getElementById('mTotalDaysCount');
+            const mLateTimeSum = document.getElementById('mLateTimeSum');
+            const mTotalHoursSum = document.getElementById('mTotalHoursSum');
+            const mGrossEarnSum = document.getElementById('mGrossEarnSum');
+            const mLateDedSum = document.getElementById('mLateDedSum');
+            const mManualAdjSum = document.getElementById('mManualAdjSum');
+            const mTotalNetSum = document.getElementById('mTotalNetSum');
 
             let allRows = [];
             let currentFilteredData = [];
+            let rawFilteredRows = [];
 
             const COL_MAP = {
                 datetime: 0,
                 empId: 1,
                 empName: 2,
                 job: 3,
+                checkIn: 4,
+                checkOut: 5,
+                lateMinutes: 6,
                 workHours: 8,
                 hourRate: 9,
                 lateDed: 10,
@@ -591,21 +505,87 @@
                 totalShift: 12
             };
 
-            // تحويل الساعات العشرية إلى أعداد ساعات ودقائق
+            function parseTimeObject(val) {
+                if (!val) return null;
+                if (typeof val === 'string' && val.includes('Date(')) {
+                    const matches = val.match(/\d+/g);
+                    if (matches && matches.length >= 5) {
+                        return { h: parseInt(matches[3]), m: parseInt(matches[4]) };
+                    }
+                }
+                if (typeof val === 'string' && val.includes(':')) {
+                    const parts = val.split(':');
+                    let h = parseInt(parts[0]);
+                    let m = parseInt(parts[1]);
+                    if (val.toLowerCase().includes('pm') && h < 12) h += 12;
+                    if (val.toLowerCase().includes('am') && h === 12) h = 0;
+                    return { h: h, m: m };
+                }
+                return null;
+            }
+
+            // دالة لحساب فرق الساعات المباشر بين الحضور والانصراف (مثلاً من 9 إلى 3 تعطي 6 ساعات)
+            function calculateExactHours(checkInVal, checkOutVal, fallbackHours) {
+                const inTime = parseTimeObject(checkInVal);
+                const outTime = parseTimeObject(checkOutVal);
+
+                if (inTime && outTime) {
+                    let inMinutes = inTime.h * 60 + inTime.m;
+                    let outMinutes = outTime.h * 60 + outTime.m;
+                    
+                    if (outMinutes < inMinutes) {
+                        outMinutes += 24 * 60; // في حال كانت الوردية متداخلة لليوم التالي
+                    }
+                    
+                    const diffMins = outMinutes - inMinutes;
+                    return diffMins / 60;
+                }
+                
+                return parseFloat(fallbackHours) || 0;
+            }
+
             function formatHoursAndMinutes(decimalHours) {
-                if (!decimalHours || isNaN(decimalHours)) return "0 ساعة و 0 دقيقة";
+                if (!decimalHours || isNaN(decimalHours)) return "0 س 0 د";
                 const hrs = Math.floor(decimalHours);
                 const mins = Math.round((decimalHours - hrs) * 60);
                 
-                if (mins === 60) {
-                    return `${hrs + 1} ساعة`;
-                }
+                if (mins === 60) return `${hrs + 1} س`;
                 
                 let result = [];
-                if (hrs > 0) result.push(`${hrs} ساعة`);
-                if (mins > 0) result.push(`${mins} دقيقة`);
+                if (hrs > 0) result.push(`${hrs} س`);
+                if (mins > 0) result.push(`${mins} د`);
                 
-                return result.length > 0 ? result.join(' و ') : "0 دقيقة";
+                return result.length > 0 ? result.join(' و ') : "0 د";
+            }
+
+            function formatMinutesToReadable(minutes) {
+                if (!minutes || isNaN(minutes) || minutes <= 0) return "-";
+                const hrs = Math.floor(minutes / 60);
+                const mins = Math.round(minutes % 60);
+                if (hrs > 0 && mins > 0) return `${hrs} س و ${mins} د`;
+                if (hrs > 0) return `${hrs} ساعة`;
+                return `${mins} دقيقة`;
+            }
+
+            function formatTimeString(timeStr) {
+                if (!timeStr || timeStr === '-') return '-';
+                const parsed = parseTimeObject(timeStr);
+                if (parsed) {
+                    let h = parsed.h;
+                    let m = parsed.m;
+                    const ampm = h >= 12 ? 'PM' : 'AM';
+                    h = h % 12 || 12;
+                    return `${h}:${m < 10 ? '0' : ''}${m} ${ampm}`;
+                }
+                return String(timeStr).replace(/^[0-9]+\:/, (match) => match);
+            }
+
+            function formatDateShort(dateObj) {
+                if (!dateObj) return '-';
+                const y = dateObj.getFullYear();
+                const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+                const d = String(dateObj.getDate()).padStart(2, '0');
+                return `${y}-${m}-${d}`;
             }
 
             function parseDateFromJson(dateStr) {
@@ -644,15 +624,23 @@
 
                         const datetimeVal = getVal(COL_MAP.datetime);
                         const empNameVal = getVal(COL_MAP.empName);
+                        const checkInVal = getVal(COL_MAP.checkIn);
+                        const checkOutVal = getVal(COL_MAP.checkOut);
+                        const rawWorkHours = getVal(COL_MAP.workHours);
 
                         if (!empNameVal) continue;
+
+                        const exactWorkHours = calculateExactHours(checkInVal, checkOutVal, rawWorkHours);
 
                         dataRows.push({
                             datetime: datetimeVal,
                             empId: getVal(COL_MAP.empId) || 'N/A',
                             empName: String(empNameVal).trim(),
                             job: getVal(COL_MAP.job) || 'غير محدد',
-                            workHours: parseFloat(getVal(COL_MAP.workHours)) || 0,
+                            checkIn: checkInVal,
+                            checkOut: checkOutVal,
+                            lateMinutes: parseFloat(getVal(COL_MAP.lateMinutes)) || 0,
+                            workHours: exactWorkHours,
                             hourRate: parseFloat(getVal(COL_MAP.hourRate)) || 0,
                             lateDed: parseFloat(getVal(COL_MAP.lateDed)) || 0,
                             manualAdj: parseFloat(getVal(COL_MAP.manualAdj)) || 0,
@@ -667,19 +655,19 @@
                 }
             }
 
-            function aggregateByEmployee(data, startDateStr, endDateStr) {
+            function filterAndAggregate(data, startDateStr, endDateStr) {
                 const start = new Date(startDateStr);
                 const end = new Date(endDateStr);
                 start.setHours(0, 0, 0, 0);
                 end.setHours(23, 59, 59, 999);
 
-                const filtered = data.filter(row => {
+                rawFilteredRows = data.filter(row => {
                     if (!row.dateObj) return true;
                     return row.dateObj >= start && row.dateObj <= end;
                 });
 
                 const map = new Map();
-                filtered.forEach(row => {
+                rawFilteredRows.forEach(row => {
                     const key = row.empName;
                     if (!map.has(key)) {
                         map.set(key, {
@@ -727,7 +715,7 @@
                         <td style="color: var(--color-warning);">${emp.manualAdj.toFixed(2)} ج.م</td>
                         <td style="color: var(--color-payouts); font-weight: 700;">${emp.totalShift.toFixed(2)} ج.م</td>
                         <td>
-                            <button class="btn-card" data-empname="${emp.empName}"><i class="fas fa-file-alt"></i> عرض التقرير</button>
+                            <button class="btn-card" data-empname="${emp.empName}"><i class="fas fa-file-alt"></i> التقرير التفصيلي</button>
                         </td>
                     </tr>`;
                 });
@@ -736,32 +724,68 @@
                 document.querySelectorAll('.btn-card').forEach(btn => {
                     btn.addEventListener('click', function() {
                         const name = this.getAttribute('data-empname');
-                        const empData = currentFilteredData.find(emp => emp.empName === name);
-                        if (empData) openModal(empData);
+                        const empSummary = currentFilteredData.find(emp => emp.empName === name);
+                        const empDays = rawFilteredRows.filter(r => r.empName === name);
+                        if (empSummary) openModal(empSummary, empDays);
                     });
                 });
             }
 
-            function openModal(emp) {
+            function openModal(emp, daysList) {
                 mEmpName.textContent = emp.empName;
                 mEmpJob.textContent = emp.job;
-                mEmpId.textContent = `ID: ${emp.empId}`;
-                mShifts.textContent = `${emp.shifts} وردية`;
+                mEmpId.textContent = emp.empId;
+                mEmpRate.textContent = `${emp.hourRate.toFixed(2)} ج.م`;
                 
-                // عرض الوقت بساعات ودقائق
-                mTimeFormatted.textContent = formatHoursAndMinutes(emp.totalHours);
-                
-                mRate.textContent = `${emp.hourRate.toFixed(2)} ج.م / ساعة`;
-                
-                // حساب الأجر الإجمالي قبل الخصومات
-                const gross = emp.totalHours * emp.hourRate;
-                mGrossEarn.textContent = `${gross.toFixed(2)} ج.م`;
-                
-                mLateDed.textContent = `-${emp.lateDed.toFixed(2)} ج.م`;
-                mManual.textContent = `${emp.manualAdj >= 0 ? '+' : ''}${emp.manualAdj.toFixed(2)} ج.م`;
-                mTotalNet.textContent = `${emp.totalShift.toFixed(2)} ج.م`;
+                mDateFrom.textContent = startDateInput.value;
+                mDateTo.textContent = endDateInput.value;
 
-                mReportPeriod.textContent = `الفترة من ${startDateInput.value} إلى ${endDateInput.value}`;
+                let rowsHtml = '';
+                let totalHoursSum = 0;
+                let totalLateMinsSum = 0;
+                let grossSum = 0;
+                let lateSum = 0;
+                let manualSum = 0;
+                let netSum = 0;
+
+                daysList.forEach((day, index) => {
+                    const dayGross = day.workHours * day.hourRate;
+                    totalHoursSum += day.workHours;
+                    totalLateMinsSum += day.lateMinutes;
+                    grossSum += dayGross;
+                    lateSum += day.lateDed;
+                    manualSum += day.manualAdj;
+                    netSum += day.totalShift;
+
+                    const dateFormatted = formatDateShort(day.dateObj);
+                    const hoursFormatted = formatHoursAndMinutes(day.workHours);
+                    const checkInText = formatTimeString(day.checkIn);
+                    const checkOutText = formatTimeString(day.checkOut);
+                    const lateText = formatMinutesToReadable(day.lateMinutes);
+
+                    rowsHtml += `<tr>
+                        <td>${index + 1}</td>
+                        <td>${dateFormatted}</td>
+                        <td style="color: #27ae60; font-weight: bold;">${checkInText}</td>
+                        <td style="color: #e67e22; font-weight: bold;">${checkOutText}</td>
+                        <td style="color: #c0392b;">${lateText}</td>
+                        <td>${hoursFormatted}</td>
+                        <td>${dayGross.toFixed(2)} ج.م</td>
+                        <td style="color: #c0392b;">${day.lateDed > 0 ? '-' + day.lateDed.toFixed(2) : '0.00'}</td>
+                        <td>${day.manualAdj >= 0 ? '+' : ''}${day.manualAdj.toFixed(2)}</td>
+                        <td style="font-weight: bold;">${day.totalShift.toFixed(2)} ج.م</td>
+                    </tr>`;
+                });
+
+                mDaysBody.innerHTML = rowsHtml;
+
+                mTotalDaysCount.textContent = daysList.length;
+                mLateTimeSum.textContent = formatMinutesToReadable(totalLateMinsSum);
+                mTotalHoursSum.textContent = formatHoursAndMinutes(totalHoursSum);
+                mGrossEarnSum.textContent = `${grossSum.toFixed(2)} ج.م`;
+                mLateDedSum.textContent = `${lateSum.toFixed(2)} ج.م`;
+                mManualAdjSum.textContent = `${manualSum >= 0 ? '+' : ''}${manualSum.toFixed(2)} ج.م`;
+                mTotalNetSum.textContent = `${netSum.toFixed(2)} ج.م`;
 
                 modalOverlay.classList.add('active');
             }
@@ -784,7 +808,7 @@
                     allRows = await fetchSheetData();
                 }
 
-                const aggregated = aggregateByEmployee(allRows, startVal, endVal);
+                const aggregated = filterAndAggregate(allRows, startVal, endVal);
                 currentFilteredData = aggregated;
                 renderTable(aggregated);
             }
@@ -813,7 +837,10 @@
 
         })();
     </script>
-        <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
+    <script>
+        if (sessionStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'login.html';
+        }
     </script>
 </body>
 </html>
