@@ -1,452 +1,975 @@
-48<!DOCTYPE html>
+<!DOCTYPE html>
+
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>T.S Logger System</title>
-<style>
-*{box-sizing:border-box}
-html,body{margin:0;padding:0;max-width:100%;overflow-x:hidden}
-body{font-family:Arial,Tahoma,sans-serif;background:#0b1220;color:#e5e7eb;padding:15px}
-.container{width:100%;max-width:1400px;margin:auto;background:#111827;border:1px solid #263244;border-radius:12px;padding:15px}
-h2{margin:0 0 15px;text-align:center;font-size:22px;color:#00d9ff}
-.status-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:15px}
-.status-card{background:#0f172a;border:1px solid #263244;border-radius:8px;padding:12px;text-align:center}
-.status-title{font-size:13px;color:#94a3b8;margin-bottom:6px}
-.status-value{font-weight:bold}
-.online{color:#00ff87}
-.offline{color:#ff4d6d}
-.warning{color:#ffc107}
-.unknown{color:#94a3b8}
-.devices{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-bottom:15px}
-.device-item{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:10px 12px;font-size:13px;display:flex;align-items:center;justify-content:space-between;gap:8px}
-.device-item.online{border-color:#00ff87}
-.device-item.offline{border-color:#ff4d6d}
-.device-name{color:#cbd5e1}
-.device-state{font-weight:bold}
-.controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:15px}
-.controls input,.controls button{height:38px;border-radius:7px;border:1px solid #334155;padding:0 10px}
-.controls input{background:#0b1220;color:#fff;outline:none}
-.controls input:focus{border-color:#00d9ff}
-.controls button{cursor:pointer;font-weight:bold}
-.connect{background:#00d9ff;color:#061018;border:none}
-.download{background:#00ff87;color:#061018;border:none}
-.clear{background:#ff4d6d;color:#fff;border:none}
-.refresh{background:#334155;color:#fff}
-.status-bar{padding:10px;border-radius:7px;text-align:center;margin-bottom:15px;background:#0f172a;border:1px solid #263244;font-size:14px}
-.summary{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
-.summary-item{background:#0f172a;border:1px solid #263244;border-radius:7px;padding:8px 12px;font-size:13px}
-.table-wrapper{width:100%;overflow:auto;border:1px solid #263244;border-radius:8px}
-table{width:100%;min-width:800px;border-collapse:collapse}
-th,td{padding:8px;border-bottom:1px solid #263244;text-align:center;white-space:nowrap}
-th{background:#1e293b;color:#cbd5e1}
-.filter-row th{background:#172033;padding:6px}
-.filter-input{width:100%;height:30px;background:#0b1220;border:1px solid #334155;color:#fff;border-radius:5px;padding:4px 6px;text-align:center}
-.filter-input:focus{border-color:#00d9ff;outline:none}
-tbody tr:hover{background:#172033}
-.download-count{background:#334155;color:#fff;padding:4px 7px;border-radius:5px;font-size:11px}
-.not-downloaded{background:#ffc107;color:#111827;padding:4px 7px;border-radius:5px;font-size:11px}
-.empty{padding:25px;text-align:center;color:#64748b}
-.time-12{font-weight:bold;color:#00d9ff}
-@media(max-width:700px){
-.status-grid{grid-template-columns:1fr}
-.devices{grid-template-columns:1fr}
-body{padding:8px}
-.container{padding:10px}
-h2{font-size:18px}
-}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T.S Logger System</title>
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+            --card-bg: rgba(15, 23, 42, 0.75);
+            --card-border: rgba(0, 242, 254, 0.1);
+            --text-main: #f1f5f9;
+            --text-muted: #64748b;
+            --color-primary: #00f2fe;
+            --color-success: #00ff87;
+            --color-danger: #ff007f;
+            --color-warning: #ffc107;
+        }
+
+```
+    html,
+    body {
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    *,
+    *:before,
+    *:after {
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 15px 10px;
+        background: var(--bg-gradient);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .container {
+        max-width: 1200px;
+        width: 100%;
+        margin: 0 auto;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 20px 15px;
+        border-radius: 20px;
+        border: 1px solid var(--card-border);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h2 {
+        margin-top: 0;
+        font-size: 1.5em;
+        font-weight: 900;
+        background: linear-gradient(90deg, #fff, var(--color-primary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+        border-bottom: 1px solid var(--card-border);
+        padding-bottom: 12px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .system-status {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .system-card {
+        background: rgba(30, 41, 59, 0.45);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        padding: 18px 15px;
+        text-align: center;
+        transition: 0.3s;
+    }
+
+    .system-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .system-icon {
+        font-size: 28px;
+        margin-bottom: 8px;
+    }
+
+    .system-title {
+        color: #94a3b8;
+        font-size: 0.9em;
+        font-weight: 700;
+        margin-bottom: 6px;
+    }
+
+    .system-state {
+        font-size: 1em;
+        font-weight: 800;
+    }
+
+    .state-online {
+        color: var(--color-success);
+    }
+
+    .state-offline {
+        color: var(--color-danger);
+    }
+
+    .state-unknown {
+        color: #94a3b8;
+    }
+
+    .control-panels {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 15px;
+        margin-bottom: 20px;
+        width: 100%;
+    }
+
+    .config-bar {
+        background: rgba(30, 41, 59, 0.4);
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid var(--card-border);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .config-bar label {
+        font-weight: 600;
+        font-size: 0.9em;
+        color: #94a3b8;
+    }
+
+    .config-bar input {
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid var(--card-border);
+        color: var(--text-main);
+        padding: 10px 12px;
+        border-radius: 8px;
+        font-size: 0.9em;
+        text-align: center;
+        outline: none;
+        width: 100%;
+    }
+
+    .config-bar input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 10px rgba(0, 242, 254, 0.2);
+    }
+
+    .btn {
+        color: #070b12;
+        border: none;
+        padding: 12px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 700;
+        font-size: 0.9em;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-connect {
+        background-color: var(--color-primary);
+        box-shadow: 0 0 15px rgba(0, 242, 254, 0.2);
+    }
+
+    .btn-connect:hover {
+        background-color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .btn-download {
+        background-color: var(--color-success);
+        box-shadow: 0 0 15px rgba(0, 255, 135, 0.2);
+    }
+
+    .btn-download:hover {
+        background-color: #fff;
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background-color: var(--color-danger);
+        color: #fff;
+    }
+
+    .btn-danger:hover {
+        background-color: #fff;
+        color: var(--color-danger);
+        transform: translateY(-2px);
+    }
+
+    .status-card {
+        padding: 12px 15px;
+        margin-bottom: 20px;
+        border-radius: 12px;
+        font-weight: 600;
+        display: block;
+        text-align: center;
+        font-size: 0.9em;
+        width: 100%;
+    }
+
+    .connected {
+        background: rgba(0, 255, 135, 0.1);
+        color: var(--color-success);
+        border: 1px solid rgba(0, 255, 135, 0.2);
+    }
+
+    .disconnected {
+        background: rgba(255, 0, 127, 0.1);
+        color: var(--color-danger);
+        border: 1px solid rgba(255, 0, 127, 0.2);
+    }
+
+    .connecting {
+        background: rgba(255, 193, 7, 0.1);
+        color: var(--color-warning);
+        border: 1px solid rgba(255, 193, 7, 0.2);
+    }
+
+    .table-responsive {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 15px;
+        border-radius: 14px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 15px;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid var(--card-border);
+    }
+
+    thead {
+        display: table-header-group;
+    }
+
+    tbody {
+        display: table-row-group;
+    }
+
+    tr {
+        background-color: rgba(15, 23, 42, 0.4);
+    }
+
+    tr:nth-child(even) {
+        background-color: rgba(30, 41, 59, 0.2);
+    }
+
+    th,
+    td {
+        padding: 15px;
+        text-align: center;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        border-left: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    th {
+        background-color: rgba(30, 41, 59, 0.8);
+        color: #94a3b8;
+        font-weight: 700;
+    }
+
+    th:last-child,
+    td:last-child {
+        border-left: none;
+    }
+
+    .badge {
+        color: #070b12;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.85em;
+        font-weight: 700;
+        display: inline-block;
+    }
+
+    .check-in {
+        background-color: var(--color-success);
+    }
+
+    .check-out {
+        background-color: var(--color-danger);
+        color: #fff;
+    }
+
+    .count-badge {
+        background: rgba(255, 255, 255, 0.06);
+        color: #94a3b8;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.8em;
+        margin-right: 6px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        font-weight: 600;
+    }
+
+    .empty-msg {
+        text-align: center;
+        color: var(--text-muted);
+        padding: 30px;
+        font-weight: 500;
+    }
+
+    .time-24 {
+        font-weight: 700;
+        color: var(--color-primary);
+        background: rgba(0, 242, 254, 0.08);
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.95em;
+        border: 1px solid rgba(0, 242, 254, 0.1);
+    }
+
+    .footer {
+        text-align: center;
+        margin-top: auto;
+        color: #475569;
+        font-size: 0.85em;
+        padding: 30px 20px;
+        letter-spacing: 0.5px;
+    }
+
+    @media (max-width: 767px) {
+        .system-status {
+            grid-template-columns: 1fr;
+        }
+
+        table,
+        thead,
+        tbody,
+        th,
+        td,
+        tr {
+            display: block;
+            width: 100% !important;
+        }
+
+        thead tr {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+        }
+
+        tr {
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid var(--card-border) !important;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            padding: 10px 12px;
+        }
+
+        td {
+            border: none !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+            position: relative;
+            padding: 8px 0 !important;
+            padding-right: 40% !important;
+            text-align: left !important;
+            font-size: 0.88em;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            word-break: break-word;
+        }
+
+        td:last-child {
+            border-bottom: none !important;
+        }
+
+        td::before {
+            content: attr(data-label);
+            position: absolute;
+            right: 0;
+            width: 38%;
+            font-weight: 700;
+            color: #94a3b8;
+            text-align: right;
+            font-size: 0.85em;
+        }
+    }
+
+    @media (min-width: 768px) {
+        body {
+            padding: 30px 20px;
+        }
+
+        .container {
+            padding: 30px;
+        }
+
+        h2 {
+            font-size: 2em;
+            text-align: right;
+        }
+
+        .control-panels {
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .config-bar {
+            flex-direction: row;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .config-bar input {
+            width: auto;
+        }
+
+        .btn {
+            width: auto;
+        }
+    }
 </style>
 <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+```
+
 </head>
 <body>
-<div class="container">
-<h2>📡 نظام متابعة بصمات الموظفين</h2>
-<div class="status-grid">
-<div class="status-card">
-<div class="status-title">🖥️ السيرفر</div>
-<div id="server-status" class="status-value unknown">⚪ غير متاح</div>
+    <div class="container">
+        <h2>📡 قسم سحب البيانات من جهاز البصمة</h2>
+
+```
+    <div class="system-status">
+        <div class="system-card">
+            <div class="system-icon">🖥️</div>
+            <div class="system-title">السيرفر</div>
+            <div id="server-status" class="system-state state-unknown">⚪ غير متاح</div>
+        </div>
+
+        <div class="system-card">
+            <div class="system-icon">🗄️</div>
+            <div class="system-title">قاعدة البيانات SQLite</div>
+            <div id="database-status" class="system-state state-unknown">⚪ غير متاح</div>
+        </div>
+
+        <div class="system-card">
+            <div class="system-icon">📡</div>
+            <div class="system-title">جهاز البصمة</div>
+            <div id="device-status" class="system-state state-unknown">⚪ غير متاح</div>
+        </div>
+    </div>
+
+    <div class="control-panels">
+        <div class="config-bar">
+            <label>جهاز البصمة:</label>
+            <input type="text" id="device-ip" value="192.168.1.201" style="width: 120px;">
+            <input type="number" id="device-port" value="4370" style="width: 70px;">
+            <button class="btn btn-connect" onclick="connectDevice()">📡 ربط الجهاز</button>
+        </div>
+
+        <div class="config-bar">
+            <label>الأرشيف من:</label>
+            <input type="date" id="search-date-from">
+
+            <label>إلى:</label>
+            <input type="date" id="search-date-to">
+
+            <button class="btn btn-download" onclick="downloadBackupByDate()">تحميل البصمات</button>
+
+            <button class="btn btn-danger" onclick="clearSandboxData()">🗑️ مسح البصمات</button>
+        </div>
+    </div>
+
+    <div id="status-bar" class="status-card disconnected">
+        في انتظار الاتصال بالسيرفر...
+    </div>
+
+    <h3 style="color: var(--text-main); margin-bottom: 12px;">
+        📋 البصمات المستلمة من السيرفر
+        <span id="attendance-count" class="count-badge">0</span>
+    </h3>
+
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>رقم الموظف (ID)</th>
+                    <th>اسم الموظف</th>
+                    <th>التاريخ</th>
+                    <th>توقيت البصمة</th>
+                    <th>نوع البصمة</th>
+                    <th>IP الجهاز</th>
+                </tr>
+            </thead>
+
+            <tbody id="attendance-rows">
+                <tr id="no-data">
+                    <td colspan="6" class="empty-msg">
+                        لا توجد بصمات مستلمة من السيرفر حتى الآن...
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
-<div class="status-card">
-<div class="status-title">🗄️ قاعدة البيانات</div>
-<div id="database-status" class="status-value unknown">⚪ غير متاحة</div>
+
+<div class="footer">
+    Copyright © 2026 Techno Science. All rights reserved.
 </div>
-<div class="status-card">
-<div class="status-title">📡 حالة الأجهزة</div>
-<div id="device-summary" class="status-value unknown">⚪ غير متاح</div>
-</div>
-</div>
-<div class="devices" id="devices-list"></div>
-<div class="controls">
-<input type="text" id="device-ip" value="192.168.1.201" placeholder="IP الجهاز">
-<input type="number" id="device-port" value="4370" placeholder="Port">
-<button class="connect" onclick="connectDevice()">📡 ربط الجهاز</button>
-<input type="date" id="search-date">
-<button class="download" onclick="downloadFiltered()">⬇️ تحميل الظاهر فقط</button>
-<button class="refresh" onclick="refreshAttendance()">🔄 تحديث</button>
-<button class="clear" onclick="clearSandboxData()">🗑️ مسح السند بوكس</button>
-</div>
-<div id="status-bar" class="status-bar">في انتظار الاتصال بالسيرفر...</div>
-<div class="summary">
-<div class="summary-item">كل البصمات: <strong id="total-count">0</strong></div>
-<div class="summary-item">المعروضة: <strong id="visible-count">0</strong></div>
-<div class="summary-item">غير محملة: <strong id="not-downloaded-count">0</strong></div>
-</div>
-<div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>رقم الموظف</th>
-<th>اسم الموظف</th>
-<th>التاريخ</th>
-<th>توقيت البصمة</th>
-<th>IP الجهاز</th>
-<th>حالة التحميل</th>
-</tr>
-<tr class="filter-row">
-<th><input class="filter-input" id="filter-user" placeholder="فلتر ID" oninput="applyFilters()"></th>
-<th></th>
-<th><input class="filter-input" id="filter-date" type="date" onchange="applyFilters()"></th>
-<th></th>
-<th><input class="filter-input" id="filter-ip" placeholder="فلتر IP" oninput="applyFilters()"></th>
-<th>
-<select class="filter-input" id="filter-download" onchange="applyFilters()">
-<option value="">الكل</option>
-<option value="downloaded">تم تحميلها</option>
-<option value="not-downloaded">لم يتم تحميلها</option>
-</select>
-</th>
-</tr>
-</thead>
-<tbody id="attendance-rows">
-<tr>
-<td colspan="6" class="empty">لا توجد بصمات مستلمة من السيرفر حتى الآن...</td>
-</tr>
-</tbody>
-</table>
-</div>
-</div>
+
 <script>
-const SERVER_URL="http://localhost:5000";
-const ALLOWED_DEVICES=[
-{ip:"192.168.1.201",port:4370},
-{ip:"192.168.1.150",port:4370}
-];
-const socket=io(SERVER_URL,{
-transports:["websocket","polling"],
-reconnection:true,
-reconnectionAttempts:Infinity,
-reconnectionDelay:2000
-});
-let attendanceRecords=[];
-let filteredRecords=[];
-let serverDevices=[];
-const serverStatus=document.getElementById("server-status");
-const databaseStatus=document.getElementById("database-status");
-const deviceSummary=document.getElementById("device-summary");
-const statusBar=document.getElementById("status-bar");
-socket.on("connect",()=>{
-setServerStatus(true);
-statusBar.className="status-bar";
-statusBar.innerText="🟢 السيرفر متصل";
-socket.emit("get-system-status");
-socket.emit("get-device-status");
-});
-socket.on("disconnect",()=>{
-setServerStatus(false);
-setDatabaseStatus(false);
-serverDevices=serverDevices.map(device=>({...device,connected:false,connecting:false,realtime:false,monitoring:false}));
-renderDevices();
-deviceSummary.className="status-value offline";
-deviceSummary.innerText="🔴 الأجهزة غير متاحة";
-statusBar.innerText="🔴 الصفحة غير متصلة بالسيرفر";
-});
-socket.on("system-status",data=>{
-if(!data)return;
-setServerStatus(Boolean(data.server?.online));
-setDatabaseStatus(Boolean(data.database?.connected));
-if(Array.isArray(data.devices)){
-updateServerDevices(data.devices);
-}
-});
-socket.on("devices-status",data=>{
-if(!Array.isArray(data))return;
-updateServerDevices(data);
-});
-socket.on("device-status",data=>{
-if(!data)return;
-const incomingIp=String(data.ip||"").trim();
-const incomingPort=Number(data.port||4370);
-if(!incomingIp)return;
-const index=serverDevices.findIndex(device=>String(device.ip)===incomingIp&&Number(device.port||4370)===incomingPort);
-if(index===-1){
-return;
-}
-serverDevices[index]={...serverDevices[index],...data};
-renderDevices();
-if(data.status==="connected"){
-statusBar.innerText=`🟢 الجهاز متصل (${incomingIp}:${incomingPort})`;
-}else if(data.status==="connecting"){
-statusBar.innerText=`🟡 جاري الاتصال (${incomingIp}:${incomingPort})`;
-}else if(data.status==="disconnected"){
-statusBar.innerText=`🔴 الجهاز غير متصل (${incomingIp}:${incomingPort})`;
-}
-});
-socket.on("new-attendance",data=>{
-if(!data)return;
-addAttendanceRecord(data);
-});
-function isAllowedDevice(ip,port){
-return ALLOWED_DEVICES.some(device=>device.ip===String(ip).trim()&&device.port===Number(port));
-}
-function updateServerDevices(devices){
-const incomingDevices=devices.map(device=>({
-ip:String(device.ip||"").trim(),
-port:Number(device.port||4370),
-connected:Boolean(device.connected),
-connecting:Boolean(device.connecting),
-realtime:Boolean(device.realtime),
-monitoring:Boolean(device.monitoring),
-logCount:Number(device.logCount||0),
-lastError:device.lastError||null
-})).filter(device=>isAllowedDevice(device.ip,device.port));
-serverDevices=ALLOWED_DEVICES.map(allowed=>{
-const found=incomingDevices.find(device=>device.ip===allowed.ip&&device.port===allowed.port);
-return found||{
-ip:allowed.ip,
-port:allowed.port,
-connected:false,
-connecting:false,
-realtime:false,
-monitoring:false,
-logCount:0,
-lastError:null
-};
-});
-renderDevices();
-}
-function renderDevices(){
-const list=document.getElementById("devices-list");
-list.innerHTML="";
-if(!serverDevices.length){
-deviceSummary.className="status-value unknown";
-deviceSummary.innerText="⚪ لا توجد أجهزة";
-return;
-}
-let onlineCount=0;
-serverDevices.forEach(device=>{
-if(device.connected)onlineCount++;
-const div=document.createElement("div");
-div.className="device-item "+(device.connected?"online":"offline");
-const state=device.connected?"🟢 أونلاين":"🔴 أوفلاين";
-div.innerHTML=`
-<span class="device-name">📡 ${escapeHtml(device.ip)}:${escapeHtml(device.port)}</span>
-<span class="device-state">${state}</span>
-`;
-list.appendChild(div);
-});
-const offlineCount=serverDevices.length-onlineCount;
-if(onlineCount===serverDevices.length){
-deviceSummary.className="status-value online";
-}else if(onlineCount>0){
-deviceSummary.className="status-value warning";
-}else{
-deviceSummary.className="status-value offline";
-}
-deviceSummary.innerText=`${onlineCount} أونلاين / ${offlineCount} أوفلاين`;
-}
-function setServerStatus(online){
-serverStatus.className="status-value "+(online?"online":"offline");
-serverStatus.innerText=online?"🟢 متصل":"🔴 غير متصل";
-}
-function setDatabaseStatus(online){
-databaseStatus.className="status-value "+(online?"online":"offline");
-databaseStatus.innerText=online?"🟢 متصلة":"🔴 غير متاحة";
-}
-function connectDevice(){
-const ip=document.getElementById("device-ip").value.trim();
-const port=parseInt(document.getElementById("device-port").value,10);
-if(!ip||!port){
-alert("برجاء إدخال IP و Port الجهاز.");
-return;
-}
-if(!isAllowedDevice(ip,port)){
-alert("هذا الجهاز غير مسموح به في النظام.");
-return;
-}
-const exists=serverDevices.some(device=>String(device.ip)===ip&&Number(device.port)===port);
-if(!exists){
-alert("هذا الجهاز غير موجود ضمن الأجهزة المعرفة في السيرفر.");
-return;
-}
-statusBar.className="status-bar";
-statusBar.innerText=`🟡 جاري الاتصال بـ (${ip}:${port})...`;
-socket.emit("setup-device",{ip,port});
-}
-function refreshAttendance(){
-socket.emit("refresh-attendance");
-socket.emit("get-system-status");
-socket.emit("get-device-status");
-}
-function addAttendanceRecord(data){
-const deviceIp=String(data.deviceIp||"").trim();
-const devicePort=Number(data.devicePort||4370);
-if(!isAllowedDevice(deviceIp,devicePort))return;
-const databaseId=data.id||null;
-const uniqueKey=databaseId?String(databaseId):`${deviceIp}|${data.userId||""}|${data.timeOriginal||data.time||""}|${data.date||""}`;
-if(attendanceRecords.some(record=>record.uniqueKey===uniqueKey))return;
-const record={
-id:databaseId,
-uniqueKey,
-date:data.date||"",
-userId:data.userId||"",
-userName:data.userName||"غير معروف",
-time:data.time||"00:00:00",
-status:data.status||"حضور",
-deviceIp:deviceIp||"غير معروف",
-devicePort,
-downloadCount:0
-};
-attendanceRecords.unshift(record);
-saveLocalRecords();
-applyFilters();
-}
-function loadLocalRecords(){
-try{
-const stored=JSON.parse(localStorage.getItem("zk_attendance_sandbox"));
-attendanceRecords=Array.isArray(stored)?stored.map(record=>({
-...record,
-downloadCount:Number(record.downloadCount||0)
-})).filter(record=>isAllowedDevice(record.deviceIp,record.devicePort)):[]; 
-}catch(error){
-console.error("Local storage error:",error);
-attendanceRecords=[];
-}
-}
-function saveLocalRecords(){
-localStorage.setItem("zk_attendance_sandbox",JSON.stringify(attendanceRecords));
-}
-function applyFilters(){
-const user=document.getElementById("filter-user").value.trim().toLowerCase();
-const date=document.getElementById("filter-date").value;
-const ip=document.getElementById("filter-ip").value.trim().toLowerCase();
-const download=document.getElementById("filter-download").value;
-filteredRecords=attendanceRecords.filter(record=>{
-if(user&&!String(record.userId).toLowerCase().includes(user))return false;
-if(date&&record.date!==date)return false;
-if(ip&&!String(record.deviceIp).toLowerCase().includes(ip))return false;
-if(download==="downloaded"&&Number(record.downloadCount||0)<=0)return false;
-if(download==="not-downloaded"&&Number(record.downloadCount||0)>0)return false;
-return true;
-});
-renderAllLogs();
-}
-function renderAllLogs(){
-const tbody=document.getElementById("attendance-rows");
-tbody.innerHTML="";
-if(!filteredRecords.length){
-tbody.innerHTML='<tr><td colspan="6" class="empty">لا توجد بصمات مطابقة للفلاتر.</td></tr>';
-}else{
-filteredRecords.forEach(log=>{
-const row=document.createElement("tr");
-const count=Number(log.downloadCount||0);
-const downloadHtml=count>0?`<span class="download-count">تحميل ${count} مرة</span>`:`<span class="not-downloaded">لم تُحمّل</span>`;
-row.innerHTML=`
-<td><strong>${escapeHtml(log.userId)}</strong></td>
-<td>${escapeHtml(log.userName)}</td>
-<td>${escapeHtml(log.date)}</td>
-<td><span class="time-12">${escapeHtml(formatTime12(log.time))}</span></td>
-<td>${escapeHtml(log.deviceIp)}</td>
-<td>${downloadHtml}</td>
-`;
-tbody.appendChild(row);
-});
-}
-document.getElementById("total-count").innerText=attendanceRecords.length;
-document.getElementById("visible-count").innerText=filteredRecords.length;
-document.getElementById("not-downloaded-count").innerText=attendanceRecords.filter(record=>Number(record.downloadCount||0)===0).length;
-}
-function formatTime12(time){
-if(!time)return"12:00:00 ص";
-let value=String(time).trim();
-let match=value.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
-if(!match)return value;
-let hour=Number(match[1]);
-const minute=match[2];
-const second=match[3]||"00";
-if(hour>=0&&hour<=23){
-const period=hour>=12?"م":"ص";
-hour=hour%12;
-if(hour===0)hour=12;
-return `${String(hour).padStart(2,"0")}:${minute}:${second} ${period}`;
-}
-return value;
-}
-function downloadFiltered(){
-if(!filteredRecords.length){
-alert("لا توجد بصمات ظاهرة بعد تطبيق الفلاتر.");
-return;
-}
-const selectedDate=document.getElementById("search-date").value;
-let records=[...filteredRecords];
-if(selectedDate){
-records=records.filter(record=>record.date===selectedDate);
-if(!records.length){
-alert(`لا توجد بصمات ظاهرة بالتاريخ ${selectedDate}.`);
-return;
-}
-}
-records.forEach(record=>{
-const original=attendanceRecords.find(item=>item.uniqueKey===record.uniqueKey);
-if(original){
-original.downloadCount=Number(original.downloadCount||0)+1;
-record.downloadCount=original.downloadCount;
-}
-});
-saveLocalRecords();
-applyFilters();
-let csv="\uFEFF";
-csv+="رقم الموظف,اسم الموظف,التاريخ,توقيت البصمة,IP الجهاز,عدد مرات التحميل\n";
-records.forEach(record=>{
-csv+=`"${escapeCsv(record.userId)}","${escapeCsv(record.userName)}","${escapeCsv(record.date)}","${escapeCsv(formatTime12(record.time))}","${escapeCsv(record.deviceIp)}","${record.downloadCount}"\n`;
-});
-const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
-const url=URL.createObjectURL(blob);
-const link=document.createElement("a");
-link.href=url;
-link.download=`سند_بصمات_${selectedDate||getTodayString()}.csv`;
-document.body.appendChild(link);
-link.click();
-link.remove();
-URL.revokeObjectURL(url);
-alert(`✅ تم تحميل ${records.length} بصمة.\nتم تحديث عدد مرات التحميل لكل بصمة.`);
-}
-function clearSandboxData(){
-if(!confirm("⚠️ هل أنت متأكد من مسح جميع بيانات السند بوكس من المتصفح؟"))return;
-attendanceRecords=[];
-filteredRecords=[];
-localStorage.removeItem("zk_attendance_sandbox");
-renderAllLogs();
-}
-function getTodayString(){
-const d=new Date();
-return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function escapeHtml(value){
-return String(value??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
-}
-function escapeCsv(value){
-return String(value??"").replace(/"/g,'""');
-}
-window.onload=()=>{
-document.getElementById("search-date").value=getTodayString();
-loadLocalRecords();
-applyFilters();
-if(socket.connected){
-setServerStatus(true);
-socket.emit("get-system-status");
-socket.emit("get-device-status");
-}
-};
+    const SERVER_URL = "http://localhost:5000";
+
+    const serverStatus = document.getElementById("server-status");
+    const databaseStatus = document.getElementById("database-status");
+    const deviceStatus = document.getElementById("device-status");
+    const statusBar = document.getElementById("status-bar");
+
+    const socket = io(SERVER_URL, {
+        transports: ["websocket", "polling"],
+        reconnection: true,
+        reconnectionAttempts: Infinity,
+        reconnectionDelay: 2000
+    });
+
+    let attendanceRecords = [];
+
+    socket.on("connect", function () {
+        console.log("🟢 Socket.IO connected:", socket.id);
+
+        setServerStatus(true);
+        setDatabaseStatus(true);
+
+        statusBar.className = "status-card connected";
+        statusBar.innerText = "🟢 السيرفر متصل بالصفحة بنجاح";
+
+        socket.emit("get-device-status");
+    });
+
+    socket.on("disconnect", function () {
+        console.log("🔴 Socket.IO disconnected");
+
+        setServerStatus(false);
+        setDatabaseStatus(false);
+        setDeviceStatus("unknown");
+
+        statusBar.className = "status-card disconnected";
+        statusBar.innerText = "🔴 الصفحة غير متصلة بسيرفر Node.js";
+    });
+
+    function setServerStatus(online) {
+        if (online) {
+            serverStatus.className = "system-state state-online";
+            serverStatus.innerText = "🟢 متصل";
+        } else {
+            serverStatus.className = "system-state state-offline";
+            serverStatus.innerText = "🔴 غير متصل";
+        }
+    }
+
+    function setDatabaseStatus(online) {
+        if (online) {
+            databaseStatus.className = "system-state state-online";
+            databaseStatus.innerText = "🟢 متصلة";
+        } else {
+            databaseStatus.className = "system-state state-offline";
+            databaseStatus.innerText = "🔴 غير متاحة";
+        }
+    }
+
+    function setDeviceStatus(status) {
+        if (status === "connected") {
+            deviceStatus.className = "system-state state-online";
+            deviceStatus.style.color = "";
+            deviceStatus.innerText = "🟢 متصل";
+            return;
+        }
+
+        if (status === "connecting") {
+            deviceStatus.className = "system-state";
+            deviceStatus.style.color = "var(--color-warning)";
+            deviceStatus.innerText = "🟡 جاري الاتصال...";
+            return;
+        }
+
+        if (status === "disconnected") {
+            deviceStatus.className = "system-state state-offline";
+            deviceStatus.style.color = "";
+            deviceStatus.innerText = "🔴 غير متصل";
+            return;
+        }
+
+        deviceStatus.className = "system-state state-unknown";
+        deviceStatus.style.color = "";
+        deviceStatus.innerText = "⚪ غير متاح";
+    }
+
+    socket.on("device-status", function (data) {
+        console.log("📡 Device status:", data);
+
+        if (!data) {
+            return;
+        }
+
+        if (data.status === "connected") {
+            setDeviceStatus("connected");
+
+            statusBar.className = "status-card connected";
+            statusBar.innerText = `🟢 متصل بجهاز البصمة بنجاح (${data.ip}:${data.port})`;
+
+            return;
+        }
+
+        if (data.status === "connecting") {
+            setDeviceStatus("connecting");
+
+            statusBar.className = "status-card connecting";
+            statusBar.innerText = `🟡 جاري محاولة الاتصال بجهاز البصمة (${data.ip}:${data.port})...`;
+
+            return;
+        }
+
+        if (data.status === "disconnected") {
+            setDeviceStatus("disconnected");
+
+            statusBar.className = "status-card disconnected";
+
+            if (data.ip) {
+                statusBar.innerText = `🔴 جهاز البصمة غير متصل (${data.ip}:${data.port || 4370})`;
+            } else {
+                statusBar.innerText = "🔴 جهاز البصمة غير متصل";
+            }
+
+            return;
+        }
+    });
+
+    function connectDevice() {
+        const ip = document.getElementById("device-ip").value.trim();
+        const port = parseInt(document.getElementById("device-port").value.trim());
+
+        if (!ip || !port) {
+            alert("برجاء إدخال IP و Port جهاز البصمة.");
+            return;
+        }
+
+        setDeviceStatus("connecting");
+
+        statusBar.className = "status-card connecting";
+        statusBar.innerText = `🟡 جاري الاتصال بـ (${ip}:${port})...`;
+
+        socket.emit("setup-device", {
+            ip: ip,
+            port: port
+        });
+    }
+
+    socket.on("new-attendance", function (data) {
+        console.log("🆕 New Attendance:", data);
+
+        if (!data) {
+            return;
+        }
+
+        addAttendanceRecord(data);
+    });
+
+    function addAttendanceRecord(data) {
+        const record = {
+            date: data.date || getTodayString(),
+            userId: data.userId || "",
+            userName: data.userName || "غير معروف",
+            time: data.time || "00:00:00",
+            status: data.status || "حضور",
+            deviceIp: data.deviceIp || "غير معروف"
+        };
+
+        attendanceRecords.push(record);
+
+        localStorage.setItem(
+            "zk_attendance_sandbox",
+            JSON.stringify(attendanceRecords)
+        );
+
+        renderAllLogs();
+    }
+
+    function loadLocalRecords() {
+        try {
+            const stored = JSON.parse(
+                localStorage.getItem("zk_attendance_sandbox")
+            );
+
+            if (Array.isArray(stored)) {
+                attendanceRecords = stored;
+            } else {
+                attendanceRecords = [];
+            }
+        } catch (error) {
+            console.error("Local storage error:", error);
+            attendanceRecords = [];
+        }
+    }
+
+    function renderAllLogs() {
+        const tbody = document.getElementById("attendance-rows");
+
+        tbody.innerHTML = "";
+
+        if (attendanceRecords.length === 0) {
+            tbody.innerHTML = `
+                <tr id="no-data">
+                    <td colspan="6" class="empty-msg">
+                        لا توجد بصمات مستلمة من السيرفر حتى الآن...
+                    </td>
+                </tr>
+            `;
+
+            updateAttendanceCount();
+            return;
+        }
+
+        let employeeCounters = {};
+
+        attendanceRecords.forEach(function (log) {
+            const userId = log.userId;
+
+            if (!employeeCounters[userId]) {
+                employeeCounters[userId] = {
+                    checkIn: 0,
+                    checkOut: 0
+                };
+            }
+
+            let countNumber;
+
+            if (log.status === "حضور") {
+                employeeCounters[userId].checkIn++;
+                countNumber = employeeCounters[userId].checkIn;
+            } else {
+                employeeCounters[userId].checkOut++;
+                countNumber = employeeCounters[userId].checkOut;
+            }
+
+            const badgeClass =
+                log.status === "حضور"
+                    ? "badge check-in"
+                    : "badge check-out";
+
+            const row = document.createElement("tr");
+
+            row.innerHTML = `
+                <td data-label="رقم الموظف">
+                    <strong>${escapeHtml(log.userId)}</strong>
+                </td>
+
+                <td data-label="اسم الموظف">
+                    ${escapeHtml(log.userName)}
+                </td>
+
+                <td data-label="التاريخ">
+                    ${escapeHtml(log.date)}
+                </td>
+
+                <td data-label="التوقيت">
+                    <span class="time-24">
+                        ${escapeHtml(log.time)}
+                    </span>
+                </td>
+
+                <td data-label="نوع البصمة">
+                    <span class="${badgeClass}">
+                        ${escapeHtml(log.status)}
+                    </span>
+
+                    <span class="count-badge">
+                        رقم ${countNumber}
+                    </span>
+                </td>
+
+                <td data-label="IP الجهاز">
+                    ${escapeHtml(log.deviceIp)}
+                </td>
+            `;
+
+            tbody.insertBefore(row, tbody.firstChild);
+        });
+
+        updateAttendanceCount();
+    }
+
+    function updateAttendanceCount() {
+        document.getElementById("attendance-count").innerText =
+            attendanceRecords.length;
+    }
+
+    function downloadBackupByDate() {
+        const fromDate = document.getElementById("search-date-from").value;
+        const toDate = document.getElementById("search-date-to").value;
+
+        if (!fromDate || !toDate) {
+            alert("برجاء اختيار تاريخ البداية وتاريخ النهاية.");
+            return;
+        }
+
+        if (fromDate > toDate) {
+            alert("⚠️ تاريخ البداية يجب أن يكون قبل تاريخ النهاية أو مساويًا له.");
+            return;
+        }
+
+        const filteredLogs = attendanceRecords.filter(function (log) {
+            return log.date >= fromDate && log.date <= toDate;
+        });
+
+        if (filteredLogs.length === 0) {
+            alert(`لا توجد بصمات محفوظة خلال الفترة من ${fromDate} إلى ${toDate}`);
+            return;
+        }
+
+        let csvContent = "\uFEFF";
+
+        csvContent +=
+            "رقم الموظف,اسم الموظف,التاريخ,توقيت البصمة,نوع الحركة,IP الجهاز\n";
+
+        let empCounts = {};
+
+        filteredLogs.forEach(function (log) {
+            const userId = log.userId;
+
+            if (!empCounts[userId]) {
+                empCounts[userId] = {
+                    in: 0,
+                    out: 0
+                };
+            }
+
+            let countText;
+
+            if (log.status === "حضور") {
+                empCounts[userId].in++;
+
+                countText =
+                    `حضور رقم ${empCounts[userId].in}`;
+            } else {
+                empCounts[userId].out++;
+
+                countText =
+                    `انصراف رقم ${empCounts[userId].out}`;
+            }
+
+            csvContent +=
+                `"${escapeCsv(log.userId)}",` +
+                `"${escapeCsv(log.userName)}",` +
+                `"${escapeCsv(log.date)}",` +
+                `"${escapeCsv(log.time)}",` +
+                `"${escapeCsv(countText)}",` +
+                `"${escapeCsv(log.deviceIp)}"\n`;
+        });
+
+        const blob = new Blob(
+            [csvContent],
+            {
+                type: "text/csv;charset=utf-8;"
+            }
+        );
+
+        const url = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+
+        link.href = url;
+
+        link.download =
+            `تقرير_بصمات_${fromDate}_إلى_${toDate}.csv`;
+
+        document.body.appendChild(link);
+
+        link.click();
+
+        document.body.removeChild(link);
+
+        URL.revokeObjectURL(url);
+    }
+
+    function clearSandboxData() {
+        const confirmClear = confirm(
+            "⚠️ هل أنت متأكد من مسح جميع البصمات المحفوظة في المتصفح؟"
+        );
+
+        if (!confirmClear) {
+            return;
+        }
+
+        attendanceRecords = [];
+
+        localStorage.removeItem("zk_attendance_sandbox");
+
+        renderAllLogs();
+
+        alert("🗑️ تم مسح بيانات العرض المحلي.");
+    }
+
+    function getTodayString() {
+        const d = new Date();
+
+        return (
+            d.getFullYear() +
+            "-" +
+            String(d.getMonth() + 1).padStart(2, "0") +
+            "-" +
+            String(d.getDate()).padStart(2, "0")
+        );
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function escapeCsv(value) {
+        return String(value ?? "").replace(/"/g, '""');
+    }
+
+    window.onload = function () {
+        const today = getTodayString();
+
+        document.getElementById("search-date-from").value = today;
+        document.getElementById("search-date-to").value = today;
+
+        loadLocalRecords();
+
+        renderAllLogs();
+
+        if (socket.connected) {
+            setServerStatus(true);
+            setDatabaseStatus(true);
+
+            socket.emit("get-device-status");
+        }
+    };
 </script>
+
+<script>
+    if (sessionStorage.getItem("isLoggedIn") !== "true") {
+        window.location.href = "login.html";
+    }
+</script>
+```
+
 </body>
 </html>

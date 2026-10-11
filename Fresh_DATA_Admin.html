@@ -452,7 +452,7 @@
         
         <div class="control-section">
             <div class="upload-box">
-                <label for="csv-file">📂 أرفع هنا ملف بصمات اليوم (CSV):</label>
+                <label for="csv-file">📂 ارفع ملف البصمات (CSV: رقم الموظف، الاسم، الوقت أو التاريخ والوقت):</label>
                 <input type="file" id="csv-file" accept=".csv" onchange="handleFileSelect(event)">
             </div>
             <div class="action-box">
@@ -476,15 +476,16 @@
                         <th>حالة الانصراف</th>
                         <th>صافي ساعات العمل</th>
                         <th>سعر الساعة</th>
-                        <th>تطبيق الخصم؟</th>
-                        <th>خصم تأخير تلقائي</th>
-                        <th>خصم / إضافة يدوية</th>
+                        <th>خصم الحضور المتأخر</th>
+                        <th>خصم الانصراف المبكر</th>
+                        <th>الحافز</th>
+                        <th>الخصم</th>
                         <th>حساب الوردية</th>
                     </tr>
                 </thead>
                 <tbody id="report-rows">
                     <tr>
-                        <td colspan="15" class="empty-msg">برجاء رفع ملف الـ CSV...</td>
+                        <td colspan="16" class="empty-msg">برجاء رفع ملف الـ CSV...</td>
                     </tr>
                 </tbody>
             </table>
@@ -555,151 +556,147 @@
             reader.readAsText(file, 'UTF-8');
         }
 
-        function parseTimeToDate(timeStr) {
+        function parseTimeToDate(timeStr, dateStr = '') {
             const now = new Date();
-            let cleanTime = timeStr.trim().replace(/[^\d:مصصبشغ\/\s]/g, '');
-            
-            let isPM = false;
-            if (cleanTime.includes('م') || cleanTime.toLowerCase().includes('pm') || cleanTime.toLowerCase().includes('مساء')) {
-                isPM = true;
+            const source = `${dateStr || ''} ${String(timeStr || '').trim()}`.trim();
+            const normalized = source
+                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+                .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+                .replace(/صباحاً|صباحا|ص/g, ' AM ')
+                .replace(/مساءً|مساء|م/g, ' PM ')
+                .replace(/\s+/g, ' ').trim();
+
+            const dateMatch = normalized.match(/(\d{4})[-/](\d{1,2})[-/](\d{1,2})|(\d{1,2})[-/](\d{1,2})[-/](\d{4})/);
+            const timeMatch = normalized.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)?/i);
+            if (!timeMatch) return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+
+            let year = now.getFullYear(), month = now.getMonth(), day = now.getDate();
+            if (dateMatch) {
+                if (dateMatch[1]) {
+                    year = Number(dateMatch[1]); month = Number(dateMatch[2]) - 1; day = Number(dateMatch[3]);
+                } else {
+                    day = Number(dateMatch[4]); month = Number(dateMatch[5]) - 1; year = Number(dateMatch[6]);
+                }
             }
-            
-            const matches = cleanTime.match(/\d+/g);
-            if (!matches || matches.length < 2) return now;
-            
-            let hours = parseInt(matches[0], 10);
-            const minutes = parseInt(matches[1], 10);
-            const seconds = matches[2] ? parseInt(matches[2], 10) : 0;
-            
-            if (isPM && hours < 12) hours += 12;
-            if (!isPM && hours === 12) hours = 0;
-            if (hours > 23) hours = 0;
-            
-            return new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes, seconds);
+            let hours = Number(timeMatch[1]);
+            const minutes = Number(timeMatch[2]);
+            const seconds = Number(timeMatch[3] || 0);
+            const meridiem = (timeMatch[4] || '').toUpperCase();
+            if (meridiem === 'PM' && hours < 12) hours += 12;
+            if (meridiem === 'AM' && hours === 12) hours = 0;
+            if (hours > 23 || minutes > 59 || seconds > 59) return new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+            return new Date(year, month, day, hours, minutes, seconds);
         }
 
-        function processCSVData(csvText) {
-            const lines = csvText.split('\n');
-            let rawLogs = [];
+        function formatDateTime(date) {
+            if (!(date instanceof Date) || Number.isNaN(date.getTime())) return '';
+            return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')} ${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}:${String(date.getSeconds()).padStart(2,'0')}`;
+        }
 
+        function csvSplitLine(line) {
+            const result = [];
+            let value = '', quoted = false;
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"' && line[i + 1] === '"' && quoted) { value += '"'; i++; }
+                else if (char === '"') quoted = !quoted;
+                else if ((char === ',' || char === ';' || char === '\t') && !quoted) { result.push(value.trim()); value = ''; }
+                else value += char;
+            }
+            result.push(value.trim());
+            return result;
+        }
+        function processCSVData(csvText) {
+            const lines = csvText.replace(/^\uFEFF/, '').split(/\r?\n/).filter(line => line.trim());
+            const rawLogs = [];
             for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                const columns = line.split(',');
+                const columns = csvSplitLine(lines[i]);
                 if (columns.length < 3) continue;
-                
-                rawLogs.push({
-                    userId: columns[0].trim(),
-                    userName: columns[1].trim(),
-                    timeStr: columns[2].trim()
-                });
+                const userId = String(columns[0] || '').trim();
+                if (!userId) continue;
+                const userName = String(columns[1] || '').trim();
+                const dateStr = columns.length >= 4 ? String(columns[2] || '').trim() : '';
+                const timeStr = columns.length >= 4 ? String(columns[3] || '').trim() : String(columns[2] || '').trim();
+                const timestamp = parseTimeToDate(timeStr, dateStr);
+                rawLogs.push({ userId, userName, timeStr: timeStr || dateStr, timestamp, dateKey: formatDateTime(timestamp).slice(0,10) });
             }
 
             userTimestampsMap = {};
             rawLogs.forEach(log => {
                 const id = log.userId;
-                if (!userTimestampsMap[id]) {
-                    userTimestampsMap[id] = { userName: log.userName, times: [], rawTimes: [] };
-                }
-                userTimestampsMap[id].times.push(parseTimeToDate(log.timeStr));
+                if (!userTimestampsMap[id]) userTimestampsMap[id] = { userName: log.userName, times: [], rawTimes: [], logs: [] };
+                userTimestampsMap[id].times.push(log.timestamp);
                 userTimestampsMap[id].rawTimes.push(log.timeStr);
+                userTimestampsMap[id].logs.push(log);
             });
 
             const tbody = document.getElementById('report-rows');
             tbody.innerHTML = '';
             aggregatedReportData = [];
 
-            const empIds = Object.keys(userTimestampsMap);
-            if (empIds.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="15" class="empty-msg">⚠️ لا توجد بيانات صحيحة بالملف!</td></tr>`;
+            const empIds = new Set([...Object.keys(globalEmployeesDatabase), ...Object.keys(userTimestampsMap)]);
+            if (empIds.size === 0) {
+                tbody.innerHTML = `<tr><td colspan="16" class="empty-msg">⚠️ لا توجد بيانات موظفين أو بصمات!</td></tr>`;
                 document.getElementById('cloud-sync-btn').style.display = 'none';
                 return;
             }
 
-            empIds.sort((a, b) => parseInt(a, 10) - parseInt(b, 10));
-
-            empIds.forEach(id => {
-                const userData = userTimestampsMap[id];
-                const dateObjects = userData.times;
-                const rawTimes = userData.rawTimes;
-                
-                const sortedIndices = dateObjects.map((_, i) => i).sort((i, j) => dateObjects[i] - dateObjects[j]);
-                const sortedDates = sortedIndices.map(i => dateObjects[i]);
-                const sortedRaw = sortedIndices.map(i => rawTimes[i]);
+            [...empIds].sort((a, b) => (parseInt(a, 10) || 0) - (parseInt(b, 10) || 0)).forEach(id => {
+                const userData = userTimestampsMap[id] || { userName: '', times: [], rawTimes: [], logs: [] };
+                const sortedLogs = [...userData.logs].sort((a,b) => a.timestamp - b.timestamp);
+                const empConfig = globalEmployeesDatabase[id];
+                const empName = (empConfig && empConfig.name) || userData.userName || 'غير معروف';
+                const hourlyRate = empConfig && Number.isFinite(empConfig.hourlyRate) ? empConfig.hourlyRate : 40;
+                const firstLog = sortedLogs[0];
+                const lastLog = sortedLogs[sortedLogs.length - 1];
+                const firstCheckInDate = firstLog ? new Date(firstLog.timestamp) : null;
+                let lastCheckOutDate = lastLog ? new Date(lastLog.timestamp) : null;
 
                 let totalSecondsAll = 0;
-                for (let k = 0; k < sortedDates.length; k += 2) {
-                    if (sortedDates[k + 1]) {
-                        let diffMs = sortedDates[k + 1].getTime() - sortedDates[k].getTime();
-                        if (diffMs < 0) diffMs += 24 * 60 * 60 * 1000;
-                        totalSecondsAll += Math.floor(diffMs / 1000);
-                    }
+                for (let k = 0; k + 1 < sortedLogs.length; k += 2) {
+                    let inTime = new Date(sortedLogs[k].timestamp);
+                    let outTime = new Date(sortedLogs[k + 1].timestamp);
+                    if (outTime <= inTime) outTime.setDate(outTime.getDate() + 1);
+                    totalSecondsAll += Math.max(0, Math.floor((outTime - inTime) / 1000));
                 }
-
-                const firstCheckInDate = sortedDates[0];
-                const lastCheckOutDate = sortedDates[sortedDates.length - 1];
-                const checkInText = sortedRaw[0];
-                const checkOutText = sortedRaw[sortedRaw.length - 1];
-
+                if (sortedLogs.length % 2 === 1) totalSecondsAll = Math.max(0, totalSecondsAll);
                 const hoursPart = Math.floor(totalSecondsAll / 3600);
                 const minutesPart = Math.floor((totalSecondsAll % 3600) / 60);
                 const secondsPart = totalSecondsAll % 60;
                 const exactHours = totalSecondsAll / 3600;
-
-                const empConfig = globalEmployeesDatabase[id];
-                let empName = userData.userName;
-                let hourlyRate = 40;
-
-                if (empConfig) {
-                    empName = empConfig.name;
-                    hourlyRate = empConfig.hourlyRate;
-                }
-
+                const checkInText = firstLog ? firstLog.timeStr : '-';
+                const checkOutText = lastLog ? lastLog.timeStr : '-';
                 const rowHTML = `
                     <tr id="row-${id}">
                         <td contenteditable="true" onblur="updateManualData('${id}', 'empId', this.innerText)"><strong>${id}</strong></td>
                         <td contenteditable="true" onblur="updateManualData('${id}', 'empName', this.innerText)">${empName}</td>
-                        <td><button class="btn-logs" onclick="openLogsModal('${id}')">🔍 (${rawTimes.length}) بصمات</button></td>
+                        <td><button class="btn-logs" onclick="openLogsModal('${id}')">🔍 (${sortedLogs.length}) بصمات</button></td>
                         <td><input type="time" class="time-input" id="plan-in-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
                         <td><input type="time" class="time-input" id="plan-out-${id}" value="" onchange="calculateRowFinancials('${id}')"></td>
-                        <td contenteditable="true" id="checkin-td-${id}" onblur="updateManualData('${id}', 'checkIn', this.innerText)"><span style="color: var(--color-success);">⬇️ ${checkInText}</span></td>
-                        <td contenteditable="true" id="checkout-td-${id}" onblur="updateManualData('${id}', 'checkOut', this.innerText)"><span style="color: var(--color-danger);">⬆️ ${checkOutText}</span></td>
+                        <td contenteditable="true" id="checkin-td-${id}" onblur="updateManualData('${id}', 'checkIn', this.innerText)">${firstLog ? `<span style="color: var(--color-success);">⬇️ ${checkInText}</span>` : '-'}</td>
+                        <td contenteditable="true" id="checkout-td-${id}" onblur="updateManualData('${id}', 'checkOut', this.innerText)">${lastLog ? `<span style="color: var(--color-danger);">⬆️ ${checkOutText}</span>` : '-'}</td>
                         <td contenteditable="true" id="in-status-${id}">-</td>
                         <td contenteditable="true" id="out-status-${id}">-</td>
                         <td contenteditable="true" class="hours" id="hours-display-${id}">${hoursPart} س و ${minutesPart} د</td>
                         <td contenteditable="true" id="hourly-rate-${id}" onblur="onHourlyRateEdit('${id}', this)">${hourlyRate} ج.م</td>
-                        <td><input type="checkbox" class="checkbox-custom" id="apply-deduct-${id}" checked onchange="calculateRowFinancials('${id}')"></td>
-                        <td contenteditable="true" class="deduction" id="deduction-val-${id}" onblur="onDeductionEdit('${id}', this)">0 ج.م</td>
-                        <td contenteditable="true" class="adjustment" id="manual-adj-${id}" onblur="onManualAdjustmentEdit('${id}', this)">0 ج.م</td>
+                        <td class="deduction" id="late-deduction-${id}">0 ج.م</td>
+                        <td class="deduction" id="early-deduction-${id}">0 ج.م</td>
+                        <td contenteditable="true" class="money" id="incentive-${id}" onblur="onIncentiveEdit('${id}', this)">0 ج.م</td>
+                        <td contenteditable="true" class="deduction" id="manual-deduction-${id}" onblur="onManualDeductionEdit('${id}', this)">0 ج.م</td>
                         <td contenteditable="true" class="money" id="today-earnings-${id}" onblur="updateManualData('${id}', 'todayEarnings', parseFloat(this.innerText) || 0)">0 ج.م</td>
-                    </tr>
-                `;
+                    </tr>`;
                 tbody.insertAdjacentHTML('beforeend', rowHTML);
-
                 aggregatedReportData.push({
-                    empId: id,
-                    empName: empName,
-                    firstCheckInDate: firstCheckInDate,
-                    lastCheckOutDate: lastCheckOutDate,
-                    exactHours: exactHours,
-                    hoursDisplay: `${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
-                    hourlyRate: hourlyRate,
-                    checkIn: checkInText,
-                    checkOut: checkOutText,
-                    plannedIn: '',
-                    plannedOut: '',
-                    applyDeduction: true,
-                    deductionAmount: 0,
-                    manualAdjustment: 0,
-                    todayEarnings: 0
+                    empId:id, empName, firstCheckInDate, lastCheckOutDate,
+                    exactHours, hoursDisplay:`${hoursPart} س و ${minutesPart} د و ${secondsPart} ث`,
+                    hourlyRate, checkIn:checkInText, checkOut:checkOutText,
+                    plannedIn:'', plannedOut:'',
+                    lateDeduction:0, earlyDeduction:0, incentive:0, manualDeduction:0, todayEarnings:0
                 });
-
                 calculateRowFinancials(id);
             });
-
             document.getElementById('cloud-sync-btn').style.display = 'block';
         }
-
         /* ----- دمج قائمة البصمات (Modal) ----- */
         function openLogsModal(empId) {
             activeEmpModalId = empId;
@@ -716,7 +713,10 @@
                 tempSelectedOut = aggregatedReportData[itemIndex].checkOut;
             }
 
-            userData.rawTimes.forEach((timeStr, index) => {
+            const recentLogs = userData.logs.filter(log => log.timestamp >= Date.now() - 48 * 60 * 60 * 1000).sort((a,b) => a.timestamp-b.timestamp);
+            if (!recentLogs.length) listContainer.innerHTML = '<div class="empty-msg">لا توجد بصمات خلال آخر 48 ساعة</div>';
+            recentLogs.forEach((log, index) => {
+                const timeStr = log.timeStr;
                 const logEl = document.createElement('div');
                 logEl.className = 'log-item';
                 
@@ -779,9 +779,9 @@
 
             const planInVal = document.getElementById(`plan-in-${empId}`).value;
             const planOutVal = document.getElementById(`plan-out-${empId}`).value;
-            const isDeductChecked = document.getElementById(`apply-deduct-${empId}`).checked;
 
-            let deduction = 0;
+            let lateDeduction = 0;
+            let earlyDeduction = 0;
             let inStatusHtml = '<span style="color: var(--text-muted);">-</span>';
             let outStatusHtml = '<span style="color: var(--text-muted);">-</span>';
 
@@ -795,7 +795,7 @@
                 if (diffInMinutes > 0) {
                     inStatusHtml = `<span style="color: var(--color-warning); font-weight: bold;">⚠️ تأخير ${diffInMinutes} دقيقة</span>`;
                     const minuteRate = item.hourlyRate / 60;
-                    deduction = (diffInMinutes * minuteRate) * 2;
+                    lateDeduction = (diffInMinutes * minuteRate) * 2;
                 } else if (diffInMinutes < 0) {
                     inStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⚡ مبكر ${Math.abs(diffInMinutes)} دقيقة</span>`;
                 } else {
@@ -812,6 +812,8 @@
 
                 if (diffOutMinutes < 0) {
                     outStatusHtml = `<span style="color: var(--color-danger); font-weight: bold;">🔻 مبكر ${Math.abs(diffOutMinutes)} دقيقة</span>`;
+                    const minuteRate = item.hourlyRate / 60;
+                    earlyDeduction = (Math.abs(diffOutMinutes) * minuteRate) * 2;
                 } else if (diffOutMinutes > 0) {
                     outStatusHtml = `<span style="color: var(--color-success); font-weight: bold;">⏳ تأخير ${diffOutMinutes} دقيقة</span>`;
                 } else {
@@ -819,21 +821,27 @@
                 }
             }
 
+            const finalLateDeduction = parseFloat(lateDeduction.toFixed(2));
+            const finalEarlyDeduction = parseFloat(earlyDeduction.toFixed(2));
+            const incentive = item.incentive || 0;
+            const manualDeduction = item.manualDeduction || 0;
             const baseEarnings = item.exactHours * item.hourlyRate;
-            const finalAutoDeduction = isDeductChecked ? parseFloat(deduction.toFixed(2)) : 0;
-            const manualAdj = item.manualAdjustment || 0;
-            
-            const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalAutoDeduction + manualAdj).toFixed(2)));
+            const finalEarnings = Math.max(0, parseFloat((baseEarnings - finalLateDeduction - finalEarlyDeduction + incentive - manualDeduction).toFixed(2)));
 
             document.getElementById(`in-status-${empId}`).innerHTML = inStatusHtml;
             document.getElementById(`out-status-${empId}`).innerHTML = outStatusHtml;
-            document.getElementById(`deduction-val-${empId}`).innerText = `${finalAutoDeduction} ج.م`;
+            document.getElementById(`late-deduction-${empId}`).innerText = `${finalLateDeduction} ج.م`;
+            document.getElementById(`early-deduction-${empId}`).innerText = `${finalEarlyDeduction} ج.م`;
+            document.getElementById(`incentive-${empId}`).innerText = `${incentive} ج.م`;
+            document.getElementById(`manual-deduction-${empId}`).innerText = `${manualDeduction} ج.م`;
             document.getElementById(`today-earnings-${empId}`).innerText = `${finalEarnings} ج.م`;
 
             item.plannedIn = planInVal;
             item.plannedOut = planOutVal;
-            item.applyDeduction = isDeductChecked;
-            item.deductionAmount = finalAutoDeduction;
+            item.lateDeduction = finalLateDeduction;
+            item.earlyDeduction = finalEarlyDeduction;
+            item.incentive = incentive;
+            item.manualDeduction = manualDeduction;
             item.todayEarnings = finalEarnings;
         }
 
@@ -847,26 +855,22 @@
             }
         }
 
-        function onDeductionEdit(empId, el) {
-            const parsedDeduct = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
-            el.innerText = `${parsedDeduct} ج.م`;
+        function onIncentiveEdit(empId, el) {
+            const parsedIncentive = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
+            el.innerText = `${parsedIncentive} ج.م`;
             const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
             if (itemIndex !== -1) {
-                const item = aggregatedReportData[itemIndex];
-                item.deductionAmount = parsedDeduct;
-                const baseEarnings = item.exactHours * item.hourlyRate;
-                const manualAdj = item.manualAdjustment || 0;
-                item.todayEarnings = Math.max(0, parseFloat((baseEarnings - parsedDeduct + manualAdj).toFixed(2)));
-                document.getElementById(`today-earnings-${empId}`).innerText = `${item.todayEarnings} ج.م`;
+                aggregatedReportData[itemIndex].incentive = parsedIncentive;
+                calculateRowFinancials(empId);
             }
         }
 
-        function onManualAdjustmentEdit(empId, el) {
-            const parsedAdj = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
-            el.innerText = `${parsedAdj} ج.م`;
+        function onManualDeductionEdit(empId, el) {
+            const parsedDeduction = parseFloat(el.innerText.replace(/[^\d.-]/g, '')) || 0;
+            el.innerText = `${parsedDeduction} ج.م`;
             const itemIndex = aggregatedReportData.findIndex(d => d.empId === empId);
             if (itemIndex !== -1) {
-                aggregatedReportData[itemIndex].manualAdjustment = parsedAdj;
+                aggregatedReportData[itemIndex].manualDeduction = parsedDeduction;
                 calculateRowFinancials(empId);
             }
         }
@@ -928,8 +932,8 @@
                 formData.append('plannedOut', data.plannedOut || '-');
                 formData.append('exactHours', data.hoursDisplay || '0');
                 formData.append('hourlyRate', data.hourlyRate || 0);
-                formData.append('deductionAmount', data.deductionAmount || 0);
-                formData.append('manualAdjustment', data.manualAdjustment || 0);
+                formData.append('deductionAmount', (data.lateDeduction || 0) + (data.earlyDeduction || 0));
+                formData.append('manualAdjustment', (data.incentive || 0) - (data.manualDeduction || 0));
                 formData.append('todayEarnings', data.todayEarnings || 0);
 
                 return fetch(SCRIPT_POST_URL, {

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>قاعدة البيانات الكاملة - سجلات الحضور 🗄️</title>
-    <!-- Font Awesome -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
@@ -20,14 +22,16 @@
             --color-warning: #ffa502;
         }
 
-        * { box-sizing: border-box; }
+        * {
+            box-sizing: border-box;
+        }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
             padding: 20px 10px;
-            background: var(--bg-gradient); 
-            color: var(--text-main); 
+            background: var(--bg-gradient);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -51,7 +55,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        .header p { color: var(--text-muted); margin: 0; font-size: 0.9em; }
+
+        .header p {
+            color: var(--text-muted);
+            margin: 0;
+            font-size: 0.9em;
+        }
 
         .stats-summary {
             display: flex;
@@ -70,19 +79,26 @@
             gap: 10px;
         }
 
-        .stat-card i { font-size: 1.2rem; color: var(--color-add); }
-        .stat-card strong { color: #fff; font-size: 1rem; }
+        .stat-card i {
+            font-size: 1.2rem;
+            color: var(--color-add);
+        }
 
-        .container { 
+        .stat-card strong {
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .container {
             width: 100%;
-            max-width: 1600px; 
-            margin: 0 auto; 
-            background: var(--card-bg); 
+            max-width: 1600px;
+            margin: 0 auto;
+            background: var(--card-bg);
             backdrop-filter: blur(20px);
-            padding: 20px; 
-            border-radius: 20px; 
+            padding: 20px;
+            border-radius: 20px;
             border: 1px solid var(--card-border);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
         }
 
         .filter-panel {
@@ -112,7 +128,7 @@
         }
 
         .filter-group input {
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             border: 1px solid #2d3b52;
             border-radius: 10px;
             padding: 10px 14px;
@@ -153,7 +169,7 @@
             max-height: 70vh;
             border-radius: 12px;
             border: 1px solid var(--card-border);
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
         }
 
         table {
@@ -161,7 +177,7 @@
             border-collapse: separate;
             border-spacing: 0;
             font-size: 0.85rem;
-            min-width: 1300px;
+            min-width: 1700px;
         }
 
         th {
@@ -185,7 +201,9 @@
             white-space: nowrap;
         }
 
-        tr:hover td { background: rgba(0, 242, 254, 0.04); }
+        tr:hover td {
+            background: rgba(0, 242, 254, 0.04);
+        }
 
         .badge-id {
             background: rgba(0, 242, 254, 0.1);
@@ -222,281 +240,915 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="header-wrapper">
+
         <div class="header">
-            <h1><i class="fas fa-database" style="color: var(--color-add); margin-left: 8px;"></i> قاعدة البيانات السحابية الشاملة</h1>
-            <p>تصفح وفلترة جميع سجلات الحضور والبصمات المسجلة</p>
+
+            <h1>
+                <i class="fas fa-database" style="color: var(--color-add); margin-left: 8px;"></i>
+                قاعدة البيانات السحابية الشاملة
+            </h1>
+
+            <p>
+                تصفح وفلترة جميع سجلات الحضور والبصمات المسجلة
+            </p>
+
         </div>
 
         <div class="stats-summary">
+
             <div class="stat-card">
                 <i class="fas fa-list-ol"></i>
-                <div>السجلات المعروضة: <strong id="statCount">0</strong></div>
+
+                <div>
+                    السجلات المعروضة:
+                    <strong id="statCount">0</strong>
+                </div>
             </div>
+
             <div class="stat-card">
                 <i class="fas fa-clock"></i>
-                <div>إجمالي الساعات: <strong id="statHours">0</strong></div>
+
+                <div>
+                    إجمالي الساعات:
+                    <strong id="statHours">0</strong>
+                </div>
             </div>
+
         </div>
+
     </div>
 
     <div class="container">
-        <!-- شريط الفلاتر المتقدم للبحث -->
+
         <div class="filter-panel">
+
             <div class="filter-group">
-                <label><i class="far fa-calendar-alt"></i> تصفية بيوم محدد</label>
-                <input type="date" id="filterSpecificDate">
+
+                <label>
+                    <i class="far fa-calendar-alt"></i>
+                    تصفية بيوم محدد
+                </label>
+
+                <input
+                    type="date"
+                    id="filterSpecificDate"
+                >
+
             </div>
 
             <div class="filter-group">
-                <label><i class="fas fa-user"></i> اسم الموظف</label>
-                <input type="text" id="filterEmpName" placeholder="اكتب اسم الموظف...">
+
+                <label>
+                    <i class="fas fa-user"></i>
+                    اسم الموظف
+                </label>
+
+                <input
+                    type="text"
+                    id="filterEmpName"
+                    placeholder="اكتب اسم الموظف..."
+                >
+
             </div>
 
             <div class="filter-group">
-                <label><i class="fas fa-id-badge"></i> رقم/كود الموظف (ID)</label>
-                <input type="text" id="filterEmpId" placeholder="ابحث برقم الكود...">
+
+                <label>
+                    <i class="fas fa-id-badge"></i>
+                    رقم/كود الموظف (ID)
+                </label>
+
+                <input
+                    type="text"
+                    id="filterEmpId"
+                    placeholder="ابحث برقم الكود..."
+                >
+
             </div>
 
-            <button class="btn-reset" id="btnResetFilters">
-                <i class="fas fa-undo"></i> إعادة ضبط الفلاتر
+            <button
+                class="btn-reset"
+                id="btnResetFilters"
+            >
+                <i class="fas fa-undo"></i>
+                إعادة ضبط الفلاتر
             </button>
+
         </div>
 
-        <!-- جدول لعرض كل بيانات الشيت -->
         <div class="table-wrap">
+
             <table>
+
                 <thead>
+
                     <tr>
-                        <th>#</th>
-                        <th>التاريخ</th>
-                        <th>كود الموظف</th>
+                        <th>رقم الموظف</th>
                         <th>اسم الموظف</th>
-                        <th>الوظيفة</th>
-                        <th>الحضور المخطط</th>
-                        <th>الانصراف المخطط</th>
-                        <th>الحضور الفعلي</th>
-                        <th>الانصراف الفعلي</th>
-                        <th>مدة العمل</th>
+                        <th>سجل البصمات</th>
+                        <th>حضور مخطط</th>
+                        <th>انصراف مخطط</th>
+                        <th>حضور (فعلي)</th>
+                        <th>انصراف (فعلي)</th>
+                        <th>حالة الحضور</th>
+                        <th>حالة الانصراف</th>
+                        <th>صافي ساعات العمل</th>
                         <th>سعر الساعة</th>
-                        <th>خصم التأخير</th>
-                        <th>التسوية اليدوية</th>
-                        <th>صافي اليوم</th>
+                        <th>خصم الحضور المتأخر</th>
+                        <th>خصم الانصراف المبكر</th>
+                        <th>الحافز</th>
+                        <th>الخصم</th>
+                        <th>حساب الوردية</th>
                     </tr>
+
                 </thead>
+
                 <tbody id="tableBody">
-                    <tr><td colspan="14" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري استدعاء كافة البيانات من الشيت...</td></tr>
+
+                    <tr>
+
+                        <td
+                            colspan="16"
+                            class="empty-state"
+                        >
+                            <i class="fas fa-spinner fa-pulse"></i>
+                            جاري استدعاء كافة البيانات من الشيت...
+                        </td>
+
+                    </tr>
+
                 </tbody>
+
             </table>
+
         </div>
+
     </div>
 
-    <div class="footer">         Copyright © 2026 Techno Science. All rights reserved.  </div>
-        <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
-    </script>
+    <div class="footer">
+        Copyright © 2026 Techno Science. All rights reserved.
+    </div>
+
     <script>
-        (function() {
+
+        if (
+            sessionStorage.getItem('isLoggedIn') !== 'true'
+        ) {
+            window.location.href = 'login.html';
+        }
+
+    </script>
+
+    <script>
+
+        (function () {
+
             "use strict";
 
-            const SHEET_URL = 'https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json';
+            const SHEET_URL =
+                'https://docs.google.com/spreadsheets/d/1eS9Ll_YJuJco34v5e72Jd8A2Mo-6z64yWOMW7NNSUSA/gviz/tq?tqx=out:json';
 
-            const filterSpecificDate = document.getElementById('filterSpecificDate');
-            const filterEmpName = document.getElementById('filterEmpName');
-            const filterEmpId = document.getElementById('filterEmpId');
-            const btnResetFilters = document.getElementById('btnResetFilters');
+            const filterSpecificDate =
+                document.getElementById(
+                    'filterSpecificDate'
+                );
 
-            const tableBody = document.getElementById('tableBody');
-            const statCount = document.getElementById('statCount');
-            const statHours = document.getElementById('statHours');
+            const filterEmpName =
+                document.getElementById(
+                    'filterEmpName'
+                );
+
+            const filterEmpId =
+                document.getElementById(
+                    'filterEmpId'
+                );
+
+            const btnResetFilters =
+                document.getElementById(
+                    'btnResetFilters'
+                );
+
+            const tableBody =
+                document.getElementById(
+                    'tableBody'
+                );
+
+            const statCount =
+                document.getElementById(
+                    'statCount'
+                );
+
+            const statHours =
+                document.getElementById(
+                    'statHours'
+                );
 
             let rawDatabase = [];
 
+            /*
+                ترتيب أعمدة الشيت الحقيقي:
+
+                0 = التاريخ
+                1 = رقم الموظف
+                2 = اسم الموظف
+                3 = سجل البصمات
+                4 = حضور مخطط
+                5 = انصراف مخطط
+                6 = حضور فعلي
+                7 = انصراف فعلي
+                8 = حالة الحضور
+                9 = حالة الانصراف
+                10 = صافي ساعات العمل
+                11 = سعر الساعة
+                12 = خصم الحضور المتأخر
+                13 = خصم الانصراف المبكر
+                14 = الحافز
+                15 = الخصم
+                16 = حساب الوردية
+            */
+
             const COL_MAP = {
+
                 datetime: 0,
+
                 empId: 1,
+
                 empName: 2,
-                job: 3,
+
+                attendanceLog: 3,
+
                 planIn: 4,
+
                 planOut: 5,
+
                 actualIn: 6,
+
                 actualOut: 7,
-                workHours: 8,
-                hourRate: 9,
-                lateDed: 10,
-                manualAdj: 11,
-                totalShift: 12
+
+                attendanceStatus: 8,
+
+                departureStatus: 9,
+
+                workHours: 10,
+
+                hourRate: 11,
+
+                lateDed: 12,
+
+                earlyDed: 13,
+
+                incentive: 14,
+
+                deduction: 15,
+
+                totalShift: 16
+
             };
 
-            // تحويل الساعات لنسبة ساعات ودقائق
             function formatDecimalToHM(decimal) {
-                if (!decimal || isNaN(decimal) || decimal <= 0) return "0 س";
-                const hrs = Math.floor(decimal);
-                const mins = Math.round((decimal - hrs) * 60);
-                if (mins === 60) return `${hrs + 1} س`;
-                if (hrs === 0) return `${mins} د`;
-                return mins > 0 ? `${hrs} س ${mins} د` : `${hrs} س`;
-            }
 
-            // تحويل التاريخ لنص YYYY-MM-DD
-            function formatDateToYYYYMMDD(d) {
-                if (!d || isNaN(d.getTime())) return '';
-                const yyyy = d.getFullYear();
-                const mm = String(d.getMonth() + 1).padStart(2, '0');
-                const dd = String(d.getDate()).padStart(2, '0');
-                return `${yyyy}-${mm}-${dd}`;
-            }
-
-            // استخراج التواريخ المرجعة من Google Viz
-            function parseDateFromJson(dateStr) {
-                if (!dateStr) return null;
-                if (typeof dateStr === 'string' && dateStr.includes('Date(')) {
-                    const matches = dateStr.match(/\d+/g);
-                    if (matches) {
-                        const [year, month, day, hour, minute, second] = matches.map(Number);
-                        return new Date(year, month, day, hour || 0, minute || 0, second || 0);
-                    }
+                if (
+                    !decimal ||
+                    isNaN(decimal) ||
+                    decimal <= 0
+                ) {
+                    return "0 س";
                 }
-                const d = new Date(dateStr);
-                return isNaN(d.getTime()) ? null : d;
+
+                const hrs =
+                    Math.floor(decimal);
+
+                const mins =
+                    Math.round(
+                        (decimal - hrs) * 60
+                    );
+
+                if (mins === 60) {
+                    return `${hrs + 1} س`;
+                }
+
+                if (hrs === 0) {
+                    return `${mins} د`;
+                }
+
+                return mins > 0
+                    ? `${hrs} س ${mins} د`
+                    : `${hrs} س`;
+
+            }
+
+            function formatDateToYYYYMMDD(d) {
+
+                if (
+                    !d ||
+                    isNaN(d.getTime())
+                ) {
+                    return '';
+                }
+
+                const yyyy =
+                    d.getFullYear();
+
+                const mm =
+                    String(
+                        d.getMonth() + 1
+                    ).padStart(2, '0');
+
+                const dd =
+                    String(
+                        d.getDate()
+                    ).padStart(2, '0');
+
+                return `${yyyy}-${mm}-${dd}`;
+
+            }
+
+            function parseDateFromJson(dateStr) {
+
+                if (!dateStr) {
+                    return null;
+                }
+
+                if (
+                    typeof dateStr === 'string' &&
+                    dateStr.includes('Date(')
+                ) {
+
+                    const matches =
+                        dateStr.match(/\d+/g);
+
+                    if (matches) {
+
+                        const [
+                            year,
+                            month,
+                            day,
+                            hour,
+                            minute,
+                            second
+                        ] = matches.map(Number);
+
+                        return new Date(
+                            year,
+                            month,
+                            day,
+                            hour || 0,
+                            minute || 0,
+                            second || 0
+                        );
+
+                    }
+
+                }
+
+                const d =
+                    new Date(dateStr);
+
+                return isNaN(d.getTime())
+                    ? null
+                    : d;
+
             }
 
             async function fetchDatabase() {
+
                 try {
-                    const resp = await fetch(SHEET_URL);
-                    if (!resp.ok) throw new Error('فشل جلب قاعدة البيانات');
-                    const text = await resp.text();
 
-                    const jsonStart = text.indexOf('{');
-                    const jsonEnd = text.lastIndexOf('}');
-                    if (jsonStart === -1 || jsonEnd === -1) throw new Error('بنية JSON غير متوافقة');
+                    const resp =
+                        await fetch(SHEET_URL);
 
-                    const json = JSON.parse(text.substring(jsonStart, jsonEnd + 1));
-                    const rows = json.table ? json.table.rows : [];
+                    if (!resp.ok) {
+
+                        throw new Error(
+                            'فشل جلب قاعدة البيانات'
+                        );
+
+                    }
+
+                    const text =
+                        await resp.text();
+
+                    const jsonStart =
+                        text.indexOf('{');
+
+                    const jsonEnd =
+                        text.lastIndexOf('}');
+
+                    if (
+                        jsonStart === -1 ||
+                        jsonEnd === -1
+                    ) {
+
+                        throw new Error(
+                            'بنية JSON غير متوافقة'
+                        );
+
+                    }
+
+                    const json =
+                        JSON.parse(
+                            text.substring(
+                                jsonStart,
+                                jsonEnd + 1
+                            )
+                        );
+
+                    const rows =
+                        json.table
+                            ? json.table.rows
+                            : [];
+
                     const parsedData = [];
 
-                    for (let i = 0; i < rows.length; i++) {
-                        const row = rows[i].c || [];
-                        const getVal = (idx) => (row[idx] && row[idx].v !== undefined && row[idx].v !== null) ? row[idx].v : '';
-                        const getFormatted = (idx) => (row[idx] && row[idx].f) ? row[idx].f : getVal(idx);
+                    for (
+                        let i = 0;
+                        i < rows.length;
+                        i++
+                    ) {
 
-                        const empNameVal = getVal(COL_MAP.empName);
-                        if (!empNameVal) continue; // تخطي الصفوف الفارغة
+                        const row =
+                            rows[i].c || [];
 
-                        const dateObj = parseDateFromJson(getVal(COL_MAP.datetime));
+                        const getVal =
+                            (idx) => {
+
+                                return (
+                                    row[idx] &&
+                                    row[idx].v !== undefined &&
+                                    row[idx].v !== null
+                                )
+                                    ? row[idx].v
+                                    : '';
+
+                            };
+
+                        const getFormatted =
+                            (idx) => {
+
+                                return (
+                                    row[idx] &&
+                                    row[idx].f
+                                )
+                                    ? row[idx].f
+                                    : getVal(idx);
+
+                            };
+
+                        const empNameVal =
+                            getVal(
+                                COL_MAP.empName
+                            );
+
+                        if (!empNameVal) {
+                            continue;
+                        }
+
+                        /*
+                            التاريخ يتم قراءته من العمود 0
+                            وليس من سجل البصمات.
+                        */
+
+                        const dateObj =
+                            parseDateFromJson(
+                                getVal(
+                                    COL_MAP.datetime
+                                )
+                            );
 
                         parsedData.push({
-                            id: i + 1,
-                            datetimeRaw: getVal(COL_MAP.datetime),
-                            dateObj: dateObj,
-                            dateFormatted: dateObj ? formatDateToYYYYMMDD(dateObj) : 'غير محدد',
-                            empId: String(getVal(COL_MAP.empId) || '-'),
-                            empName: String(empNameVal).trim(),
-                            job: String(getVal(COL_MAP.job) || '-'),
-                            planIn: String(getFormatted(COL_MAP.planIn) || '-'),
-                            planOut: String(getFormatted(COL_MAP.planOut) || '-'),
-                            actualIn: String(getFormatted(COL_MAP.actualIn) || '-'),
-                            actualOut: String(getFormatted(COL_MAP.actualOut) || '-'),
-                            workHours: parseFloat(getVal(COL_MAP.workHours)) || 0,
-                            hourRate: parseFloat(getVal(COL_MAP.hourRate)) || 0,
-                            lateDed: parseFloat(getVal(COL_MAP.lateDed)) || 0,
-                            manualAdj: parseFloat(getVal(COL_MAP.manualAdj)) || 0,
-                            totalShift: parseFloat(getVal(COL_MAP.totalShift)) || 0
+
+                            id:
+                                i + 1,
+
+                            dateObj:
+                                dateObj,
+
+                            dateFormatted:
+                                dateObj
+                                    ? formatDateToYYYYMMDD(
+                                        dateObj
+                                    )
+                                    : 'غير محدد',
+
+                            empId:
+                                String(
+                                    getVal(
+                                        COL_MAP.empId
+                                    ) || '-'
+                                ),
+
+                            empName:
+                                String(
+                                    empNameVal
+                                ).trim(),
+
+                            attendanceLog:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.attendanceLog
+                                    ) || '-'
+                                ),
+
+                            planIn:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.planIn
+                                    ) || '-'
+                                ),
+
+                            planOut:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.planOut
+                                    ) || '-'
+                                ),
+
+                            actualIn:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.actualIn
+                                    ) || '-'
+                                ),
+
+                            actualOut:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.actualOut
+                                    ) || '-'
+                                ),
+
+                            attendanceStatus:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.attendanceStatus
+                                    ) || '-'
+                                ),
+
+                            departureStatus:
+                                String(
+                                    getFormatted(
+                                        COL_MAP.departureStatus
+                                    ) || '-'
+                                ),
+
+                            workHours:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.workHours
+                                    )
+                                ) || 0,
+
+                            hourRate:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.hourRate
+                                    )
+                                ) || 0,
+
+                            lateDed:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.lateDed
+                                    )
+                                ) || 0,
+
+                            earlyDed:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.earlyDed
+                                    )
+                                ) || 0,
+
+                            incentive:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.incentive
+                                    )
+                                ) || 0,
+
+                            deduction:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.deduction
+                                    )
+                                ) || 0,
+
+                            totalShift:
+                                parseFloat(
+                                    getVal(
+                                        COL_MAP.totalShift
+                                    )
+                                ) || 0
+
                         });
+
                     }
 
                     return parsedData;
+
                 } catch (e) {
-                    console.error('خطأ أثناء تحميل البيانات:', e);
+
+                    console.error(
+                        'خطأ أثناء تحميل البيانات:',
+                        e
+                    );
+
                     return [];
+
                 }
+
             }
 
             function renderTable(data) {
-                if (!data || data.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="14" class="empty-state"><i class="fas fa-search-minus"></i> لم يتم العثور على أي نتائج تطابق البحث</td></tr>`;
+
+                if (
+                    !data ||
+                    data.length === 0
+                ) {
+
+                    tableBody.innerHTML = `
+
+                        <tr>
+
+                            <td
+                                colspan="16"
+                                class="empty-state"
+                            >
+
+                                <i class="fas fa-search-minus"></i>
+
+                                لم يتم العثور على أي نتائج تطابق البحث
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
                     statCount.textContent = '0';
+
                     statHours.textContent = '0 س';
+
                     return;
+
                 }
 
                 let html = '';
+
                 let totalDecimalHours = 0;
 
-                data.forEach((row, index) => {
-                    totalDecimalHours += row.workHours;
+                data.forEach((row) => {
 
-                    html += `<tr>
-                        <td>${index + 1}</td>
-                        <td style="color: #cbd5e1;">${row.dateFormatted}</td>
-                        <td><span class="badge-id">${row.empId}</span></td>
-                        <td><strong>${row.empName}</strong></td>
-                        <td>${row.job}</td>
-                        <td class="time-box">${row.planIn}</td>
-                        <td class="time-box">${row.planOut}</td>
-                        <td class="time-actual">${row.actualIn}</td>
-                        <td class="time-actual">${row.actualOut}</td>
-                        <td style="color: var(--color-add); font-weight:600;">${formatDecimalToHM(row.workHours)}</td>
-                        <td>${row.hourRate.toFixed(2)} ج.م</td>
-                        <td style="color: var(--color-danger);">${row.lateDed > 0 ? '-' + row.lateDed.toFixed(2) : '0.00'}</td>
-                        <td style="color: var(--color-warning);">${row.manualAdj.toFixed(2)}</td>
-                        <td style="color: var(--color-payouts); font-weight: 700;">${row.totalShift.toFixed(2)} ج.م</td>
-                    </tr>`;
+                    totalDecimalHours +=
+                        row.workHours;
+
+                    html += `
+
+                        <tr>
+
+                            <td>
+
+                                <span class="badge-id">
+
+                                    ${row.empId}
+
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <strong>
+
+                                    ${row.empName}
+
+                                </strong>
+
+                            </td>
+
+                            <td class="time-box">
+
+                                ${row.attendanceLog}
+
+                            </td>
+
+                            <td class="time-box">
+
+                                ${row.planIn}
+
+                            </td>
+
+                            <td class="time-box">
+
+                                ${row.planOut}
+
+                            </td>
+
+                            <td class="time-actual">
+
+                                ${row.actualIn}
+
+                            </td>
+
+                            <td class="time-actual">
+
+                                ${row.actualOut}
+
+                            </td>
+
+                            <td>
+
+                                ${row.attendanceStatus}
+
+                            </td>
+
+                            <td>
+
+                                ${row.departureStatus}
+
+                            </td>
+
+                            <td style="color: var(--color-add); font-weight:600;">
+
+                                ${formatDecimalToHM(
+                                    row.workHours
+                                )}
+
+                            </td>
+
+                            <td>
+
+                                ${row.hourRate.toFixed(2)} ج.م
+
+                            </td>
+
+                            <td style="color: var(--color-danger);">
+
+                                ${
+                                    row.lateDed > 0
+                                        ? '-' + row.lateDed.toFixed(2)
+                                        : '0.00'
+                                }
+
+                            </td>
+
+                            <td style="color: var(--color-danger);">
+
+                                ${
+                                    row.earlyDed > 0
+                                        ? '-' + row.earlyDed.toFixed(2)
+                                        : '0.00'
+                                }
+
+                            </td>
+
+                            <td style="color: var(--color-payouts);">
+
+                                ${row.incentive.toFixed(2)}
+
+                            </td>
+
+                            <td style="color: var(--color-danger);">
+
+                                ${
+                                    row.deduction > 0
+                                        ? '-' + row.deduction.toFixed(2)
+                                        : '0.00'
+                                }
+
+                            </td>
+
+                            <td style="color: var(--color-payouts); font-weight:700;">
+
+                                ${row.totalShift.toFixed(2)} ج.م
+
+                            </td>
+
+                        </tr>
+
+                    `;
+
                 });
 
-                tableBody.innerHTML = html;
-                statCount.textContent = data.length;
-                statHours.textContent = formatDecimalToHM(totalDecimalHours);
+                tableBody.innerHTML =
+                    html;
+
+                statCount.textContent =
+                    data.length;
+
+                statHours.textContent =
+                    formatDecimalToHM(
+                        totalDecimalHours
+                    );
+
             }
 
             function applyFilters() {
-                const selectedDate = filterSpecificDate.value;
-                const searchName = filterEmpName.value.trim().toLowerCase();
-                const searchId = filterEmpId.value.trim().toLowerCase();
 
-                const filtered = rawDatabase.filter(row => {
-                    // فلترة بليوم المحدد
-                    if (selectedDate && row.dateFormatted !== selectedDate) {
-                        return false;
-                    }
+                const selectedDate =
+                    filterSpecificDate.value;
 
-                    // فلترة بالاسم
-                    if (searchName && !row.empName.toLowerCase().includes(searchName)) {
-                        return false;
-                    }
+                const searchName =
+                    filterEmpName.value
+                        .trim()
+                        .toLowerCase();
 
-                    // فلترة برقم الموظف
-                    if (searchId && !row.empId.toLowerCase().includes(searchId)) {
-                        return false;
-                    }
+                const searchId =
+                    filterEmpId.value
+                        .trim()
+                        .toLowerCase();
 
-                    return true;
-                });
+                const filtered =
+                    rawDatabase.filter(
+                        (row) => {
+
+                            if (
+                                selectedDate &&
+                                row.dateFormatted !== selectedDate
+                            ) {
+                                return false;
+                            }
+
+                            if (
+                                searchName &&
+                                !row.empName
+                                    .toLowerCase()
+                                    .includes(searchName)
+                            ) {
+                                return false;
+                            }
+
+                            if (
+                                searchId &&
+                                !row.empId
+                                    .toLowerCase()
+                                    .includes(searchId)
+                            ) {
+                                return false;
+                            }
+
+                            return true;
+
+                        }
+                    );
 
                 renderTable(filtered);
+
             }
 
             function resetFilters() {
+
                 filterSpecificDate.value = '';
+
                 filterEmpName.value = '';
+
                 filterEmpId.value = '';
-                renderTable(rawDatabase);
+
+                renderTable(
+                    rawDatabase
+                );
+
             }
 
-            // Listeners للفلترة الفورية
-            filterSpecificDate.addEventListener('change', applyFilters);
-            filterEmpName.addEventListener('input', applyFilters);
-            filterEmpId.addEventListener('input', applyFilters);
-            btnResetFilters.addEventListener('click', resetFilters);
+            filterSpecificDate.addEventListener(
+                'change',
+                applyFilters
+            );
 
-            // التشغيل المبدئي
+            filterEmpName.addEventListener(
+                'input',
+                applyFilters
+            );
+
+            filterEmpId.addEventListener(
+                'input',
+                applyFilters
+            );
+
+            btnResetFilters.addEventListener(
+                'click',
+                resetFilters
+            );
+
             (async function init() {
-                rawDatabase = await fetchDatabase();
-                renderTable(rawDatabase);
+
+                rawDatabase =
+                    await fetchDatabase();
+
+                renderTable(
+                    rawDatabase
+                );
+
             })();
 
         })();
+
     </script>
+
 </body>
+
 </html>

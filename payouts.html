@@ -6,6 +6,8 @@
     <title>لوحة الموظفين - التقرير التفصيلي 📊</title>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
@@ -102,6 +104,50 @@
 
         .filter-group input:focus {
             border-color: var(--color-add);
+        }
+
+        .report-export-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-excel {
+            background: #16a34a;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-image {
+            background: #7c3aed;
+            color: #fff;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-excel:hover,
+        .btn-image:hover {
+            opacity: 0.9;
+        }
+
+        #reportCapture {
+            background: #fff;
+            color: #000;
         }
 
         .btn-primary {
@@ -262,17 +308,6 @@
             border-top: 2px solid #000;
         }
 
-        .card-signatures {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 1px dashed #000;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #000;
-        }
-
         .card-actions {
             background: #0f172a;
             padding: 12px 25px;
@@ -364,6 +399,10 @@
                 <label><i class="far fa-calendar-alt"></i> إلى تاريخ</label>
                 <input type="date" id="endDate">
             </div>
+            <div class="filter-group">
+                <label><i class="fas fa-user"></i> بحث باسم الموظف</label>
+                <input type="text" id="employeeSearch" placeholder="اكتب اسم الموظف...">
+            </div>
             <button class="btn-primary" id="applyFilterBtn"><i class="fas fa-search"></i> استعلام البيانات</button>
         </div>
 
@@ -372,18 +411,19 @@
                 <thead>
                     <tr>
                         <th>الموظف</th>
-                        <th>الوظيفة</th>
                         <th>سعر الساعة</th>
                         <th>عدد الورديات</th>
                         <th>إجمالي الساعات والدقائق</th>
-                        <th>الخصومات المالية</th>
-                        <th>الإضافات / التسويات</th>
+                        <th>خصم الحضور المتأخر</th>
+                        <th>خصم الذهاب المبكر</th>
+                        <th>الحافز</th>
+                        <th>الخصم</th>
                         <th>الصافي النهائي</th>
                         <th>التفاصيل</th>
                     </tr>
                 </thead>
                 <tbody id="tableBody">
-                    <tr><td colspan="9" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري تحميل البيانات من السجل...</td></tr>
+                    <tr><td colspan="10" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري تحميل البيانات من السجل...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -392,7 +432,7 @@
     <!-- Modal الكرت التفصيلي للأيام -->
     <div class="modal-overlay" id="employeeModal">
         <div class="formal-card">
-            <div class="card-inner-container">
+            <div class="card-inner-container" id="reportCapture">
                 <div class="receipt-header">
                     <div>
                         <div class="receipt-title">كشف حضور واستحقاقات تفصيلي</div>
@@ -400,7 +440,6 @@
                     </div>
                     <div class="receipt-header-info">
                         <div>الموظف: <span id="mEmpName" style="text-decoration: underline;">-</span></div>
-                        <div>الوظيفة: <span id="mEmpJob">-</span></div>
                         <div>كود: <span id="mEmpId">-</span></div>
                         <div>سعر الساعة: <span id="mEmpRate">-</span></div>
                     </div>
@@ -414,14 +453,15 @@
                     <thead>
                         <tr>
                             <th>#</th>
-                            <th>التاريخ</th>
+                            <th>التاريخ / اليوم</th>
                             <th>وقت الحضور</th>
                             <th>وقت الانصراف</th>
-                            <th>مدة التأخير</th>
                             <th>ساعات العمل</th>
                             <th>المستحق اليومي</th>
-                            <th>خصم تأخيرات</th>
-                            <th>تسوية يدوية</th>
+                            <th>خصم الحضور المتأخر</th>
+                            <th>خصم الذهاب المبكر</th>
+                            <th>الحافز</th>
+                            <th>الخصم</th>
                             <th>إجمالي اليوم</th>
                         </tr>
                     </thead>
@@ -430,25 +470,25 @@
                     <tfoot>
                         <tr>
                             <td colspan="4" style="text-align: right;"><strong>الإجمالي الكلي (<span id="mTotalDaysCount">0</span> أيام):</strong></td>
-                            <td id="mLateTimeSum" style="color: #c0392b;">-</td>
                             <td id="mTotalHoursSum" style="color: #000;">-</td>
                             <td id="mGrossEarnSum">-</td>
                             <td id="mLateDedSum" style="color: #c0392b;">-</td>
-                            <td id="mManualAdjSum">-</td>
+                            <td id="mEarlyDedSum" style="color: #c0392b;">-</td>
+                            <td id="mIncentiveSum" style="color: #16a34a;">-</td>
+                            <td id="mDeductionSum" style="color: #c0392b;">-</td>
                             <td id="mTotalNetSum" style="font-size: 1rem; text-decoration: underline;">-</td>
                         </tr>
                     </tfoot>
                 </table>
-
-                <div class="card-signatures">
-                    <div>توقيع الموظف: ...................................</div>
-                    <div>توقيع المشرف / الحسابات: ...................................</div>
-                </div>
             </div>
 
             <div class="card-actions">
                 <button class="btn-close" id="closeModalBtn">إغلاق</button>
-                <button class="btn-print" id="printCardBtn"><i class="fas fa-print"></i> طباعة التقرير التفصيلي</button>
+                <div class="report-export-buttons">
+                    <button class="btn-print" id="printCardBtn"><i class="fas fa-print"></i> طباعة التقرير</button>
+                    <button class="btn-excel" id="exportExcelBtn"><i class="fas fa-file-excel"></i> تحميل Excel</button>
+                    <button class="btn-image" id="exportImageBtn"><i class="fas fa-image"></i> تحميل صورة</button>
+                </div>
             </div>
         </div>
     </div>
@@ -463,15 +503,18 @@
 
             const startDateInput = document.getElementById('startDate');
             const endDateInput = document.getElementById('endDate');
+            const employeeSearch = document.getElementById('employeeSearch');
             const applyBtn = document.getElementById('applyFilterBtn');
             const tableBody = document.getElementById('tableBody');
 
             const modalOverlay = document.getElementById('employeeModal');
             const closeModalBtn = document.getElementById('closeModalBtn');
             const printCardBtn = document.getElementById('printCardBtn');
+            const exportExcelBtn = document.getElementById('exportExcelBtn');
+            const exportImageBtn = document.getElementById('exportImageBtn');
+            const reportCapture = document.getElementById('reportCapture');
 
             const mEmpName = document.getElementById('mEmpName');
-            const mEmpJob = document.getElementById('mEmpJob');
             const mEmpId = document.getElementById('mEmpId');
             const mEmpRate = document.getElementById('mEmpRate');
             const mDateFrom = document.getElementById('mDateFrom');
@@ -479,11 +522,12 @@
             const mDaysBody = document.getElementById('mDaysBody');
 
             const mTotalDaysCount = document.getElementById('mTotalDaysCount');
-            const mLateTimeSum = document.getElementById('mLateTimeSum');
             const mTotalHoursSum = document.getElementById('mTotalHoursSum');
             const mGrossEarnSum = document.getElementById('mGrossEarnSum');
             const mLateDedSum = document.getElementById('mLateDedSum');
-            const mManualAdjSum = document.getElementById('mManualAdjSum');
+            const mEarlyDedSum = document.getElementById('mEarlyDedSum');
+            const mIncentiveSum = document.getElementById('mIncentiveSum');
+            const mDeductionSum = document.getElementById('mDeductionSum');
             const mTotalNetSum = document.getElementById('mTotalNetSum');
 
             let allRows = [];
@@ -502,7 +546,10 @@
                 hourRate: 9,
                 lateDed: 10,
                 manualAdj: 11,
-                totalShift: 12
+                totalShift: 12,
+                earlyDed: 13,
+                incentive: 14,
+                deduction: 15
             };
 
             function parseTimeObject(val) {
@@ -588,6 +635,12 @@
                 return `${y}-${m}-${d}`;
             }
 
+            function getArabicDayName(dateObj) {
+                if (!dateObj) return '-';
+                const days = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                return days[dateObj.getDay()];
+            }
+
             function parseDateFromJson(dateStr) {
                 if (!dateStr) return null;
                 if (typeof dateStr === 'string' && dateStr.includes('Date(')) {
@@ -644,6 +697,9 @@
                             hourRate: parseFloat(getVal(COL_MAP.hourRate)) || 0,
                             lateDed: parseFloat(getVal(COL_MAP.lateDed)) || 0,
                             manualAdj: parseFloat(getVal(COL_MAP.manualAdj)) || 0,
+                            earlyDed: parseFloat(getVal(COL_MAP.earlyDed)) || 0,
+                            incentive: parseFloat(getVal(COL_MAP.incentive)) || 0,
+                            deduction: parseFloat(getVal(COL_MAP.deduction)) || 0,
                             totalShift: parseFloat(getVal(COL_MAP.totalShift)) || 0,
                             dateObj: parseDateFromJson(datetimeVal)
                         });
@@ -678,6 +734,9 @@
                             shifts: 0,
                             totalHours: 0,
                             lateDed: 0,
+                            earlyDed: 0,
+                            incentive: 0,
+                            deduction: 0,
                             manualAdj: 0,
                             totalShift: 0
                         });
@@ -686,6 +745,9 @@
                     emp.shifts += 1;
                     emp.totalHours += row.workHours;
                     emp.lateDed += row.lateDed;
+                    emp.earlyDed += row.earlyDed;
+                    emp.incentive += row.incentive;
+                    emp.deduction += row.deduction;
                     emp.manualAdj += row.manualAdj;
                     emp.totalShift += row.totalShift;
                     if (row.job && row.job !== 'غير محدد') emp.job = row.job;
@@ -698,7 +760,7 @@
 
             function renderTable(employees) {
                 if (!employees || employees.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-info-circle"></i> لا توجد سجلات مطابقة لهذا التاريخ</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="10" class="empty-state"><i class="fas fa-info-circle"></i> لا توجد سجلات مطابقة لهذا التاريخ</td></tr>`;
                     return;
                 }
 
@@ -707,12 +769,13 @@
                     const timeText = formatHoursAndMinutes(emp.totalHours);
                     html += `<tr>
                         <td><strong>${emp.empName}</strong></td>
-                        <td>${emp.job}</td>
                         <td>${emp.hourRate.toFixed(2)} ج.م</td>
                         <td>${emp.shifts} وردية</td>
                         <td><span style="color: var(--color-add); font-weight: 600;">${timeText}</span></td>
                         <td style="color: var(--color-danger);">${emp.lateDed.toFixed(2)} ج.م</td>
-                        <td style="color: var(--color-warning);">${emp.manualAdj.toFixed(2)} ج.م</td>
+                        <td style="color: var(--color-danger);">${emp.earlyDed.toFixed(2)} ج.م</td>
+                        <td style="color: var(--color-payouts);">${emp.incentive.toFixed(2)} ج.م</td>
+                        <td style="color: var(--color-danger);">${emp.deduction.toFixed(2)} ج.م</td>
                         <td style="color: var(--color-payouts); font-weight: 700;">${emp.totalShift.toFixed(2)} ج.م</td>
                         <td>
                             <button class="btn-card" data-empname="${emp.empName}"><i class="fas fa-file-alt"></i> التقرير التفصيلي</button>
@@ -733,7 +796,6 @@
 
             function openModal(emp, daysList) {
                 mEmpName.textContent = emp.empName;
-                mEmpJob.textContent = emp.job;
                 mEmpId.textContent = emp.empId;
                 mEmpRate.textContent = `${emp.hourRate.toFixed(2)} ج.م`;
                 
@@ -742,18 +804,22 @@
 
                 let rowsHtml = '';
                 let totalHoursSum = 0;
-                let totalLateMinsSum = 0;
                 let grossSum = 0;
                 let lateSum = 0;
+                let earlySum = 0;
+                let incentiveSum = 0;
+                let deductionSum = 0;
                 let manualSum = 0;
                 let netSum = 0;
 
                 daysList.forEach((day, index) => {
                     const dayGross = day.workHours * day.hourRate;
                     totalHoursSum += day.workHours;
-                    totalLateMinsSum += day.lateMinutes;
                     grossSum += dayGross;
                     lateSum += day.lateDed;
+                    earlySum += day.earlyDed;
+                    incentiveSum += day.incentive;
+                    deductionSum += day.deduction;
                     manualSum += day.manualAdj;
                     netSum += day.totalShift;
 
@@ -761,18 +827,19 @@
                     const hoursFormatted = formatHoursAndMinutes(day.workHours);
                     const checkInText = formatTimeString(day.checkIn);
                     const checkOutText = formatTimeString(day.checkOut);
-                    const lateText = formatMinutesToReadable(day.lateMinutes);
+                    const dayName = getArabicDayName(day.dateObj);
 
                     rowsHtml += `<tr>
                         <td>${index + 1}</td>
-                        <td>${dateFormatted}</td>
+                        <td>${dateFormatted} - ${dayName}</td>
                         <td style="color: #27ae60; font-weight: bold;">${checkInText}</td>
                         <td style="color: #e67e22; font-weight: bold;">${checkOutText}</td>
-                        <td style="color: #c0392b;">${lateText}</td>
                         <td>${hoursFormatted}</td>
                         <td>${dayGross.toFixed(2)} ج.م</td>
                         <td style="color: #c0392b;">${day.lateDed > 0 ? '-' + day.lateDed.toFixed(2) : '0.00'}</td>
-                        <td>${day.manualAdj >= 0 ? '+' : ''}${day.manualAdj.toFixed(2)}</td>
+                        <td style="color: #c0392b;">${day.earlyDed > 0 ? '-' + day.earlyDed.toFixed(2) : '0.00'}</td>
+                        <td style="color: #16a34a;">${day.incentive.toFixed(2)}</td>
+                        <td style="color: #c0392b;">${day.deduction.toFixed(2)}</td>
                         <td style="font-weight: bold;">${day.totalShift.toFixed(2)} ج.م</td>
                     </tr>`;
                 });
@@ -780,11 +847,12 @@
                 mDaysBody.innerHTML = rowsHtml;
 
                 mTotalDaysCount.textContent = daysList.length;
-                mLateTimeSum.textContent = formatMinutesToReadable(totalLateMinsSum);
                 mTotalHoursSum.textContent = formatHoursAndMinutes(totalHoursSum);
                 mGrossEarnSum.textContent = `${grossSum.toFixed(2)} ج.م`;
                 mLateDedSum.textContent = `${lateSum.toFixed(2)} ج.م`;
-                mManualAdjSum.textContent = `${manualSum >= 0 ? '+' : ''}${manualSum.toFixed(2)} ج.م`;
+                mEarlyDedSum.textContent = `${earlySum.toFixed(2)} ج.م`;
+                mIncentiveSum.textContent = `${incentiveSum.toFixed(2)} ج.م`;
+                mDeductionSum.textContent = `${deductionSum.toFixed(2)} ج.م`;
                 mTotalNetSum.textContent = `${netSum.toFixed(2)} ج.م`;
 
                 modalOverlay.classList.add('active');
@@ -804,19 +872,115 @@
                 }
 
                 if (allRows.length === 0) {
-                    tableBody.innerHTML = `<tr><td colspan="9" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري استعلام السجلات...</td></tr>`;
+                    tableBody.innerHTML = `<tr><td colspan="10" class="empty-state"><i class="fas fa-spinner fa-pulse"></i> جاري استعلام السجلات...</td></tr>`;
                     allRows = await fetchSheetData();
                 }
 
-                const aggregated = filterAndAggregate(allRows, startVal, endVal);
+                let aggregated = filterAndAggregate(allRows, startVal, endVal);
+                const searchName = employeeSearch.value.trim().toLowerCase();
+                if (searchName) {
+                    aggregated = aggregated.filter(emp => emp.empName.toLowerCase().includes(searchName));
+                }
                 currentFilteredData = aggregated;
                 renderTable(aggregated);
             }
 
+            function getSafeFileName(name) {
+                return String(name || 'الموظف').replace(/[\\\\/:*?"<>|]/g, '_').trim();
+            }
+
+            function getTodayFileDate() {
+                const now = new Date();
+                return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            }
+
+            function exportEmployeeExcel() {
+                if (!window.XLSX || !mDaysBody.rows.length) {
+                    alert('تعذر تجهيز ملف Excel حالياً');
+                    return;
+                }
+
+                const rows = [];
+                rows.push(['كشف حضور واستحقاقات تفصيلي']);
+                rows.push(['الموظف', mEmpName.textContent]);
+                rows.push(['الكود', mEmpId.textContent]);
+                rows.push(['سعر الساعة', mEmpRate.textContent]);
+                rows.push(['من تاريخ', mDateFrom.textContent]);
+                rows.push(['إلى تاريخ', mDateTo.textContent]);
+                rows.push([]);
+                rows.push(['#', 'التاريخ / اليوم', 'وقت الحضور', 'وقت الانصراف', 'ساعات العمل', 'المستحق اليومي', 'خصم الحضور المتأخر', 'خصم الذهاب المبكر', 'الحافز', 'الخصم', 'إجمالي اليوم']);
+
+                Array.from(mDaysBody.rows).forEach(row => {
+                    rows.push(Array.from(row.cells).map(cell => cell.textContent.trim()));
+                });
+
+                rows.push([]);
+                rows.push(['الإجمالي الكلي']);
+                rows.push(['عدد الأيام', mTotalDaysCount.textContent]);
+                rows.push(['إجمالي الساعات', mTotalHoursSum.textContent]);
+                rows.push(['إجمالي المستحق اليومي', mGrossEarnSum.textContent]);
+                rows.push(['إجمالي خصم الحضور المتأخر', mLateDedSum.textContent]);
+                rows.push(['إجمالي خصم الذهاب المبكر', mEarlyDedSum.textContent]);
+                rows.push(['إجمالي الحافز', mIncentiveSum.textContent]);
+                rows.push(['إجمالي الخصم', mDeductionSum.textContent]);
+                rows.push(['الصافي النهائي', mTotalNetSum.textContent]);
+
+                const worksheet = XLSX.utils.aoa_to_sheet(rows);
+                worksheet['!cols'] = [
+                    { wch: 8 }, { wch: 22 }, { wch: 16 }, { wch: 16 }, { wch: 16 },
+                    { wch: 18 }, { wch: 22 }, { wch: 22 }, { wch: 14 }, { wch: 14 }, { wch: 18 }
+                ];
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'تقرير الموظف');
+
+                const fileName = `${getSafeFileName(mEmpName.textContent)}-${getTodayFileDate()}.xlsx`;
+                XLSX.writeFile(workbook, fileName);
+            }
+
+            async function exportEmployeeImage() {
+                if (!window.html2canvas || !reportCapture) {
+                    alert('تعذر تجهيز الصورة حالياً');
+                    return;
+                }
+
+                try {
+                    const previousOverflow = reportCapture.style.overflow;
+                    const previousHeight = reportCapture.style.height;
+                    reportCapture.style.overflow = 'visible';
+                    reportCapture.style.height = 'auto';
+                    const canvas = await html2canvas(reportCapture, {
+                        backgroundColor: '#ffffff',
+                        scale: 2,
+                        useCORS: true
+                    });
+                    reportCapture.style.overflow = previousOverflow;
+                    reportCapture.style.height = previousHeight;
+
+                    const link = document.createElement('a');
+                    link.download = `${getSafeFileName(mEmpName.textContent)}-${getTodayFileDate()}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                } catch (error) {
+                    console.error('خطأ أثناء تصدير الصورة:', error);
+                    alert('حدث خطأ أثناء تحميل التقرير كصورة');
+                }
+            }
+
             applyBtn.addEventListener('click', applyFilter);
+            employeeSearch.addEventListener('input', () => {
+                if (allRows.length) {
+                    let filtered = filterAndAggregate(allRows, startDateInput.value, endDateInput.value);
+                    const searchName = employeeSearch.value.trim().toLowerCase();
+                    if (searchName) filtered = filtered.filter(emp => emp.empName.toLowerCase().includes(searchName));
+                    currentFilteredData = filtered;
+                    renderTable(filtered);
+                }
+            });
             closeModalBtn.addEventListener('click', closeModal);
             modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeModal(); });
             printCardBtn.addEventListener('click', () => window.print());
+            exportExcelBtn.addEventListener('click', exportEmployeeExcel);
+            exportImageBtn.addEventListener('click', exportEmployeeImage);
 
             function setDefaultDates() {
                 const now = new Date();
@@ -836,7 +1000,7 @@
             })();
 
         })();
-    </script>
+    </script> 
     <script>
         if (sessionStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'login.html';

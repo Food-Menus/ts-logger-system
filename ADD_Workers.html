@@ -1,471 +1,595 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>T.S Logger System</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نظام إدارة الموظفين | Techno Science</title>
 <style>
-    :root {
-        /* لوحة ألوان المحيط العميق والنيون الفوسفوري الموحدة */
-        --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
-        --card-bg: rgba(15, 23, 42, 0.75);
-        --card-border: rgba(0, 242, 254, 0.1);
-        --text-main: #f1f5f9;
-        --text-muted: #64748b;
-        
-        /* ألوان النيون المضيئة للمؤشرات والوظائف */
-        --color-primary: #00f2fe;    /* السيان المضيء للنصوص والساعات */
-        --color-success: #00ff87;    /* الأخضر النيون للحفظ والأسعار المستحقة */
-        --color-danger: #ff007f;     /* الوردي/الأحمر النيون للتنبيهات والأخطاء */
-        --color-warning: #e67e22;    /* البرتقالي لمؤشرات التحميل والانتظار */
-    }
-
-    body { 
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-        margin: 0; 
-        padding: 20px 15px; /* تقليل البادينج ليتناسب مع الهواتف */
-        background: var(--bg-gradient); 
-        color: var(--text-main); 
-        min-height: 100vh;
-        box-sizing: border-box;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .container { 
-        max-width: 1400px; 
-        width: 100%;
-        margin: 0 auto; 
-        background: var(--card-bg); 
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        padding: 25px; 
-        border-radius: 24px; 
-        border: 1px solid var(--card-border);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3); 
-        box-sizing: border-box;
-    }
-
-    h2 { 
-        margin-top: 0;
-        font-size: 1.8em;
-        font-weight: 900;
-        background: linear-gradient(90deg, #fff, var(--color-primary));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
-        border-bottom: 1px solid var(--card-border); 
-        padding-bottom: 15px; 
-        margin-bottom: 25px; 
-    }
-
-    .main-layout { 
-        display: grid; 
-        grid-template-columns: 1fr 2.2fr; 
-        gap: 25px; 
-    }
-
-    /* تصميم قسم الاستمارة المعتم المطور */
-    .form-section { 
-        background: rgba(15, 23, 42, 0.6); 
-        padding: 25px; 
-        border-radius: 16px; 
-        border: 1px solid rgba(255, 255, 255, 0.05); 
-        height: fit-content;
-        box-sizing: border-box;
-    }
-
-    .form-section h3, .table-section h3 {
-        font-size: 1.25em;
-        font-weight: 700;
-        color: #94a3b8;
-        margin-top: 0;
-        margin-bottom: 20px;
-    }
-
-    .form-group { 
-        margin-bottom: 16px; 
-    }
-
-    .form-group label { 
-        display: block; 
-        margin-bottom: 8px; 
-        font-weight: 600; 
-        color: #94a3b8; 
-        font-size: 0.9em; 
-    }
-
-    .form-group input { 
-        width: 100%; 
-        background: rgba(30, 41, 59, 0.8);
-        border: 1px solid var(--card-border);
-        color: var(--text-main);
-        padding: 12px 14px; 
-        border-radius: 8px; 
-        font-size: 0.95em; 
-        box-sizing: border-box; 
-        outline: none; 
-        transition: all 0.3s ease;
-    }
-
-    .form-group input:focus { 
-        border-color: var(--color-primary); 
-        box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
-    }
-
-    /* زر الحفظ المضيء وتأثيرات التحميل */
-    .btn-submit { 
-        width: 100%; 
-        background-color: var(--color-success); 
-        color: #070b12; 
-        border: none; 
-        padding: 14px; 
-        border-radius: 8px; 
-        cursor: pointer; 
-        font-weight: 700; 
-        font-size: 1em; 
-        transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
-    }
-
-    .btn-submit:hover:not(:disabled) { 
-        transform: translateY(-2px);
-        background-color: #219653;
-        color: #fff;
-        box-shadow: 0 0 20px rgba(0, 255, 135, 0.3);
-    }
-
-    .btn-submit:disabled { 
-        background-color: #334155; 
-        color: var(--text-muted);
-        cursor: not-allowed; 
-        transform: none;
-    }
-
-    /* جدول معتم احترافي مطابق للنظام الموحد */
-    .table-section {
-        width: 100%;
-        overflow-x: auto; /* يسمح بالتمرير الأفقي للجدول فقط عند الحاجة في الشاشات الصغيرة */
-        -webkit-overflow-scrolling: touch;
-    }
-
-    table { 
-        width: 100%; 
-        border-collapse: separate; 
-        border-spacing: 0;
-        border-radius: 14px;
-        border: 1px solid var(--card-border);
-        overflow: hidden;
-    }
-
-    th, td { 
-        border-bottom: 1px solid rgba(255, 255, 255, 0.03); 
-        border-left: 1px solid rgba(255, 255, 255, 0.03); 
-        padding: 14px 12px; 
-        text-align: center; 
-        font-size: 0.9em;
-        white-space: nowrap;
-    }
-
-    th:last-child, td:last-child {
-        border-left: none;
-    }
-
-    th { 
-        background-color: rgba(30, 41, 59, 0.8); 
-        color: #94a3b8; 
-        font-weight: 700;
-    }
-
-    tr {
-        background-color: rgba(15, 23, 42, 0.4);
-        transition: background 0.3s;
-    }
-
-    tr:nth-child(even) { 
-        background-color: rgba(30, 41, 59, 0.2); 
-    }
-
-    tr:hover { 
-        background-color: rgba(0, 242, 254, 0.03); 
-    }
-
-    /* بادج النيون المضيء لسعر الساعة */
-    .price-badge { 
-        font-weight: 700; 
-        color: var(--color-success); 
-        background: rgba(0, 255, 135, 0.1); 
-        padding: 4px 10px; 
-        border-radius: 6px; 
-        border: 1px solid rgba(0, 255, 135, 0.15);
-        text-shadow: 0 0 10px rgba(0, 255, 135, 0.1);
-        display: inline-block;
-    }
-
-    .empty-msg { 
-        text-align: center; 
-        color: var(--text-muted); 
-        padding: 50px; 
-        font-size: 1.1em;
-        font-weight: 500;
-    }
-
-    .loading-overlay { 
-        display: none; 
-        color: var(--color-warning); 
-        font-weight: 700; 
-        margin-top: 15px; 
-        text-align: center; 
-        font-size: 0.95em;
-        text-shadow: 0 0 10px rgba(230, 126, 34, 0.1);
-    }
-
-    .footer { 
-        text-align: center; 
-        margin-top: auto; 
-        color: #475569; 
-        font-size: 0.85em; 
-        padding: 30px 20px 10px; 
-        border-top: 1px solid rgba(255, 255, 255, 0.03); 
-        letter-spacing: 0.5px;
-    }
-
-    /* 📱 التحسينات الذكية للشاشات المتوسطة والصغيرة (Responsive Design) */
-
-    /* شاشات أجهزة التابلت والأجهزة المتوسطة (أقل من 1050px) */
-    @media (max-width: 1050px) { 
-        .main-layout { 
-            grid-template-columns: 1fr; /* تحويل التخطيط ليكون عمودياً */
-        } 
-    }
-
-    /* شاشات الهواتف المحمولة (أقل من 600px) */
-    @media (max-width: 600px) {
-        body {
-            padding: 10px; /* تقليص الحواف الخارجية لزيادة المساحة المستغلة */
-        }
-
-        .container {
-            padding: 15px;
-            border-radius: 16px; /* تنعيم الحواف للتناسب مع الموبايل */
-        }
-
-        h2 {
-            font-size: 1.4em;
-            padding-bottom: 10px;
-            margin-bottom: 18px;
-            text-align: center;
-        }
-
-        .form-section {
-            padding: 16px;
-        }
-
-        .form-section h3, .table-section h3 {
-            font-size: 1.1em;
-            text-align: center;
-        }
-
-        th, td {
-            padding: 10px 8px; /* تقليص حجم الحشوة الداخلية للجدول */
-            font-size: 0.82em;
-        }
-
-        .btn-submit {
-            padding: 12px;
-            font-size: 0.95em;
-        }
-    }
+:root{--bg:#080d18;--panel:#111a2b;--panel2:#172238;--border:#29364e;--text:#f1f5f9;--muted:#9aaac1;--cyan:#22d3ee;--green:#22c55e;--red:#fb7185;--blue:#3b82f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:9px;padding:11px 16px;font-weight:bold;transition:.2s}
+button:hover{filter:brightness(1.1)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.topbar{background:#0d1525;border-bottom:1px solid var(--border);padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.brand{font-size:21px;font-weight:bold;color:var(--cyan)}
+.brand small{display:block;font-size:12px;color:var(--muted);margin-top:6px;font-weight:normal}
+.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
+.dot{width:9px;height:9px;background:#f59e0b;border-radius:50%;display:inline-block}
+.dot.ok{background:var(--green)}
+.dot.error{background:var(--red)}
+.container{width:min(1450px,94%);margin:26px auto}
+.heading{margin-bottom:22px}
+.heading h1{font-size:25px;margin:0 0 9px}
+.heading p{color:var(--muted);font-size:14px;line-height:1.8;margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
+.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px}
+.stat{padding:19px}
+.stat span{font-size:13px;color:var(--muted)}
+.stat strong{display:block;font-size:28px;margin-top:10px;color:var(--cyan)}
+.panel{padding:22px;margin-bottom:22px}
+.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
+.panel-title h2{font-size:18px;margin:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
+.field{min-width:0}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:13px;color:#d4deed;margin-bottom:8px}
+input,select,textarea{width:100%;background:#0b1322;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:12px;outline:none;min-width:0}
+input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
+input[type=file]{font-size:12px}
+input[type=file]::file-selector-button{background:var(--panel2);color:white;border:0;padding:8px;border-radius:6px;margin-left:8px;cursor:pointer}
+.photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
+.photo-box{background:#0b1322;border:1px dashed #40516d;border-radius:12px;padding:14px}
+.preview{height:150px;border-radius:9px;background:#111b2c;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;color:var(--muted);font-size:12px}
+.preview img{width:100%;height:100%;object-fit:contain}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
+.primary{background:var(--cyan);color:#07121d}
+.secondary{background:#26354d;color:white}
+.success{background:#166534;color:white}
+.danger{background:#9f2438;color:white}
+.blue{background:#1d4ed8;color:white}
+.note{font-size:12px;color:var(--muted);line-height:1.8;margin-top:10px}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:17px}
+.toolbar input{flex:1;min-width:200px}
+.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:1000px}
+th,td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:right;font-size:13px;white-space:nowrap}
+th{background:#19263b;color:var(--cyan);font-weight:bold}
+td{color:#dbe5f2}
+tbody tr:hover{background:#172238}
+tbody tr:last-child td{border-bottom:0}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#173e43;color:#67e8f9;font-size:11px}
+.table-actions{display:flex;gap:6px}
+.table-actions button{padding:7px 10px;font-size:11px}
+.empty{text-align:center;color:var(--muted);padding:35px}
+.message{display:none;padding:13px 15px;border-radius:9px;margin-bottom:18px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
+.message.show{display:block}
+.message.ok{background:#123b2b;color:#86efac;border:1px solid #166534}
+.message.error{background:#421b27;color:#fda4af;border:1px solid #9f1239}
+.message.info{background:#172e4d;color:#bfdbfe;border:1px solid #1d4ed8}
+footer{text-align:center;padding:20px;color:#64748b;font-size:12px}
+@media(max-width:700px){
+ .container{width:94%;margin:18px auto}
+ .stats{grid-template-columns:1fr}
+ .stat{padding:14px}
+ .stat strong{font-size:23px}
+ .panel{padding:15px}
+ .grid,.photo-grid{grid-template-columns:1fr}
+ .field.full{grid-column:auto}
+ .heading h1{font-size:21px}
+ .topbar{padding:17px 4%}
+}
 </style>
 </head>
 <body>
+<header class="topbar">
+ <div class="brand">TECHNO SCIENCE <small>نظام إدارة بيانات الموظفين</small></div>
+ <div class="status"><span class="dot" id="statusDot"></span><span id="connectionStatus">في انتظار الاتصال</span></div>
+</header>
 
-    <div class="container">
-        <h2>👥قسم إضافة الموظفين</h2>
-        
-        <div class="main-layout">
-            <div class="form-section">
-                <h3>📋 استمارة عامل جديد</h3>
-                <form id="employee-form" onsubmit="saveEmployee(event)">
-                    <div class="form-group"><label>ID البصمة:</label><input type="number" id="emp-id" required></div>
-                    <div class="form-group"><label>اسم العامل:</label><input type="text" id="emp-name" required></div>
-                    <div class="form-group"><label>وظيفة العامل:</label><input type="text" id="emp-role" required></div>
-                    <div class="form-group"><label>عنوان العامل:</label><input type="text" id="emp-address" required></div>
-                    <div class="form-group"><label>رقم الهاتف:</label><input type="tel" id="emp-phone" required></div>
-                    <div class="form-group"><label>سعر الساعة (ج.م):</label><input type="number" id="emp-rate" step="0.1" required></div>
-                    <div class="form-group"><label>تاريخ أول يوم عمل:</label><input type="date" id="emp-start-date" required></div>
-                    <button type="submit" id="submit-btn" class="btn-submit">➕ حفظ مباشرة في Google Sheets</button>
-                    <div id="loading-msg" class="loading-overlay">⏳ جاري معالجة وتحديث البيانات حركياً...</div>
-                </form>
-            </div>
+<main class="container">
+ <section class="heading">
+  <h1>إدارة الموظفين</h1>
+  <p>إضافة وتعديل وعرض بيانات الموظفين وصورهم، مع حفظ البيانات في Google Sheets.</p>
+ </section>
 
-            <div class="table-section">
-                <h3>🗂️ العمال المسجلين فعلياً في جوجل شيت (عرض حي وسريع)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>كود (ID)</th>
-                            <th>الاسم</th>
-                            <th>الوظيفة</th>
-                            <th>العنوان</th>
-                            <th>الهاتف</th>
-                            <th>سعر الساعة</th>
-                            <th>تاريخ التعيين</th>
-                        </tr>
-                    </thead>
-                    <tbody id="employees-table-body">
-                        <tr><td colspan="7" class="empty-msg">⏳ جاري جلب ملفات العمال عبر الرابط المستقل السريع...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+ <div id="message" class="message"></div>
+
+ <section class="stats">
+  <div class="stat"><span>إجمالي الموظفين المعروضين</span><strong id="totalEmployees">—</strong></div>
+  <div class="stat"><span>حالة قاعدة البيانات</span><strong id="dbStatus" style="font-size:19px">غير معروف</strong></div>
+  <div class="stat"><span>حالة النموذج</span><strong id="formStatus" style="font-size:19px">إضافة جديدة</strong></div>
+ </section>
+
+ <section class="panel" id="employeeFormPanel">
+  <div class="panel-title">
+   <h2 id="formTitle">إضافة موظف جديد</h2>
+   <button class="secondary" type="button" id="resetButton">تفريغ النموذج</button>
+  </div>
+
+  <form id="employeeForm">
+   <div class="grid">
+    <div class="field">
+     <label for="empId">رقم الموظف *</label>
+     <input id="empId" name="empId" required maxlength="100" placeholder="مثال: 1001">
     </div>
-
-    <script>
-        // 🔗 رابط الإرسال (الـ Apps Script اللي شغال معاك تمام)
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyxIDOz6NsHaxCJ2adOZ_Hv8qVpFIbyoZhrEt5V0i69NOOJPMthjqoMqVDs9M7-T5E/exec";
-        
-        // 📡 رابط القراءة المستقل السريع اللي أنت طلبته لطلب الـ JSON الجاهز
-        const VIEW_DATA_URL = "https://docs.google.com/spreadsheets/d/1nmkhpVg_264wwYlWYwKu8FlxeedZL6bHmvO9vHiR0os/gviz/tq?tqx=out:json";
-
-        window.onload = function() {
-            fetchEmployeesFromSheet();
-            document.getElementById('emp-start-date').value = new Date().toISOString().split('T')[0];
-        };
-
-        // 🌟 الدالة السحرية لقراءة وتفكيك بيانات رابط جوجل المستقل وعرضها بالجدول
-        async function fetchEmployeesFromSheet() {
-            const tbody = document.getElementById('employees-table-body');
-            try {
-                const response = await fetch(VIEW_DATA_URL);
-                const text = await response.text();
-                
-                // جوجل بترجع الداتا بفرام ورك نصي يحتاج لقص لكي يتحول لـ JSON صريح
-                const jsonString = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
-                const json = JSON.parse(jsonString);
-                
-                const rows = json.table.rows;
-                tbody.innerHTML = '';
-
-                if (!rows || rows.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" class="empty-msg">الشيت فارغ، لا يوجد عمال مسجلين حالياً.</td></tr>`;
-                    return;
-                }
-
-                let employeesList = [];
-
-                // تفكيك بنية خلايا جدول جوجل (c تعني Columns و v تعني Value)
-                rows.forEach(row => {
-                    if (row.c) {
-                        employeesList.push({
-                            timestamp:    row.c[0] ? row.c[0].v : '',
-                            empId:        row.c[1] ? row.c[1].v : '',
-                            empName:      row.c[2] ? row.c[2].v : '',
-                            empRole:      row.c[3] ? row.c[3].v : '',
-                            empAddress:   row.c[4] ? row.c[4].v : '',
-                            empPhone:     row.c[5] ? row.c[5].v : '',
-                            empRate:      row.c[6] ? row.c[6].v : 0,
-                            empStartDate: row.c[7] ? row.c[7].v : ''
-                        });
-                    }
-                });
-
-                // ترتيب العمال حسب الـ ID تصاعدياً
-                employeesList.sort((a, b) => parseInt(a.empId) - parseInt(b.empId));
-
-                // رص الداتا في الجدول
-                employeesList.forEach(emp => {
-                    // معالجة صيغة التاريخ القادمة من جوجل (تأتي أحياناً كـ Date نصي أو رقمي)
-                    let displayDate = emp.empStartDate;
-                    if(String(displayDate).includes("Date")) {
-                        // تحويل صيغة Date(2026,5,18) لـ تاريخ مقروء
-                        const matches = displayDate.match(/\d+/g);
-                        if(matches && matches.length >= 3) {
-                            displayDate = `${matches[0]}-${String(parseInt(matches[1])+1).padStart(2,'0')}-${String(matches[2]).padStart(2,'0')}`;
-                        }
-                    }
-                    
-                    const rowHTML = `
-                        <tr>
-                            <td><strong>${emp.empId}</strong></td>
-                            <td>${emp.empName}</td>
-                            <td>${emp.empRole}</td>
-                            <td>${emp.empAddress}</td>
-                            <td>${emp.empPhone}</td>
-                            <td><span class="price-badge">${parseFloat(emp.empRate).toFixed(2)} ج.م</span></td>
-                            <td>${displayDate}</td>
-                        </tr>
-                    `;
-                    tbody.insertAdjacentHTML('beforeend', rowHTML);
-                });
-
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = `<tr><td colspan="7" class="empty-msg" style="color:var(--color-danger);">❌ فشل جلب البيانات الحية من الرابط المستقل، تأكد من أن الشيت متاح للجميع (Anyone with link).</td></tr>`;
-            }
-        }
-
-        // دالة إرسال العامل الجديد لـ Apps Script
-        async function saveEmployee(event) {
-            event.preventDefault();
-
-            // فحص أولي بالواجهة قبل الإرسال (باستخدام البيانات المعروضة في الجدول لمنع التكرار)
-            const idInput = document.getElementById('emp-id').value.trim();
-            const tableRows = document.querySelectorAll('#employees-table-body tr');
-            let isDuplicate = false;
-            
-            tableRows.forEach(row => {
-                const firstCell = row.querySelector('td strong');
-                if (firstCell && firstCell.innerText === idInput) {
-                    isDuplicate = true;
-                }
-            });
-
-            if (isDuplicate) {
-                alert(`⚠️ عذراً! الكود (${idInput}) معروض ومسجل بالفعل في الجدول!`);
-                return;
-            }
-
-            const submitBtn = document.getElementById('submit-btn');
-            const loadingMsg = document.getElementById('loading-msg');
-            submitBtn.disabled = true;
-            loadingMsg.style.display = 'block';
-
-            const params = new URLSearchParams();
-            params.append('empId', idInput);
-            params.append('empName', document.getElementById('emp-name').value.trim());
-            params.append('empRole', document.getElementById('emp-role').value.trim());
-            params.append('empAddress', document.getElementById('emp-address').value.trim());
-            params.append('empPhone', document.getElementById('emp-phone').value.trim());
-            params.append('empRate', document.getElementById('emp-rate').value.trim());
-            params.append('empStartDate', document.getElementById('emp-start-date').value);
-
-            try {
-                const targetUrl = WEB_APP_URL + "?" + params.toString();
-                await fetch(targetUrl, { method: 'POST' });
-                
-                alert("🟢 تم بنجاح ترحيل العامل الجديد إلى Google Sheets مباشرة!");
-                document.getElementById('employee-form').reset();
-                document.getElementById('emp-start-date').value = new Date().toISOString().split('T')[0];
-                await fetchEmployeesFromSheet(); // ريفريش لحظي وسريع للجدول
-
-            } catch (error) {
-                // هيدخل هنا بسبب الـ Redirect الطبيعي لجوجل، فبنعمل الـ Refresh برضه احتياطاً
-                setTimeout(async () => {
-                    await fetchEmployeesFromSheet();
-                    alert("🟢 تم تحديث وحفظ البيانات في الشيت بنجاح!");
-                    document.getElementById('employee-form').reset();
-                    document.getElementById('emp-start-date').value = new Date().toISOString().split('T')[0];
-                }, 1500);
-            } finally {
-                submitBtn.disabled = false;
-                loadingMsg.style.display = 'none';
-            }
-        }
-    </script>
-        <div class="footer">
-        Copyright © 2026 Techno Science. All rights reserved.
+    <div class="field">
+     <label for="empName">اسم الموظف *</label>
+     <input id="empName" name="empName" required placeholder="الاسم بالكامل">
     </div>
-    <script>if (sessionStorage.getItem('isLoggedIn') !== 'true') {window.location.href = 'login.html';}
-    </script>
+    <div class="field">
+     <label for="empRole">الوظيفة</label>
+     <input id="empRole" name="empRole" placeholder="مثال: محاسب">
+    </div>
+    <div class="field">
+     <label for="empPhone">رقم الهاتف</label>
+     <input id="empPhone" name="empPhone" type="tel" placeholder="01xxxxxxxxx">
+    </div>
+    <div class="field">
+     <label for="empAddress">العنوان</label>
+     <input id="empAddress" name="empAddress" placeholder="عنوان الموظف">
+    </div>
+    <div class="field">
+     <label for="empRate">الراتب أو الأجر</label>
+     <input id="empRate" name="empRate" type="number" step="any" min="0" placeholder="0">
+    </div>
+    <div class="field">
+     <label for="empStartDate">تاريخ بداية العمل</label>
+     <input id="empStartDate" name="empStartDate" type="date">
+    </div>
+   </div>
+
+   <div style="margin-top:24px">
+    <label>صور الموظف</label>
+    <div class="photo-grid">
+     <div class="photo-box">
+      <div class="preview" id="frontPreview">معاينة الصورة الأمامية</div>
+      <label for="empPhotoFront">الصورة الأمامية</label>
+      <input id="empPhotoFront" type="file" accept="image/jpeg,image/png,image/webp">
+      <div class="note" id="frontNote">اختياري عند الإضافة. اتركه فارغًا للاحتفاظ بالصورة الحالية عند التعديل.</div>
+     </div>
+     <div class="photo-box">
+      <div class="preview" id="backPreview">معاينة الصورة الخلفية</div>
+      <label for="empPhotoBack">الصورة الخلفية</label>
+      <input id="empPhotoBack" type="file" accept="image/jpeg,image/png,image/webp">
+      <div class="note" id="backNote">اختياري عند الإضافة. اتركه فارغًا للاحتفاظ بالصورة الحالية عند التعديل.</div>
+     </div>
+    </div>
+   </div>
+
+   <div class="actions">
+    <button type="submit" class="primary" id="saveButton">حفظ الموظف</button>
+    <button type="button" class="secondary" id="cancelButton" hidden>إلغاء التعديل</button>
+    <button type="button" class="blue" id="refreshButton">تحديث البيانات</button>
+   </div>
+   <p class="note">تُرسل الصور إلى Google Drive بصيغة Base64. يُفضّل استخدام صور صغيرة لتجنب تجاوز حدود حجم الطلب.</p>
+  </form>
+ </section>
+
+ <section class="panel">
+  <div class="panel-title">
+   <h2>سجل الموظفين</h2>
+   <span class="badge" id="shownCount">0 موظف</span>
+  </div>
+  <div class="toolbar">
+   <input id="searchInput" type="search" placeholder="ابحث برقم الموظف أو الاسم أو الهاتف...">
+   <button class="secondary" id="clearSearchButton" type="button">مسح البحث</button>
+  </div>
+  <div class="table-wrap">
+   <table>
+    <thead>
+     <tr>
+      <th>رقم الموظف</th>
+      <th>اسم الموظف</th>
+      <th>الوظيفة</th>
+      <th>الهاتف</th>
+      <th>العنوان</th>
+      <th>الأجر</th>
+      <th>تاريخ بداية العمل</th>
+      <th>الصورة الأمامية</th>
+      <th>الصورة الخلفية</th>
+      <th>الإجراءات</th>
+     </tr>
+    </thead>
+    <tbody id="employeesBody">
+     <tr><td colspan="10" class="empty">اضغط تحديث البيانات لجلب الموظفين.</td></tr>
+    </tbody>
+   </table>
+  </div>
+  <p class="note">الحذف يزيل بيانات الموظف من Google Sheets فقط، ولا يحذف صوره من Google Drive.</p>
+ </section>
+</main>
+
+<footer>Techno Science © 2026 — Employee Management System</footer>
+
+<script>
+'use strict';
+
+/*
+  ضع هنا رابط Web App الخاص بسكريبت الموظفين المنشور.
+  مثال: https://script.google.com/macros/s/DEPLOYMENT_ID/exec
+*/
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcfzr1Au8tRgeNly8ZZZfs6-0-dVz1kXbCClRjIo8qJ4XoGWZ-kKUzvcrRwKp2_Cw/exec';
+
+const $ = id => document.getElementById(id);
+
+let employees = [];
+let editingEmployeeId = null;
+let busy = false;
+let frontCurrentUrl = '';
+let backCurrentUrl = '';
+
+function showMessage(message, type = 'info') {
+  const box = $('message');
+  box.textContent = message;
+  box.className = 'message show ' + type;
+  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function setConnection(text, state = '') {
+  $('connectionStatus').textContent = text;
+  $('statusDot').className = 'dot' + (state ? ' ' + state : '');
+}
+
+function checkScriptUrl() {
+  if (!SCRIPT_URL.startsWith('https://script.google.com/macros/s/') ||
+      !SCRIPT_URL.endsWith('/exec')) {
+    setConnection('أضف رابط السكريبت أولًا', 'error');
+    showMessage('ضع رابط Web App الصحيح في المتغير SCRIPT_URL أعلى كود JavaScript.', 'error');
+    return false;
+  }
+  return true;
+}
+
+async function requestGet() {
+  const response = await fetch(SCRIPT_URL, {method:'GET', redirect:'follow'});
+  if (!response.ok) throw new Error('تعذر الوصول إلى السكريبت. HTTP ' + response.status);
+  const result = await response.json();
+  if (!Array.isArray(result)) {
+    throw new Error(result.message || 'الاستجابة ليست قائمة موظفين. تأكد من رابط السكريبت.');
+  }
+  return result;
+}
+
+async function requestPost(params) {
+  /*
+    يستخدم نفس أسلوب e.parameter الذي يعتمد عليه Code.gs.
+    لا تستخدم JSON.stringify للطلب؛ السكريبت الحالي يقرأ e.parameter.
+  */
+  const body = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) body.append(key, String(value));
+  });
+
+  const response = await fetch(SCRIPT_URL, {
+    method:'POST',
+    body,
+    redirect:'follow'
+  });
+
+  if (!response.ok) throw new Error('فشل الاتصال. HTTP ' + response.status);
+
+  const result = await response.json();
+
+  if (!result || typeof result !== 'object') {
+    throw new Error('استجابة غير مفهومة من Google Apps Script.');
+  }
+
+  return result;
+}
+
+function escapeHTML(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&':'&amp;',
+    '<':'&lt;',
+    '>':'&gt;',
+    '"':'&quot;',
+    "'":'&#39;'
+  })[char]);
+}
+
+function imageLink(url) {
+  if (!url || !/^https:\/\/drive\.google\.com\//i.test(String(url))) {
+    return '<span style="color:#718096">لا توجد صورة</span>';
+  }
+  return '<a href="' + escapeHTML(url) +
+    '" target="_blank" rel="noopener noreferrer" style="color:#67e8f9">عرض الصورة</a>';
+}
+
+function renderEmployees() {
+  const query = $('searchInput').value.trim().toLowerCase();
+
+  const filtered = employees.filter(emp => [
+    emp.empId, emp.empName, emp.empRole, emp.empPhone, emp.empAddress
+  ].some(value => String(value ?? '').toLowerCase().includes(query)));
+
+  $('totalEmployees').textContent = employees.length;
+  $('shownCount').textContent = filtered.length + ' موظف';
+  $('dbStatus').textContent = 'متصلة';
+
+  const tbody = $('employeesBody');
+
+  if (!filtered.length) {
+    tbody.innerHTML = '<tr><td colspan="10" class="empty">' +
+      (employees.length ? 'لا توجد نتائج مطابقة للبحث.' : 'لا يوجد موظفون مسجلون حتى الآن.') +
+      '</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(emp => {
+    const id = String(emp.empId ?? '');
+    return `<tr>
+      <td>${escapeHTML(id)}</td>
+      <td>${escapeHTML(emp.empName)}</td>
+      <td>${escapeHTML(emp.empRole)}</td>
+      <td>${escapeHTML(emp.empPhone)}</td>
+      <td>${escapeHTML(emp.empAddress)}</td>
+      <td>${escapeHTML(emp.empRate)}</td>
+      <td>${escapeHTML(formatDate(emp.empStartDate))}</td>
+      <td>${imageLink(emp.empPhotoFront)}</td>
+      <td>${imageLink(emp.empPhotoBack)}</td>
+      <td><div class="table-actions">
+        <button type="button" class="blue" data-edit="${escapeHTML(id)}">تعديل</button>
+        <button type="button" class="danger" data-delete="${escapeHTML(id)}">حذف</button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function formatDate(value) {
+  if (!value) return '—';
+  const str = String(value);
+  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  return str;
+}
+
+async function loadEmployees() {
+  if (!checkScriptUrl() || busy) return;
+
+  busy = true;
+  $('refreshButton').disabled = true;
+  setConnection('جاري تحميل البيانات');
+
+  try {
+    employees = await requestGet();
+    renderEmployees();
+    setConnection('تم الاتصال بنجاح', 'ok');
+    showMessage('تم جلب بيانات الموظفين بنجاح.', 'ok');
+  } catch (error) {
+    setConnection('تعذر تحميل البيانات', 'error');
+    $('dbStatus').textContent = 'خطأ';
+    showMessage(
+      'تعذر جلب البيانات: ' + error.message +
+      ' — تأكد من نشر السكريبت كـ Web App والسماح بالوصول المناسب.',
+      'error'
+    );
+  } finally {
+    busy = false;
+    $('refreshButton').disabled = false;
+  }
+}
+
+function readImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) return resolve('');
+
+    const allowed = ['image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(file.type)) {
+      return reject(new Error('اختر صورة بصيغة JPG أو PNG أو WEBP.'));
+    }
+
+    if (file.size > 1.5 * 1024 * 1024) {
+      return reject(new Error('حجم الصورة كبير. اختر صورة أصغر من 1.5 ميجابايت.'));
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result));
+    reader.onerror = () => reject(new Error('تعذرت قراءة الصورة.'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function previewFile(inputId, previewId, side) {
+  const file = $(inputId).files[0];
+  const preview = $(previewId);
+
+  if (!file) {
+    const url = side === 'front' ? frontCurrentUrl : backCurrentUrl;
+    preview.innerHTML = url
+      ? '<img src="' + escapeHTML(url) + '" alt="الصورة الحالية">'
+      : (side === 'front' ? 'معاينة الصورة الأمامية' : 'معاينة الصورة الخلفية');
+    return;
+  }
+
+  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
+    showMessage('نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WEBP.', 'error');
+    $(inputId).value = '';
+    return previewFile(inputId, previewId, side);
+  }
+
+  if (file.size > 1.5 * 1024 * 1024) {
+    showMessage('حجم الصورة يجب ألا يزيد عن 1.5 ميجابايت.', 'error');
+    $(inputId).value = '';
+    return previewFile(inputId, previewId, side);
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const img = document.createElement('img');
+    img.src = reader.result;
+    img.alt = 'معاينة الصورة';
+    preview.replaceChildren(img);
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetForm() {
+  $('employeeForm').reset();
+  editingEmployeeId = null;
+  frontCurrentUrl = '';
+  backCurrentUrl = '';
+  $('empId').readOnly = false;
+  $('formTitle').textContent = 'إضافة موظف جديد';
+  $('saveButton').textContent = 'حفظ الموظف';
+  $('formStatus').textContent = 'إضافة جديدة';
+  $('cancelButton').hidden = true;
+  $('frontPreview').textContent = 'معاينة الصورة الأمامية';
+  $('backPreview').textContent = 'معاينة الصورة الخلفية';
+  $('frontNote').textContent = 'اختياري عند الإضافة.';
+  $('backNote').textContent = 'اختياري عند الإضافة.';
+}
+
+function editEmployee(id) {
+  const emp = employees.find(item => String(item.empId) === String(id));
+  if (!emp) {
+    showMessage('لم يتم العثور على الموظف.', 'error');
+    return;
+  }
+
+  editingEmployeeId = String(emp.empId);
+  $('empId').value = emp.empId ?? '';
+  $('empId').readOnly = true;
+  $('empName').value = emp.empName ?? '';
+  $('empRole').value = emp.empRole ?? '';
+  $('empAddress').value = emp.empAddress ?? '';
+  $('empPhone').value = emp.empPhone ?? '';
+  $('empRate').value = emp.empRate ?? '';
+  $('empStartDate').value = normalizeDate(emp.empStartDate);
+
+  frontCurrentUrl = emp.empPhotoFront ?? '';
+  backCurrentUrl = emp.empPhotoBack ?? '';
+
+  $('empPhotoFront').value = '';
+  $('empPhotoBack').value = '';
+
+  previewFile('empPhotoFront','frontPreview','front');
+  previewFile('empPhotoBack','backPreview','back');
+
+  $('formTitle').textContent = 'تعديل بيانات الموظف';
+  $('saveButton').textContent = 'حفظ التعديلات';
+  $('formStatus').textContent = 'تعديل';
+  $('cancelButton').hidden = false;
+
+  $('employeeFormPanel').scrollIntoView({behavior:'smooth'});
+}
+
+function normalizeDate(value) {
+  if (!value) return '';
+  const str = String(value);
+  const match = str.match(/^(\d{4}-\d{2}-\d{2})/);
+  return match ? match[1] : '';
+}
+
+async function deleteEmployee(id) {
+  const emp = employees.find(item => String(item.empId) === String(id));
+  if (!emp) return;
+
+  if (!confirm('هل أنت متأكد من حذف الموظف "' + (emp.empName || id) +
+      '"؟ سيتم حذف بياناته من الجدول.')) return;
+
+  if (!checkScriptUrl() || busy) return;
+
+  busy = true;
+  setConnection('جاري الحذف');
+  try {
+    const result = await requestPost({action:'delete', empId:id});
+
+    if (!result.success) throw new Error(result.message || 'فشل حذف الموظف.');
+
+    showMessage(result.message || 'تم الحذف بنجاح.', 'ok');
+    if (editingEmployeeId === String(id)) resetForm();
+    await loadEmployees();
+  } catch (error) {
+    setConnection('تعذر الحذف', 'error');
+    showMessage('تعذر حذف الموظف: ' + error.message, 'error');
+  } finally {
+    busy = false;
+  }
+}
+
+$('employeeForm').addEventListener('submit', async event => {
+  event.preventDefault();
+
+  if (!checkScriptUrl() || busy) return;
+
+  const empId = $('empId').value.trim();
+  const empName = $('empName').value.trim();
+
+  if (!empId || !empName) {
+    showMessage('رقم الموظف والاسم مطلوبان.', 'error');
+    return;
+  }
+
+  busy = true;
+  $('saveButton').disabled = true;
+  setConnection('جاري حفظ البيانات');
+
+  try {
+    const frontImage = await readImage($('empPhotoFront').files[0]);
+    const backImage = await readImage($('empPhotoBack').files[0]);
+
+    const params = {
+      action: editingEmployeeId ? 'update' : 'add',
+      empId,
+      empName,
+      empRole:$('empRole').value.trim(),
+      empAddress:$('empAddress').value.trim(),
+      empPhone:$('empPhone').value.trim(),
+      empRate:$('empRate').value,
+      empStartDate:$('empStartDate').value
+    };
+
+    if (frontImage) params.empPhotoFront = frontImage;
+    if (backImage) params.empPhotoBack = backImage;
+
+    const result = await requestPost(params);
+
+    if (!result.success) {
+      throw new Error(result.message || 'لم يتم حفظ البيانات.');
+    }
+
+    showMessage(result.message || 'تم حفظ البيانات بنجاح.', 'ok');
+    resetForm();
+    await loadEmployees();
+
+  } catch (error) {
+    setConnection('تعذر الحفظ', 'error');
+    showMessage('تعذر حفظ البيانات: ' + error.message, 'error');
+  } finally {
+    busy = false;
+    $('saveButton').disabled = false;
+  }
+});
+
+$('employeesBody').addEventListener('click', event => {
+  const editButton = event.target.closest('[data-edit]');
+  const deleteButton = event.target.closest('[data-delete]');
+
+  if (editButton) editEmployee(editButton.dataset.edit);
+  if (deleteButton) deleteEmployee(deleteButton.dataset.delete);
+});
+
+$('empPhotoFront').addEventListener('change', () =>
+  previewFile('empPhotoFront','frontPreview','front')
+);
+
+$('empPhotoBack').addEventListener('change', () =>
+  previewFile('empPhotoBack','backPreview','back')
+);
+
+$('resetButton').addEventListener('click', resetForm);
+$('cancelButton').addEventListener('click', resetForm);
+$('refreshButton').addEventListener('click', loadEmployees);
+$('searchInput').addEventListener('input', renderEmployees);
+$('clearSearchButton').addEventListener('click', () => {
+  $('searchInput').value = '';
+  renderEmployees();
+});
+
+if (checkScriptUrl()) loadEmployees();
+</script>
 </body>
 </html>
