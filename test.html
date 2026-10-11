@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>رفع صورة إلى Google Drive</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .upload-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+    input[type="file"] {
+      margin: 20px 0;
+      display: block;
+      width: 100%;
+    }
+    button {
+      background-color: #0d6efd;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      width: 100%;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background-color: #0b5ed7;
+    }
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      word-break: break-all;
+    }
+    .success { color: green; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+
+  <div class="upload-card">
+    <h2>رفع صورة إلى Google Drive</h2>
+    <input type="file" id="imageInput" accept="image/*">
+    <button id="uploadBtn" onclick="uploadImage()">رفع الصورة</button>
+    <div id="status"></div>
+  </div>
+
+  <script>
+    // ضع رابط الـ Web App URL الخاص بـ Apps Script هنا بين العلامتين
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7G7FSwKxThOLxLxq98IUT_e7o_U3nvWniLQ3sew4UwQD88hZnbkITVHs9nmdrttY/exec";
+
+    function uploadImage() {
+      const fileInput = document.getElementById('imageInput');
+      const statusDiv = document.getElementById('status');
+      const uploadBtn = document.getElementById('uploadBtn');
+
+      if (fileInput.files.length === 0) {
+        statusDiv.className = 'error';
+        statusDiv.innerText = 'يرجى اختيار صورة أولاً!';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+
+      statusDiv.className = '';
+      statusDiv.innerText = 'جاري رفع الصورة...';
+      uploadBtn.disabled = true;
+
+      reader.onload = function(e) {
+        const rawBase64 = e.target.result.split(',')[1];
+        
+        const payload = {
+          base64: rawBase64,
+          mimeType: file.type,
+          fileName: file.name
+        };
+
+        fetch(SCRIPT_URL, {
+          method: 'POST',
+          body: JSON.stringify(payload)
+        })
+        .then(res => res.json())
+        .then(data => {
+          uploadBtn.disabled = false;
+          if (data.status === 'success') {
+            statusDiv.className = 'success';
+            statusDiv.innerHTML = `تم رفع الصورة بنجاح! <br><a href="${data.fileUrl}" target="_blank">عرض الصورة في Drive</a>`;
+            fileInput.value = '';
+          } else {
+            statusDiv.className = 'error';
+            statusDiv.innerText = 'حدث خطأ أثناء الرفع: ' + data.message;
+          }
+        })
+        .catch(err => {
+          uploadBtn.disabled = false;
+          statusDiv.className = 'error';
+          statusDiv.innerText = 'فشل الاتصال: تأكد من أن صلاحيات النشر مضبوطة على "Anyone" وأن الرابط صحيح.';
+          console.error(err);
+        });
+      };
+
+      reader.readAsDataURL(file);
+    }
+  </script>
+
+</body>
+</html>

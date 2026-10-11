@@ -4,592 +4,1041 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>نظام إدارة الموظفين | Techno Science</title>
+<title>إدارة الموظفين | شركة الرحمن</title>
+
 <style>
-:root{--bg:#080d18;--panel:#111a2b;--panel2:#172238;--border:#29364e;--text:#f1f5f9;--muted:#9aaac1;--cyan:#22d3ee;--green:#22c55e;--red:#fb7185;--blue:#3b82f6}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;min-height:100vh}
-button,input,select,textarea{font:inherit}
-button{cursor:pointer;border:0;border-radius:9px;padding:11px 16px;font-weight:bold;transition:.2s}
-button:hover{filter:brightness(1.1)}
-button:disabled{opacity:.5;cursor:not-allowed}
-.topbar{background:#0d1525;border-bottom:1px solid var(--border);padding:20px 5%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-.brand{font-size:21px;font-weight:bold;color:var(--cyan)}
-.brand small{display:block;font-size:12px;color:var(--muted);margin-top:6px;font-weight:normal}
-.status{font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px}
-.dot{width:9px;height:9px;background:#f59e0b;border-radius:50%;display:inline-block}
-.dot.ok{background:var(--green)}
-.dot.error{background:var(--red)}
-.container{width:min(1450px,94%);margin:26px auto}
-.heading{margin-bottom:22px}
-.heading h1{font-size:25px;margin:0 0 9px}
-.heading p{color:var(--muted);font-size:14px;line-height:1.8;margin:0}
-.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:22px}
-.stat,.panel{background:var(--panel);border:1px solid var(--border);border-radius:15px}
-.stat{padding:19px}
-.stat span{font-size:13px;color:var(--muted)}
-.stat strong{display:block;font-size:28px;margin-top:10px;color:var(--cyan)}
-.panel{padding:22px;margin-bottom:22px}
-.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:20px}
-.panel-title h2{font-size:18px;margin:0}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:17px}
-.field{min-width:0}
-.field.full{grid-column:1/-1}
-label{display:block;font-size:13px;color:#d4deed;margin-bottom:8px}
-input,select,textarea{width:100%;background:#0b1322;color:var(--text);border:1px solid var(--border);border-radius:9px;padding:12px;outline:none;min-width:0}
-input:focus,select:focus,textarea:focus{border-color:var(--cyan)}
-input[type=file]{font-size:12px}
-input[type=file]::file-selector-button{background:var(--panel2);color:white;border:0;padding:8px;border-radius:6px;margin-left:8px;cursor:pointer}
-.photo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:15px}
-.photo-box{background:#0b1322;border:1px dashed #40516d;border-radius:12px;padding:14px}
-.preview{height:150px;border-radius:9px;background:#111b2c;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:12px;color:var(--muted);font-size:12px}
-.preview img{width:100%;height:100%;object-fit:contain}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px}
-.primary{background:var(--cyan);color:#07121d}
-.secondary{background:#26354d;color:white}
-.success{background:#166534;color:white}
-.danger{background:#9f2438;color:white}
-.blue{background:#1d4ed8;color:white}
-.note{font-size:12px;color:var(--muted);line-height:1.8;margin-top:10px}
-.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:17px}
-.toolbar input{flex:1;min-width:200px}
-.table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
-table{width:100%;border-collapse:collapse;min-width:1000px}
-th,td{padding:13px 12px;border-bottom:1px solid var(--border);text-align:right;font-size:13px;white-space:nowrap}
-th{background:#19263b;color:var(--cyan);font-weight:bold}
-td{color:#dbe5f2}
-tbody tr:hover{background:#172238}
-tbody tr:last-child td{border-bottom:0}
-.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#173e43;color:#67e8f9;font-size:11px}
-.table-actions{display:flex;gap:6px}
-.table-actions button{padding:7px 10px;font-size:11px}
-.empty{text-align:center;color:var(--muted);padding:35px}
-.message{display:none;padding:13px 15px;border-radius:9px;margin-bottom:18px;font-size:13px;line-height:1.7;overflow-wrap:anywhere}
-.message.show{display:block}
-.message.ok{background:#123b2b;color:#86efac;border:1px solid #166534}
-.message.error{background:#421b27;color:#fda4af;border:1px solid #9f1239}
-.message.info{background:#172e4d;color:#bfdbfe;border:1px solid #1d4ed8}
-footer{text-align:center;padding:20px;color:#64748b;font-size:12px}
-@media(max-width:700px){
- .container{width:94%;margin:18px auto}
- .stats{grid-template-columns:1fr}
- .stat{padding:14px}
- .stat strong{font-size:23px}
- .panel{padding:15px}
- .grid,.photo-grid{grid-template-columns:1fr}
- .field.full{grid-column:auto}
- .heading h1{font-size:21px}
- .topbar{padding:17px 4%}
+:root {
+    --bg-gradient: linear-gradient(135deg, #070b12, #0f172a);
+    --card-bg: rgba(15, 23, 42, 0.85);
+    --card-border: rgba(0, 242, 254, 0.13);
+    --text-main: #f1f5f9;
+    --text-muted: #94a3b8;
+    --color-add: #00f2fe;
+    --color-show: #3b82f6;
+    --color-payouts: #00ff87;
+    --color-fresh: #ff007f;
+    --color-get: #e67e22;
+    --color-logout: #ff4757;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    margin: 0;
+    padding: 20px 12px;
+    background: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+}
+
+button, input {
+    font: inherit;
+}
+
+button {
+    cursor: pointer;
+}
+
+.header-wrapper {
+    position: relative;
+    max-width: 1400px;
+    width: 100%;
+    margin: 0 auto 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 65px;
+}
+
+.header {
+    text-align: center;
+}
+
+.header h1 {
+    font-size: clamp(1.4rem, 3vw, 2em);
+    margin: 0 0 7px;
+    background: linear-gradient(90deg, #fff, var(--color-add));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.header p {
+    color: var(--text-muted);
+    margin: 0;
+    font-size: .95em;
+}
+
+.btn-back {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(59, 130, 246, .1);
+    border: 1px solid var(--color-show);
+    color: #93c5fd;
+    padding: 10px 16px;
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.container {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 25px 20px;
+    border-radius: 24px;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, .3);
+}
+
+.summary-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.summary-card {
+    background: rgba(30, 41, 59, .4);
+    padding: 16px 20px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid var(--card-border);
+    gap: 12px;
+}
+
+.summary-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.summary-details .title {
+    font-size: .9em;
+    color: var(--text-muted);
+}
+
+.summary-details .value {
+    font-size: 1.15em;
+    font-weight: bold;
+    overflow-wrap: anywhere;
+}
+
+.summary-icon {
+    font-size: 1.7em;
+}
+
+.section {
+    background: rgba(30, 41, 59, .3);
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 22px;
+    margin-bottom: 22px;
+}
+
+.section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.section-title h2 {
+    font-size: 1.25em;
+    margin: 0;
+}
+
+.section-title p {
+    margin: 6px 0 0;
+    color: var(--text-muted);
+    font-size: .9em;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    min-width: 0;
+}
+
+.field label {
+    font-size: .95em;
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.field input {
+    width: 100%;
+    min-width: 0;
+    padding: 13px 12px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    background: rgba(7, 11, 18, .8);
+    color: #fff;
+    border-radius: 10px;
+    outline: none;
+}
+
+.field input:focus {
+    border-color: var(--color-add);
+    box-shadow: 0 0 0 2px rgba(0, 242, 254, .08);
+}
+
+.field input::placeholder {
+    color: #64748b;
+}
+
+.field input[type="file"] {
+    padding: 9px;
+    font-size: .85em;
+}
+
+.field input[type="file"]::file-selector-button {
+    background: #253650;
+    color: #fff;
+    border: 0;
+    padding: 8px 10px;
+    border-radius: 7px;
+    margin-left: 8px;
+    cursor: pointer;
+}
+
+.photo-box {
+    background: rgba(7, 11, 18, .5);
+    border: 1px dashed rgba(0, 242, 254, .25);
+    border-radius: 12px;
+    padding: 12px;
+}
+
+.photo-preview {
+    display: none;
+    width: 100%;
+    height: 145px;
+    object-fit: contain;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    background: #070b12;
+}
+
+.photo-placeholder {
+    height: 145px;
+    display: grid;
+    place-items: center;
+    color: var(--text-muted);
+    font-size: .9em;
+    margin-bottom: 10px;
+}
+
+.button-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.btn {
+    border: 1px solid transparent;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+}
+
+.btn:disabled {
+    opacity: .6;
+    cursor: wait;
+    transform: none;
+}
+
+.btn-save {
+    background: var(--color-add);
+    color: #07111c;
+}
+
+.btn-clear {
+    background: rgba(148, 163, 184, .1);
+    border-color: rgba(148, 163, 184, .25);
+    color: #e2e8f0;
+}
+
+.btn-refresh {
+    background: rgba(0, 255, 135, .08);
+    border-color: var(--color-payouts);
+    color: var(--color-payouts);
+}
+
+.btn-edit {
+    background: rgba(59, 130, 246, .13);
+    border-color: #3b82f6;
+    color: #93c5fd;
+}
+
+.btn-delete {
+    background: rgba(255, 71, 87, .1);
+    border-color: var(--color-logout);
+    color: #ff8b98;
+}
+
+.btn-small {
+    padding: 8px 11px;
+    font-size: .85em;
+}
+
+.notice {
+    display: none;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border-radius: 11px;
+    line-height: 1.8;
+    overflow-wrap: anywhere;
+}
+
+.notice.show {
+    display: block;
+}
+
+.notice.success {
+    color: #a7f3d0;
+    background: rgba(0, 255, 135, .08);
+    border: 1px solid rgba(0, 255, 135, .3);
+}
+
+.notice.error {
+    color: #fecdd3;
+    background: rgba(255, 71, 87, .08);
+    border: 1px solid rgba(255, 71, 87, .35);
+}
+
+.notice.info {
+    color: #bae6fd;
+    background: rgba(59, 130, 246, .08);
+    border: 1px solid rgba(59, 130, 246, .3);
+}
+
+.toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 13px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    background: rgba(7, 11, 18, .8);
+    color: #fff;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: var(--color-show);
+}
+
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+}
+
+table {
+    width: 100%;
+    min-width: 950px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 14px 12px;
+    text-align: right;
+    border-bottom: 1px solid rgba(148, 163, 184, .12);
+    font-size: .9em;
+    white-space: nowrap;
+}
+
+th {
+    background: rgba(30, 41, 59, .9);
+    color: var(--color-add);
+    font-weight: 700;
+}
+
+tbody tr:hover {
+    background: rgba(59, 130, 246, .05);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.emp-photo {
+    width: 46px;
+    height: 46px;
+    object-fit: cover;
+    border-radius: 9px;
+    border: 1px solid var(--card-border);
+    background: #070b12;
+}
+
+.table-actions {
+    display: flex;
+    gap: 7px;
+}
+
+.empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 30px;
+}
+
+.footer {
+    text-align: center;
+    color: #475569;
+    font-size: .85em;
+    padding: 22px 10px 5px;
+}
+
+@media (max-width: 900px) {
+    .form-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 15px 9px;
+    }
+
+    .header-wrapper {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .btn-back {
+        position: static;
+        transform: none;
+        align-self: flex-start;
+        order: 2;
+    }
+
+    .container {
+        padding: 17px 12px;
+        border-radius: 17px;
+    }
+
+    .section {
+        padding: 15px 12px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .button-row .btn {
+        flex: 1 1 100%;
+    }
 }
 </style>
 </head>
+
 <body>
-<header class="topbar">
- <div class="brand">TECHNO SCIENCE <small>نظام إدارة بيانات الموظفين</small></div>
- <div class="status"><span class="dot" id="statusDot"></span><span id="connectionStatus">في انتظار الاتصال</span></div>
-</header>
 
-<main class="container">
- <section class="heading">
-  <h1>إدارة الموظفين</h1>
-  <p>إضافة وتعديل وعرض بيانات الموظفين وصورهم، مع حفظ البيانات في Google Sheets.</p>
- </section>
-
- <div id="message" class="message"></div>
-
- <section class="stats">
-  <div class="stat"><span>إجمالي الموظفين المعروضين</span><strong id="totalEmployees">—</strong></div>
-  <div class="stat"><span>حالة قاعدة البيانات</span><strong id="dbStatus" style="font-size:19px">غير معروف</strong></div>
-  <div class="stat"><span>حالة النموذج</span><strong id="formStatus" style="font-size:19px">إضافة جديدة</strong></div>
- </section>
-
- <section class="panel" id="employeeFormPanel">
-  <div class="panel-title">
-   <h2 id="formTitle">إضافة موظف جديد</h2>
-   <button class="secondary" type="button" id="resetButton">تفريغ النموذج</button>
-  </div>
-
-  <form id="employeeForm">
-   <div class="grid">
-    <div class="field">
-     <label for="empId">رقم الموظف *</label>
-     <input id="empId" name="empId" required maxlength="100" placeholder="مثال: 1001">
+<div class="header-wrapper">
+    <div class="header">
+        <h1>إدارة الموظفين</h1>
+        <p>شركة الرحمن • تسجيل بيانات الموظفين وصورهم</p>
     </div>
-    <div class="field">
-     <label for="empName">اسم الموظف *</label>
-     <input id="empName" name="empName" required placeholder="الاسم بالكامل">
-    </div>
-    <div class="field">
-     <label for="empRole">الوظيفة</label>
-     <input id="empRole" name="empRole" placeholder="مثال: محاسب">
-    </div>
-    <div class="field">
-     <label for="empPhone">رقم الهاتف</label>
-     <input id="empPhone" name="empPhone" type="tel" placeholder="01xxxxxxxxx">
-    </div>
-    <div class="field">
-     <label for="empAddress">العنوان</label>
-     <input id="empAddress" name="empAddress" placeholder="عنوان الموظف">
-    </div>
-    <div class="field">
-     <label for="empRate">الراتب أو الأجر</label>
-     <input id="empRate" name="empRate" type="number" step="any" min="0" placeholder="0">
-    </div>
-    <div class="field">
-     <label for="empStartDate">تاريخ بداية العمل</label>
-     <input id="empStartDate" name="empStartDate" type="date">
-    </div>
-   </div>
 
-   <div style="margin-top:24px">
-    <label>صور الموظف</label>
-    <div class="photo-grid">
-     <div class="photo-box">
-      <div class="preview" id="frontPreview">معاينة الصورة الأمامية</div>
-      <label for="empPhotoFront">الصورة الأمامية</label>
-      <input id="empPhotoFront" type="file" accept="image/jpeg,image/png,image/webp">
-      <div class="note" id="frontNote">اختياري عند الإضافة. اتركه فارغًا للاحتفاظ بالصورة الحالية عند التعديل.</div>
-     </div>
-     <div class="photo-box">
-      <div class="preview" id="backPreview">معاينة الصورة الخلفية</div>
-      <label for="empPhotoBack">الصورة الخلفية</label>
-      <input id="empPhotoBack" type="file" accept="image/jpeg,image/png,image/webp">
-      <div class="note" id="backNote">اختياري عند الإضافة. اتركه فارغًا للاحتفاظ بالصورة الحالية عند التعديل.</div>
-     </div>
+    <a href="index.html" class="btn-back">↩ العودة للرئيسية</a>
+</div>
+
+<div class="container">
+
+    <div id="notice" class="notice"></div>
+
+    <div class="summary-bar">
+        <div class="summary-card" style="border-right:3px solid var(--color-add)">
+            <div class="summary-details">
+                <span class="title">إجمالي الموظفين</span>
+                <span class="value" id="totalEmployees" style="color:var(--color-add)">0</span>
+            </div>
+            <div class="summary-icon">👥</div>
+        </div>
+
+        <div class="summary-card" style="border-right:3px solid var(--color-fresh)">
+            <div class="summary-details">
+                <span class="title">حالة الاتصال</span>
+                <span class="value" id="connectionStatus" style="color:var(--color-fresh)">جاري الاتصال</span>
+            </div>
+            <div class="summary-icon">☁️</div>
+        </div>
+
+        <div class="summary-card" style="border-right:3px solid var(--color-get)">
+            <div class="summary-details">
+                <span class="title">البيانات المعروضة</span>
+                <span class="value" id="searchCount" style="color:var(--color-get)">0</span>
+            </div>
+            <div class="summary-icon">📋</div>
+        </div>
     </div>
-   </div>
 
-   <div class="actions">
-    <button type="submit" class="primary" id="saveButton">حفظ الموظف</button>
-    <button type="button" class="secondary" id="cancelButton" hidden>إلغاء التعديل</button>
-    <button type="button" class="blue" id="refreshButton">تحديث البيانات</button>
-   </div>
-   <p class="note">تُرسل الصور إلى Google Drive بصيغة Base64. يُفضّل استخدام صور صغيرة لتجنب تجاوز حدود حجم الطلب.</p>
-  </form>
- </section>
+    <section class="section">
+        <div class="section-title">
+            <div>
+                <h2 id="formTitle">➕ إضافة موظف جديد</h2>
+                <p>اكتب بيانات الموظف، واختار صوره لو متاحة.</p>
+            </div>
+        </div>
 
- <section class="panel">
-  <div class="panel-title">
-   <h2>سجل الموظفين</h2>
-   <span class="badge" id="shownCount">0 موظف</span>
-  </div>
-  <div class="toolbar">
-   <input id="searchInput" type="search" placeholder="ابحث برقم الموظف أو الاسم أو الهاتف...">
-   <button class="secondary" id="clearSearchButton" type="button">مسح البحث</button>
-  </div>
-  <div class="table-wrap">
-   <table>
-    <thead>
-     <tr>
-      <th>رقم الموظف</th>
-      <th>اسم الموظف</th>
-      <th>الوظيفة</th>
-      <th>الهاتف</th>
-      <th>العنوان</th>
-      <th>الأجر</th>
-      <th>تاريخ بداية العمل</th>
-      <th>الصورة الأمامية</th>
-      <th>الصورة الخلفية</th>
-      <th>الإجراءات</th>
-     </tr>
-    </thead>
-    <tbody id="employeesBody">
-     <tr><td colspan="10" class="empty">اضغط تحديث البيانات لجلب الموظفين.</td></tr>
-    </tbody>
-   </table>
-  </div>
-  <p class="note">الحذف يزيل بيانات الموظف من Google Sheets فقط، ولا يحذف صوره من Google Drive.</p>
- </section>
-</main>
+        <form id="employeeForm">
+            <div class="form-grid">
 
-<footer>Techno Science © 2026 — Employee Management System</footer>
+                <div class="field">
+                    <label for="empId">رقم الموظف *</label>
+                    <input id="empId" required maxlength="50"
+                           placeholder="اكتب رقم الموظف">
+                </div>
+
+                <div class="field">
+                    <label for="empName">اسم الموظف بالكامل *</label>
+                    <input id="empName" required maxlength="150"
+                           placeholder="اكتب اسم الموظف">
+                </div>
+
+                <div class="field">
+                    <label for="empRole">الوظيفة</label>
+                    <input id="empRole" maxlength="150"
+                           placeholder="مثال: عامل، مشرف">
+                </div>
+
+                <div class="field">
+                    <label for="empPhone">رقم الهاتف</label>
+                    <input id="empPhone" type="tel" maxlength="40"
+                           placeholder="اكتب رقم الهاتف">
+                </div>
+
+                <div class="field">
+                    <label for="empAddress">العنوان</label>
+                    <input id="empAddress" maxlength="300"
+                           placeholder="اكتب العنوان">
+                </div>
+
+                <div class="field">
+                    <label for="empRate">سعر الساعة / الأجر</label>
+                    <input id="empRate" type="number" min="0" step="any"
+                           placeholder="اكتب قيمة الأجر">
+                </div>
+
+                <div class="field">
+                    <label for="empStartDate">تاريخ بداية العمل</label>
+                    <input id="empStartDate" type="date">
+                </div>
+
+                <div class="field">
+                    <label for="empPhotoFront">الصورة الأمامية</label>
+                    <div class="photo-box">
+                        <img id="frontPreview" class="photo-preview" alt="معاينة الصورة الأمامية">
+                        <div id="frontPlaceholder" class="photo-placeholder">📷 اختار الصورة الأمامية</div>
+                        <input id="empPhotoFront" type="file" accept="image/jpeg,image/png,image/webp">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="empPhotoBack">الصورة الخلفية</label>
+                    <div class="photo-box">
+                        <img id="backPreview" class="photo-preview" alt="معاينة الصورة الخلفية">
+                        <div id="backPlaceholder" class="photo-placeholder">📷 اختار الصورة الخلفية</div>
+                        <input id="empPhotoBack" type="file" accept="image/jpeg,image/png,image/webp">
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="button-row">
+                <button type="submit" id="saveButton" class="btn btn-save">💾 حفظ الموظف</button>
+                <button type="button" id="resetButton" class="btn btn-clear">تفريغ الحقول</button>
+                <button type="button" id="refreshButton" class="btn btn-refresh">🔄 تحديث البيانات</button>
+            </div>
+
+            <p style="color:var(--text-muted);font-size:.85em;line-height:1.8;margin-bottom:0">
+                عند تعديل موظف، اترك الصورة بدون اختيار لو مش عاوز تغيّرها.
+                الحد الأقصى لحجم الصورة 8 ميجابايت.
+            </p>
+        </form>
+    </section>
+
+    <section class="section">
+        <div class="section-title">
+            <div>
+                <h2>👥 بيانات الموظفين</h2>
+                <p>تقدر تبحث عن موظف أو تعدّل بياناته أو تحذفه.</p>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input id="searchInput" class="search-input"
+                   placeholder="🔍 اكتب اسم الموظف أو رقمه للبحث...">
+            <button type="button" id="clearSearchButton" class="btn btn-clear">مسح البحث</button>
+        </div>
+
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>رقم الموظف</th>
+                        <th>اسم الموظف</th>
+                        <th>الوظيفة</th>
+                        <th>الهاتف</th>
+                        <th>العنوان</th>
+                        <th>الأجر</th>
+                        <th>بداية العمل</th>
+                        <th>الصورة الأمامية</th>
+                        <th>الصورة الخلفية</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTable">
+                    <tr><td colspan="10" class="empty">جاري تحميل البيانات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<div class="footer">
+    Copyright © 2026 Techno Science. All rights reserved.
+</div>
 
 <script>
 'use strict';
 
-/*
-  ضع هنا رابط Web App الخاص بسكريبت الموظفين المنشور.
-  مثال: https://script.google.com/macros/s/DEPLOYMENT_ID/exec
-*/
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxcfzr1Au8tRgeNly8ZZZfs6-0-dVz1kXbCClRjIo8qJ4XoGWZ-kKUzvcrRwKp2_Cw/exec';
+/* ضع رابط Google Apps Script المنشور والمنتهي بـ /exec هنا */
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz5Pgs8YsVsance18Bfbi_1INBuNDu5els_1UwO_DVOtwrdy80KhFMF-U7sxDTVi_U/exec';
+
+const MAX_IMAGE_SIZE = 8 * 1024 * 1024;
+
+let employees = [];
+let editingId = null;
+let isSaving = false;
 
 const $ = id => document.getElementById(id);
 
-let employees = [];
-let editingEmployeeId = null;
-let busy = false;
-let frontCurrentUrl = '';
-let backCurrentUrl = '';
-
-function showMessage(message, type = 'info') {
-  const box = $('message');
-  box.textContent = message;
-  box.className = 'message show ' + type;
-  box.scrollIntoView({behavior:'smooth', block:'nearest'});
+function showNotice(message, type = 'info') {
+    const el = $('notice');
+    el.textContent = message;
+    el.className = 'notice show ' + type;
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function setConnection(text, state = '') {
-  $('connectionStatus').textContent = text;
-  $('statusDot').className = 'dot' + (state ? ' ' + state : '');
+function setConnection(message, color) {
+    $('connectionStatus').textContent = message;
+    $('connectionStatus').style.color = color;
 }
 
-function checkScriptUrl() {
-  if (!SCRIPT_URL.startsWith('https://script.google.com/macros/s/') ||
-      !SCRIPT_URL.endsWith('/exec')) {
-    setConnection('أضف رابط السكريبت أولًا', 'error');
-    showMessage('ضع رابط Web App الصحيح في المتغير SCRIPT_URL أعلى كود JavaScript.', 'error');
-    return false;
-  }
-  return true;
+function validateUrl() {
+    if (!SCRIPT_URL.startsWith('https://script.google.com/macros/s/')
+        || !SCRIPT_URL.endsWith('/exec')) {
+        throw new Error('ضع رابط السكريبت الصحيح داخل الكود أولاً.');
+    }
 }
 
-async function requestGet() {
-  const response = await fetch(SCRIPT_URL, {method:'GET', redirect:'follow'});
-  if (!response.ok) throw new Error('تعذر الوصول إلى السكريبت. HTTP ' + response.status);
-  const result = await response.json();
-  if (!Array.isArray(result)) {
-    throw new Error(result.message || 'الاستجابة ليست قائمة موظفين. تأكد من رابط السكريبت.');
-  }
-  return result;
-}
+async function requestApi(payload = null) {
+    validateUrl();
 
-async function requestPost(params) {
-  /*
-    يستخدم نفس أسلوب e.parameter الذي يعتمد عليه Code.gs.
-    لا تستخدم JSON.stringify للطلب؛ السكريبت الحالي يقرأ e.parameter.
-  */
-  const body = new URLSearchParams();
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) body.append(key, String(value));
-  });
+    const options = {
+        method: payload ? 'POST' : 'GET',
+        redirect: 'follow'
+    };
 
-  const response = await fetch(SCRIPT_URL, {
-    method:'POST',
-    body,
-    redirect:'follow'
-  });
-
-  if (!response.ok) throw new Error('فشل الاتصال. HTTP ' + response.status);
-
-  const result = await response.json();
-
-  if (!result || typeof result !== 'object') {
-    throw new Error('استجابة غير مفهومة من Google Apps Script.');
-  }
-
-  return result;
-}
-
-function escapeHTML(value) {
-  return String(value ?? '').replace(/[&<>"']/g, char => ({
-    '&':'&amp;',
-    '<':'&lt;',
-    '>':'&gt;',
-    '"':'&quot;',
-    "'":'&#39;'
-  })[char]);
-}
-
-function imageLink(url) {
-  if (!url || !/^https:\/\/drive\.google\.com\//i.test(String(url))) {
-    return '<span style="color:#718096">لا توجد صورة</span>';
-  }
-  return '<a href="' + escapeHTML(url) +
-    '" target="_blank" rel="noopener noreferrer" style="color:#67e8f9">عرض الصورة</a>';
-}
-
-function renderEmployees() {
-  const query = $('searchInput').value.trim().toLowerCase();
-
-  const filtered = employees.filter(emp => [
-    emp.empId, emp.empName, emp.empRole, emp.empPhone, emp.empAddress
-  ].some(value => String(value ?? '').toLowerCase().includes(query)));
-
-  $('totalEmployees').textContent = employees.length;
-  $('shownCount').textContent = filtered.length + ' موظف';
-  $('dbStatus').textContent = 'متصلة';
-
-  const tbody = $('employeesBody');
-
-  if (!filtered.length) {
-    tbody.innerHTML = '<tr><td colspan="10" class="empty">' +
-      (employees.length ? 'لا توجد نتائج مطابقة للبحث.' : 'لا يوجد موظفون مسجلون حتى الآن.') +
-      '</td></tr>';
-    return;
-  }
-
-  tbody.innerHTML = filtered.map(emp => {
-    const id = String(emp.empId ?? '');
-    return `<tr>
-      <td>${escapeHTML(id)}</td>
-      <td>${escapeHTML(emp.empName)}</td>
-      <td>${escapeHTML(emp.empRole)}</td>
-      <td>${escapeHTML(emp.empPhone)}</td>
-      <td>${escapeHTML(emp.empAddress)}</td>
-      <td>${escapeHTML(emp.empRate)}</td>
-      <td>${escapeHTML(formatDate(emp.empStartDate))}</td>
-      <td>${imageLink(emp.empPhotoFront)}</td>
-      <td>${imageLink(emp.empPhotoBack)}</td>
-      <td><div class="table-actions">
-        <button type="button" class="blue" data-edit="${escapeHTML(id)}">تعديل</button>
-        <button type="button" class="danger" data-delete="${escapeHTML(id)}">حذف</button>
-      </div></td>
-    </tr>`;
-  }).join('');
-}
-
-function formatDate(value) {
-  if (!value) return '—';
-  const str = String(value);
-  const match = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
-  return str;
-}
-
-async function loadEmployees() {
-  if (!checkScriptUrl() || busy) return;
-
-  busy = true;
-  $('refreshButton').disabled = true;
-  setConnection('جاري تحميل البيانات');
-
-  try {
-    employees = await requestGet();
-    renderEmployees();
-    setConnection('تم الاتصال بنجاح', 'ok');
-    showMessage('تم جلب بيانات الموظفين بنجاح.', 'ok');
-  } catch (error) {
-    setConnection('تعذر تحميل البيانات', 'error');
-    $('dbStatus').textContent = 'خطأ';
-    showMessage(
-      'تعذر جلب البيانات: ' + error.message +
-      ' — تأكد من نشر السكريبت كـ Web App والسماح بالوصول المناسب.',
-      'error'
-    );
-  } finally {
-    busy = false;
-    $('refreshButton').disabled = false;
-  }
-}
-
-function readImage(file) {
-  return new Promise((resolve, reject) => {
-    if (!file) return resolve('');
-
-    const allowed = ['image/jpeg','image/png','image/webp'];
-    if (!allowed.includes(file.type)) {
-      return reject(new Error('اختر صورة بصيغة JPG أو PNG أو WEBP.'));
+    if (payload) {
+        options.headers = {
+            'Content-Type': 'text/plain;charset=utf-8'
+        };
+        options.body = JSON.stringify(payload);
     }
 
-    if (file.size > 1.5 * 1024 * 1024) {
-      return reject(new Error('حجم الصورة كبير. اختر صورة أصغر من 1.5 ميجابايت.'));
+    const response = await fetch(SCRIPT_URL, options);
+    const text = await response.text();
+
+    let result;
+
+    try {
+        result = JSON.parse(text);
+    } catch (error) {
+        throw new Error('تعذر قراءة رد السكريبت. تأكد من رابط النشر وإعدادات الوصول.');
     }
 
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result));
-    reader.onerror = () => reject(new Error('تعذرت قراءة الصورة.'));
-    reader.readAsDataURL(file);
-  });
+    if (!response.ok) {
+        throw new Error('حدث خطأ في الاتصال. رقم الخطأ: ' + response.status);
+    }
+
+    if (result.success === false || result.status === 'error') {
+        throw new Error(result.message || 'حدث خطأ أثناء تنفيذ العملية.');
+    }
+
+    return result;
 }
 
-function previewFile(inputId, previewId, side) {
-  const file = $(inputId).files[0];
-  const preview = $(previewId);
-
-  if (!file) {
-    const url = side === 'front' ? frontCurrentUrl : backCurrentUrl;
-    preview.innerHTML = url
-      ? '<img src="' + escapeHTML(url) + '" alt="الصورة الحالية">'
-      : (side === 'front' ? 'معاينة الصورة الأمامية' : 'معاينة الصورة الخلفية');
-    return;
-  }
-
-  if (!['image/jpeg','image/png','image/webp'].includes(file.type)) {
-    showMessage('نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WEBP.', 'error');
-    $(inputId).value = '';
-    return previewFile(inputId, previewId, side);
-  }
-
-  if (file.size > 1.5 * 1024 * 1024) {
-    showMessage('حجم الصورة يجب ألا يزيد عن 1.5 ميجابايت.', 'error');
-    $(inputId).value = '';
-    return previewFile(inputId, previewId, side);
-  }
-
-  const reader = new FileReader();
-  reader.onload = () => {
-    const img = document.createElement('img');
-    img.src = reader.result;
-    img.alt = 'معاينة الصورة';
-    preview.replaceChildren(img);
-  };
-  reader.readAsDataURL(file);
-}
-
-function resetForm() {
-  $('employeeForm').reset();
-  editingEmployeeId = null;
-  frontCurrentUrl = '';
-  backCurrentUrl = '';
-  $('empId').readOnly = false;
-  $('formTitle').textContent = 'إضافة موظف جديد';
-  $('saveButton').textContent = 'حفظ الموظف';
-  $('formStatus').textContent = 'إضافة جديدة';
-  $('cancelButton').hidden = true;
-  $('frontPreview').textContent = 'معاينة الصورة الأمامية';
-  $('backPreview').textContent = 'معاينة الصورة الخلفية';
-  $('frontNote').textContent = 'اختياري عند الإضافة.';
-  $('backNote').textContent = 'اختياري عند الإضافة.';
-}
-
-function editEmployee(id) {
-  const emp = employees.find(item => String(item.empId) === String(id));
-  if (!emp) {
-    showMessage('لم يتم العثور على الموظف.', 'error');
-    return;
-  }
-
-  editingEmployeeId = String(emp.empId);
-  $('empId').value = emp.empId ?? '';
-  $('empId').readOnly = true;
-  $('empName').value = emp.empName ?? '';
-  $('empRole').value = emp.empRole ?? '';
-  $('empAddress').value = emp.empAddress ?? '';
-  $('empPhone').value = emp.empPhone ?? '';
-  $('empRate').value = emp.empRate ?? '';
-  $('empStartDate').value = normalizeDate(emp.empStartDate);
-
-  frontCurrentUrl = emp.empPhotoFront ?? '';
-  backCurrentUrl = emp.empPhotoBack ?? '';
-
-  $('empPhotoFront').value = '';
-  $('empPhotoBack').value = '';
-
-  previewFile('empPhotoFront','frontPreview','front');
-  previewFile('empPhotoBack','backPreview','back');
-
-  $('formTitle').textContent = 'تعديل بيانات الموظف';
-  $('saveButton').textContent = 'حفظ التعديلات';
-  $('formStatus').textContent = 'تعديل';
-  $('cancelButton').hidden = false;
-
-  $('employeeFormPanel').scrollIntoView({behavior:'smooth'});
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    })[char]);
 }
 
 function normalizeDate(value) {
-  if (!value) return '';
-  const str = String(value);
-  const match = str.match(/^(\d{4}-\d{2}-\d{2})/);
-  return match ? match[1] : '';
-}
+    if (!value) return '';
 
-async function deleteEmployee(id) {
-  const emp = employees.find(item => String(item.empId) === String(id));
-  if (!emp) return;
+    const text = String(value);
 
-  if (!confirm('هل أنت متأكد من حذف الموظف "' + (emp.empName || id) +
-      '"؟ سيتم حذف بياناته من الجدول.')) return;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
 
-  if (!checkScriptUrl() || busy) return;
+    const date = new Date(text);
 
-  busy = true;
-  setConnection('جاري الحذف');
-  try {
-    const result = await requestPost({action:'delete', empId:id});
-
-    if (!result.success) throw new Error(result.message || 'فشل حذف الموظف.');
-
-    showMessage(result.message || 'تم الحذف بنجاح.', 'ok');
-    if (editingEmployeeId === String(id)) resetForm();
-    await loadEmployees();
-  } catch (error) {
-    setConnection('تعذر الحذف', 'error');
-    showMessage('تعذر حذف الموظف: ' + error.message, 'error');
-  } finally {
-    busy = false;
-  }
-}
-
-$('employeeForm').addEventListener('submit', async event => {
-  event.preventDefault();
-
-  if (!checkScriptUrl() || busy) return;
-
-  const empId = $('empId').value.trim();
-  const empName = $('empName').value.trim();
-
-  if (!empId || !empName) {
-    showMessage('رقم الموظف والاسم مطلوبان.', 'error');
-    return;
-  }
-
-  busy = true;
-  $('saveButton').disabled = true;
-  setConnection('جاري حفظ البيانات');
-
-  try {
-    const frontImage = await readImage($('empPhotoFront').files[0]);
-    const backImage = await readImage($('empPhotoBack').files[0]);
-
-    const params = {
-      action: editingEmployeeId ? 'update' : 'add',
-      empId,
-      empName,
-      empRole:$('empRole').value.trim(),
-      empAddress:$('empAddress').value.trim(),
-      empPhone:$('empPhone').value.trim(),
-      empRate:$('empRate').value,
-      empStartDate:$('empStartDate').value
-    };
-
-    if (frontImage) params.empPhotoFront = frontImage;
-    if (backImage) params.empPhotoBack = backImage;
-
-    const result = await requestPost(params);
-
-    if (!result.success) {
-      throw new Error(result.message || 'لم يتم حفظ البيانات.');
+    if (!Number.isNaN(date.getTime())) {
+        return date.getFullYear() + '-'
+            + String(date.getMonth() + 1).padStart(2, '0') + '-'
+            + String(date.getDate()).padStart(2, '0');
     }
 
-    showMessage(result.message || 'تم حفظ البيانات بنجاح.', 'ok');
+    return text;
+}
+
+function getImageUrl(url) {
+    if (!url) return '';
+
+    const match = String(url).match(/\/file\/d\/([^/]+)/)
+        || String(url).match(/[?&]id=([^&]+)/);
+
+    return match
+        ? 'https://drive.google.com/uc?export=view&id=' + encodeURIComponent(match[1])
+        : String(url);
+}
+
+function imageCell(url, label) {
+    if (!url) return '<span style="color:#64748b">لا توجد صورة</span>';
+
+    const safeImage = escapeHtml(getImageUrl(url));
+    const safeLink = escapeHtml(url);
+
+    return '<a href="' + safeLink + '" target="_blank" rel="noopener">'
+        + '<img class="emp-photo" src="' + safeImage
+        + '" alt="' + label + '" loading="lazy"'
+        + ' onerror="this.style.display=\'none\'"></a>';
+}
+
+function renderEmployees() {
+    const query = $('searchInput').value.trim().toLowerCase();
+
+    const filtered = employees.filter(employee => {
+        const text = [
+            employee.empId,
+            employee.empName,
+            employee.empRole,
+            employee.empPhone,
+            employee.empAddress
+        ].join(' ').toLowerCase();
+
+        return text.includes(query);
+    });
+
+    $('totalEmployees').textContent = employees.length;
+    $('searchCount').textContent = filtered.length;
+
+    if (!filtered.length) {
+        $('employeesTable').innerHTML =
+            '<tr><td colspan="10" class="empty">'
+            + (query ? 'مفيش موظف مطابق للبحث.' : 'لسه مفيش موظفين مسجلين.')
+            + '</td></tr>';
+        return;
+    }
+
+    $('employeesTable').innerHTML = filtered.map(employee => {
+        const id = escapeHtml(employee.empId);
+
+        return `
+        <tr>
+            <td>${id}</td>
+            <td>${escapeHtml(employee.empName)}</td>
+            <td>${escapeHtml(employee.empRole || '-')}</td>
+            <td>${escapeHtml(employee.empPhone || '-')}</td>
+            <td>${escapeHtml(employee.empAddress || '-')}</td>
+            <td>${escapeHtml(employee.empRate || '-')}</td>
+            <td>${escapeHtml(normalizeDate(employee.empStartDate) || '-')}</td>
+            <td>${imageCell(employee.empPhotoFront, 'الصورة الأمامية')}</td>
+            <td>${imageCell(employee.empPhotoBack, 'الصورة الخلفية')}</td>
+            <td>
+                <div class="table-actions">
+                    <button class="btn btn-edit btn-small" type="button"
+                        data-action="edit" data-id="${id}">تعديل</button>
+                    <button class="btn btn-delete btn-small" type="button"
+                        data-action="delete" data-id="${id}">حذف</button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+async function loadEmployees(showMessage = false) {
+    setConnection('جاري التحميل...', 'var(--color-get)');
+
+    try {
+        const result = await requestApi();
+
+        if (!Array.isArray(result.employees)) {
+            throw new Error('السكريبت لم يرجع بيانات الموظفين بالشكل المتوقع.');
+        }
+
+        employees = result.employees;
+        renderEmployees();
+        setConnection('متصل', 'var(--color-payouts)');
+
+        if (showMessage) {
+            showNotice('تم تحديث البيانات بنجاح.', 'success');
+        }
+    } catch (error) {
+        setConnection('تعذر الاتصال', 'var(--color-logout)');
+        showNotice('تعذر تحميل البيانات: ' + error.message, 'error');
+        $('employeesTable').innerHTML =
+            '<tr><td colspan="10" class="empty">تعذر تحميل البيانات.</td></tr>';
+    }
+}
+
+function readImage(file) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve('');
+            return;
+        }
+
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            reject(new Error('اختار صورة JPG أو PNG أو WEBP.'));
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            reject(new Error('حجم الصورة أكبر من 8 ميجابايت.'));
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('تعذر قراءة الصورة.'));
+        reader.readAsDataURL(file);
+    });
+}
+
+function setupPreview(inputId, imageId, placeholderId) {
+    $(inputId).addEventListener('change', () => {
+        const file = $(inputId).files[0];
+
+        if (!file) return;
+
+        if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+            showNotice('صيغة الصورة غير مدعومة.', 'error');
+            $(inputId).value = '';
+            return;
+        }
+
+        if (file.size > MAX_IMAGE_SIZE) {
+            showNotice('حجم الصورة أكبر من 8 ميجابايت.', 'error');
+            $(inputId).value = '';
+            return;
+        }
+
+        $(imageId).src = URL.createObjectURL(file);
+        $(imageId).style.display = 'block';
+        $(placeholderId).style.display = 'none';
+    });
+}
+
+function resetForm() {
+    $('employeeForm').reset();
+    editingId = null;
+
+    $('empId').readOnly = false;
+    $('formTitle').textContent = '➕ إضافة موظف جديد';
+    $('saveButton').textContent = '💾 حفظ الموظف';
+
+    [
+        ['frontPreview', 'frontPlaceholder'],
+        ['backPreview', 'backPlaceholder']
+    ].forEach(([imageId, placeholderId]) => {
+        $(imageId).style.display = 'none';
+        $(imageId).removeAttribute('src');
+        $(placeholderId).style.display = 'grid';
+    });
+}
+
+function editEmployee(employee) {
+    editingId = String(employee.empId);
+
+    $('empId').value = employee.empId || '';
+    $('empName').value = employee.empName || '';
+    $('empRole').value = employee.empRole || '';
+    $('empPhone').value = employee.empPhone || '';
+    $('empAddress').value = employee.empAddress || '';
+    $('empRate').value = employee.empRate || '';
+    $('empStartDate').value = normalizeDate(employee.empStartDate);
+
+    $('empId').readOnly = true;
+    $('formTitle').textContent = '✏️ تعديل بيانات الموظف';
+    $('saveButton').textContent = '💾 حفظ التعديلات';
+
+    [
+        { url: employee.empPhotoFront, imageId: 'frontPreview', placeholderId: 'frontPlaceholder' },
+        { url: employee.empPhotoBack, imageId: 'backPreview', placeholderId: 'backPlaceholder' }
+    ].forEach(item => {
+        if (item.url) {
+            $(item.imageId).src = getImageUrl(item.url);
+            $(item.imageId).style.display = 'block';
+            $(item.placeholderId).style.display = 'none';
+        } else {
+            $(item.imageId).style.display = 'none';
+            $(item.placeholderId).style.display = 'grid';
+        }
+    });
+
+    $('employeeForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+async function saveEmployee(event) {
+    event.preventDefault();
+
+    if (isSaving) return;
+
+    const empId = $('empId').value.trim();
+    const empName = $('empName').value.trim();
+
+    if (!empId || !empName) {
+        showNotice('اكتب رقم الموظف واسمه الأول.', 'error');
+        return;
+    }
+
+    const payload = {
+        action: editingId === null ? 'add' : 'update',
+        empId,
+        empName,
+        empRole: $('empRole').value.trim(),
+        empPhone: $('empPhone').value.trim(),
+        empAddress: $('empAddress').value.trim(),
+        empRate: $('empRate').value,
+        empStartDate: $('empStartDate').value
+    };
+
+    isSaving = true;
+    $('saveButton').disabled = true;
+    $('saveButton').textContent = 'جاري الحفظ...';
+
+    try {
+        const front = $('empPhotoFront').files[0];
+        const back = $('empPhotoBack').files[0];
+
+        if (front) payload.empPhotoFront = await readImage(front);
+        if (back) payload.empPhotoBack = await readImage(back);
+
+        const result = await requestApi(payload);
+
+        showNotice(result.message || 'تم حفظ الموظف بنجاح.', 'success');
+        resetForm();
+        await loadEmployees();
+    } catch (error) {
+        showNotice('تعذر حفظ البيانات: ' + error.message, 'error');
+    } finally {
+        isSaving = false;
+        $('saveButton').disabled = false;
+        $('saveButton').textContent =
+            editingId === null ? '💾 حفظ الموظف' : '💾 حفظ التعديلات';
+    }
+}
+
+async function deleteEmployee(empId) {
+    const employee = employees.find(item => String(item.empId) === String(empId));
+    if (!employee) return;
+
+    if (!confirm('هل تريد حذف الموظف ' + employee.empName + '؟')) return;
+
+    try {
+        const result = await requestApi({
+            action: 'delete',
+            empId: String(empId)
+        });
+
+        if (editingId === String(empId)) resetForm();
+
+        showNotice(result.message || 'تم حذف بيانات الموظف.', 'success');
+        await loadEmployees();
+    } catch (error) {
+        showNotice('تعذر الحذف: ' + error.message, 'error');
+    }
+}
+
+$('employeeForm').addEventListener('submit', saveEmployee);
+
+$('resetButton').addEventListener('click', () => {
     resetForm();
-    await loadEmployees();
-
-  } catch (error) {
-    setConnection('تعذر الحفظ', 'error');
-    showMessage('تعذر حفظ البيانات: ' + error.message, 'error');
-  } finally {
-    busy = false;
-    $('saveButton').disabled = false;
-  }
+    $('notice').className = 'notice';
 });
 
-$('employeesBody').addEventListener('click', event => {
-  const editButton = event.target.closest('[data-edit]');
-  const deleteButton = event.target.closest('[data-delete]');
+$('refreshButton').addEventListener('click', () => loadEmployees(true));
 
-  if (editButton) editEmployee(editButton.dataset.edit);
-  if (deleteButton) deleteEmployee(deleteButton.dataset.delete);
-});
-
-$('empPhotoFront').addEventListener('change', () =>
-  previewFile('empPhotoFront','frontPreview','front')
-);
-
-$('empPhotoBack').addEventListener('change', () =>
-  previewFile('empPhotoBack','backPreview','back')
-);
-
-$('resetButton').addEventListener('click', resetForm);
-$('cancelButton').addEventListener('click', resetForm);
-$('refreshButton').addEventListener('click', loadEmployees);
 $('searchInput').addEventListener('input', renderEmployees);
+
 $('clearSearchButton').addEventListener('click', () => {
-  $('searchInput').value = '';
-  renderEmployees();
+    $('searchInput').value = '';
+    renderEmployees();
 });
 
-if (checkScriptUrl()) loadEmployees();
+$('employeesTable').addEventListener('click', event => {
+    const button = event.target.closest('button[data-action]');
+    if (!button) return;
+
+    const employee = employees.find(
+        item => String(item.empId) === String(button.dataset.id)
+    );
+
+    if (!employee) return;
+
+    if (button.dataset.action === 'edit') {
+        editEmployee(employee);
+    } else if (button.dataset.action === 'delete') {
+        deleteEmployee(employee.empId);
+    }
+});
+
+setupPreview('empPhotoFront', 'frontPreview', 'frontPlaceholder');
+setupPreview('empPhotoBack', 'backPreview', 'backPlaceholder');
+
+resetForm();
+loadEmployees();
 </script>
+
 </body>
 </html>
